@@ -1,6 +1,5 @@
 #include "f1_adc.hpp"
 
-#include "stm32f4xx_ll_adc.h"
 
 /*
   tSAMP = 1.5      : ADC_DUALMODE_INTERLFAST
