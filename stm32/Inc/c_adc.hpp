@@ -62,7 +62,7 @@ typedef union{
 class C_ADC : public ADC_HandleTypeDef{
 public:
 	u16 read_channel(u32 channel, u32 sample_time);
-}
+};
 
 class C_ADCEx{
 protected:
