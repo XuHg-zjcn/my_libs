@@ -23,7 +23,7 @@ void F1_ADCEx::ConfigFastMode(u32 CHx, u32 tSAMP, u32 nADC)
 	SET_BIT(hadc->Instance->CR2, ADC_CR2_CONT);
 	//config MultiADC Mode
 	if(nADC>1){
-		multimode.Mode = (tSAMP==ADC_SAMPLETIME_1CYCLE_5) ? ADC_DUALMODE_INTERL : ADC_DUALMODE_INTERLSLOW;
+		multimode.Mode = (tSAMP==ADC_SAMPLETIME_1CYCLE_5) ? ADC_DUALMODE_INTERLFAST : ADC_DUALMODE_INTERLSLOW;
 		HAL_ADCEx_MultiModeConfigChannel(hadc, &multimode);
 	}
 }
