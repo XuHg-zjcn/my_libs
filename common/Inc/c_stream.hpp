@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 typedef enum{
 TransBlocking = 0,
 TransInterrupt,
@@ -30,8 +32,8 @@ private:
     uint32_t b_size;
 public:
     StrStream(Stream &st);
-    printf(const char *fmt, ...);
-    scanf(const char *fmt, ...);
+    void printf(const char *fmt, ...);
+    void scanf(const char *fmt, uint32_t len, ...);
     StrStream& operator<<(const int i);
     StrStream& operator<<(const char* c);
 }
