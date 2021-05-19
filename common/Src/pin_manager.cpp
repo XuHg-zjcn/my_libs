@@ -57,7 +57,7 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
 bool GPIO_Conn::isAvailable()
 {
     ManagerPin* p1 = pins;
-    for(int i=0;i<N_pin;i++){
+    for(uint32_t i=0;i<N_pin;i++){
         if(!p1->keep && isPinUsed(p1->p8b)){ // use flag not keep && already use
             return false;
         }
@@ -70,7 +70,7 @@ X_State GPIO_Conn::Enable()
     if(!isAvailable()){
         return X_Busy;
     }
-    for(int i=0;i<N_pin;i++){
+    for(uint32_t i=0;i<N_pin;i++){
         loadPinCfg(pins->p8b, pins->CfgEnable);
         if(!pins->keep){
             setPinUsed(pins->p8b, true);
@@ -79,9 +79,9 @@ X_State GPIO_Conn::Enable()
     return X_OK;
 }
 
-X_State GPIO_Conn::Enable()
+X_State GPIO_Conn::Disable()
 {
-    for(int i=0;i<N_pin;i++){
+    for(uint32_t i=0;i<N_pin;i++){
         loadPinCfg(pins->p8b, pins->CfgDisable);
     }
     return X_OK;

@@ -108,7 +108,7 @@ typedef struct{
 
 class SSD1306{
 private:
-	C_I2C_Dev* hi2c;
+	C_I2C_Dev* dev;
 	uint32_t timeout;
 	uint8_t col_i;
 	TIM_HandleTypeDef* TIM_frame;
@@ -119,7 +119,7 @@ private:
 	osSemaphoreId_t lock;
 #endif
 public:
-	SSD1306(C_I2C_Dev *hi2c);
+	SSD1306(C_I2C_Dev *dev);
 	void commd_bytes(uint8_t Byte0, ...);
 	void ScrollSetup(ScrollSetupCommd* commd);
 	void OnOffScroll(bool IsActivate);

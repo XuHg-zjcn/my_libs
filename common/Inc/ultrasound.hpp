@@ -9,8 +9,8 @@
 #define INC_ULTRASOUND_H_
 
 #include <stdbool.h>
-#include "stm32f4xx_hal.h"
-#include "f4_tim.hpp"
+#include "mylibs_config.h"
+#include "c_tim.hpp"
 
 typedef struct{
 	uint32_t *Trig_ODR_bit;

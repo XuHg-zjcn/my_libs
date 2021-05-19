@@ -16,10 +16,9 @@
  */
 
 
-SSD1306::SSD1306(I2C_HandleTypeDef *hi2c)
+SSD1306::SSD1306(C_I2C_Dev *dev)
 {
-	this->hi2c = hi2c;
-	timeout = 1000;
+	this->dev = dev;
 }
 
 void SSD1306::commd_bytes(uint8_t Byte0, ...)
@@ -70,9 +69,7 @@ void SSD1306::commd_bytes(uint8_t Byte0, ...)
     	bytes[i] = va_arg(list, int);
     }
     va_end(list);
-    	HAL_I2C_Mem_Write(hi2c, Addr_Write,
-        		0x00, I2C_MEMADD_SIZE_8BIT,
-        		bytes, size, timeout);
+    dev->Mem_write(0x00, bytes, size);
 }
 
 void SSD1306::ScrollSetup(ScrollSetupCommd* commd)
@@ -91,15 +88,13 @@ void SSD1306::ScrollSetup(ScrollSetupCommd* commd)
 	default:
 		return;
 	}
-	HAL_I2C_Mem_Write(hi2c, Addr_Write,
-			0x00, I2C_MEMADD_SIZE_8BIT,
-			(uint8_t*)commd, size, timeout);
+	dev->Mem_write(0x00, (uint8_t*)commd, size);
 }
 
 void SSD1306::OnOffScroll(bool IsActivate)
 {
 	uint8_t commd = IsActivate ? ACTIVATE_SCROLL : DEACTIVATE_SCROLL;
-	HAL_I2C_Master_Transmit(hi2c, Addr_Write, &commd, 1, timeout);
+	commd_bytes(commd);
 }
 
 void SSD1306::Init()
@@ -135,9 +130,7 @@ void SSD1306::fill(uint8_t data)
 	commd_bytes(0x21, 0, 127);  //page0-page1
 	//commd_bytes(0x00);	//low column start address
 	//commd_bytes(0x10);	//high column start address
-	HAL_I2C_Mem_Write(hi2c, Addr_Write,
-			0x40, I2C_MEMADD_SIZE_8BIT,
-			x128, 1024, timeout);
+	dev->Mem_write(0x40, x128, 1024);
 }
 
 void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
@@ -150,9 +143,7 @@ void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
 	for(int i=0;i<128;i++){
 		data2 = value_upper(*data, maxh) + bias;
 		col = 1ULL<<data2;  //ULL = uint64_t
-		HAL_I2C_Mem_Write(hi2c, Addr_Write,
-				0x40, I2C_MEMADD_SIZE_8BIT,
-				(uint8_t*)&col, 8, timeout);
+		dev->Mem_write(0x40, (uint8_t*)&col, 8);
 		data++;
 	}
 }
@@ -187,9 +178,7 @@ void SSD1306::VH_scroll(int dx, int dy, uint8_t sta_page, uint8_t end_page, Fram
 void SSD1306::append_column(uint64_t col)
 {
 	commd_bytes(0x21, col_i, col_i+1);  //减少传输错误影响，避免大面积混乱
-	HAL_I2C_Mem_Write(hi2c, Addr_Write,
-				0x40, I2C_MEMADD_SIZE_8BIT,
-				(uint8_t*)&col, 8, timeout);
+	dev->Mem_write(0x40, (uint8_t*)&col, 8);
 }
 
 void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
@@ -198,11 +187,9 @@ void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
 	commd_bytes(0x22, 0, 7);
 	commd_bytes(ADDRESSING_MODE_1B,  0x01);
 	for(uint32_t i=0;i<n_img;i++){
-		HAL_I2C_Mem_Write(hi2c, Addr_Write,
-					0x40, I2C_MEMADD_SIZE_8BIT,
-					imgs+i*1024, 1024, timeout);
+		dev->Mem_write(0x40, imgs+i*1024, 1024);
 		HAL_Delay(ms);
 	}
 }
 
-void SSD1306::print()
+//void SSD1306::print()
