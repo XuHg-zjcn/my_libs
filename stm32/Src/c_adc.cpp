@@ -13,6 +13,10 @@
 #include "main.h"
 #include "ops.h"
 
+//replace for STM32F1
+#define NDTR CNDTR
+#define ADC_CR2_EXTEN ADC_CR2_EXTTRIG
+#define ADC_CR2_JEXTEN ADC_CR2_JEXTTRIG
 
 void osSemClear(osSemaphoreId_t sem)
 {
