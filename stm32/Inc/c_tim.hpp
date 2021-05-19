@@ -86,7 +86,7 @@ public:
 	u32 maxcount();
 
 	//operate single channel
-	inline u32   get_comp(TIM_CHx Channel);·
+	inline u32   get_comp(TIM_CHx Channel);
 	inline float get_duty(TIM_CHx Channel);
 	inline void set_comp(TIM_CHx Channel, u32 comp);
 	inline void set_duty(TIM_CHx Channel, float duty);
