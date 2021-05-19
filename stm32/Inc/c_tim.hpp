@@ -14,6 +14,9 @@
 #define CompKeep 0xffffffff  //flag for `set_comp4()` keep old compare value.
 #define DutyKeep -1          //flag for `set_duty4()` keep old compare value.
 
+typedef uint64_t Type_ns;
+typedef float    Type_Hz;
+typedef uint64_t TypeDiv;
 
 //enums for timer operate
 typedef enum{
