@@ -8,7 +8,7 @@
 #include "ultrasound.hpp"
 
 #include <math.h>
-#include "delay.h"
+#include "delay.hpp"
 #include "c_tim.hpp"
 
 UltSnd::UltSnd()

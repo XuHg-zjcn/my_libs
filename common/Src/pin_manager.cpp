@@ -4,7 +4,7 @@
 
 uint16_t pins_use_state[16];  //TODO: use FreeRTOS event flags, can wait
 
-inline bool isPinUsed(Pin_8b pin)
+inline bool isPinUsed(Pin8b pin)
 {
     if(pins_use_state[pin.PORTx] & 1<<pin.PINx){
         return true;
@@ -13,7 +13,7 @@ inline bool isPinUsed(Pin_8b pin)
     }
 }
 
-inline void setPinUsed(Pin_8b pin, bool used)
+inline void setPinUsed(Pin8b pin, bool used)
 {
     if(used){
         pins_use_state[pin.PORTx] |= 1<<pin.PINx;
@@ -39,16 +39,16 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
             case InitCfg_Empty:
                 break;
             case InitCfg_Enable:
-                loadPinCfg(p1->p8b, p1->CfgEnable);
+                p1->p8b.loadCfg(p1->CfgEnable);
                 break;
             case InitCfg_Disable:
-                loadPinCfg(p1->p8b, p1->CfgDisable);
+                p1->p8b.loadCfg(p1->CfgDisable);
                 break;
             default:
                 break;
         }
         if(p1->lock == LockAtInitConn){
-            lockPinCfg(p1->p8b);
+            p1->p8b.lockCfg();
         }
         p1++;
     }
@@ -71,7 +71,7 @@ X_State GPIO_Conn::Enable()
         return X_Busy;
     }
     for(uint32_t i=0;i<N_pin;i++){
-        loadPinCfg(pins->p8b, pins->CfgEnable);
+        pins->p8b.loadCfg(pins->CfgEnable);
         if(!pins->keep){
             setPinUsed(pins->p8b, true);
         }
@@ -82,7 +82,7 @@ X_State GPIO_Conn::Enable()
 X_State GPIO_Conn::Disable()
 {
     for(uint32_t i=0;i<N_pin;i++){
-        loadPinCfg(pins->p8b, pins->CfgDisable);
+        pins->p8b.loadCfg(pins->CfgDisable);
     }
     return X_OK;
 }

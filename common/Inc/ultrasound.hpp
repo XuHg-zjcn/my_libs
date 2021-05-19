@@ -9,7 +9,7 @@
 #define INC_ULTRASOUND_H_
 
 #include <stdbool.h>
-#include "mylibs_config.h"
+#include "mylibs_config.hpp"
 #include "c_tim.hpp"
 
 typedef struct{

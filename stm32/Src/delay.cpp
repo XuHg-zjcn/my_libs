@@ -5,9 +5,8 @@
  *      Author: xrj
  */
 
-#include "delay.h"
-
-#include "mylibs_config.h"
+#include "delay.hpp"
+#include "mylibs_config.hpp"
 
 #define clk_loop 7
 #define clk_call 3

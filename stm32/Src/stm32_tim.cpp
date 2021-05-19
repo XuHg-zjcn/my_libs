@@ -7,7 +7,7 @@
 #include "c_tim.hpp"
 
 #include <stdlib.h>
-#include "c_rcc.h"
+#include "c_rcc.hpp"
 
 
 /*

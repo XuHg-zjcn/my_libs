@@ -13,7 +13,7 @@
 #include "cmsis_os2.h"
 #include "buffer.hpp"
 #include "myints.h"
-#include "mylibs_config.h"
+#include "mylibs_config.hpp"
 
 extern const uint32_t tSMPs[8];
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])

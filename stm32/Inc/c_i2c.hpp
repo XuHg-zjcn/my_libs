@@ -8,7 +8,7 @@
 #ifndef STM32_INC_C_I2C_HPP_
 #define STM32_INC_C_I2C_HPP_
 
-#include "mylibs_config.h"
+#include "mylibs_config.hpp"
 #include "c_stream.hpp"
 #include "x_base.hpp"
 
