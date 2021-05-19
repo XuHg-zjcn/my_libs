@@ -26,31 +26,17 @@ void osSemClear(osSemaphoreId_t sem)
  */
 uint16_t C_ADC::read_channel(u32 channel, u32 sample_time)
 {
-	ADC_TypeDef *LL_ADC = this->Instance;
-	//save old state
-	uint32_t old_trig = LL_ADC_INJ_GetTriggerSource(LL_ADC);
-	uint32_t old_jsq1 = LL_ADC_INJ_GetSequencerRanks(LL_ADC, LL_ADC_INJ_RANK_1);
-	uint32_t old_len  = LL_ADC_INJ_GetSequencerLength(LL_ADC);
-	uint32_t old_samp = LL_ADC_GetChannelSamplingTime(LL_ADC, channel);
-	//set new state
-	if(!LL_ADC_IsEnabled(LL_ADC)){
-		LL_ADC_Enable(LL_ADC);
-	}
-	LL_ADC_INJ_SetTriggerSource(LL_ADC, LL_ADC_INJ_TRIG_SOFTWARE);
-	LL_ADC_ClearFlag_JEOS(LL_ADC);
-	LL_ADC_INJ_SetSequencerLength(LL_ADC, LL_ADC_INJ_SEQ_SCAN_DISABLE);
-	LL_ADC_INJ_SetSequencerRanks(LL_ADC, LL_ADC_INJ_RANK_1, channel);
-	LL_ADC_SetChannelSamplingTime(LL_ADC, channel, sample_time);
-	//start conv wait to finish.
-	LL_ADC_INJ_StartConversionSWStart(LL_ADC);
-	while(!LL_ADC_IsActiveFlag_JEOS(LL_ADC));
-	//resv old state
-	LL_ADC_SetChannelSamplingTime(LL_ADC, channel, old_samp);
-	LL_ADC_INJ_SetSequencerRanks(LL_ADC, LL_ADC_INJ_RANK_1, old_jsq1);
-	LL_ADC_INJ_SetSequencerLength(LL_ADC, old_len);
-	LL_ADC_INJ_SetTriggerSource(LL_ADC, old_trig);
+	//config inject channel
+	ADC_InjectionConfTypeDef sConfigInjected;
+	sConfigInjected.InjectedNbrOfConversion = 1;
+	sConfigInjected.InjectedChannel = channel;
+	sConfigInjected.InjectedSamplingTime = sample_time;
+	sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+	HAL_ADCEx_InjectedConfigChannel(this, sConfigInjected);
+	//start conv in blocking mode
+	HAL_ADCEx_InjectedStart(this);
 	//read data
-	return LL_ADC_INJ_ReadConversionData12(LL_ADC, LL_ADC_INJ_RANK_1);
+	return HAL_ADCEx_InjectedGetValue(this, ADC_INJECTED_RANK_1);
 }
 
 
