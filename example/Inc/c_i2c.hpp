@@ -8,7 +8,7 @@ Slave = 1
 class C_I2C{
 public:
     set_Clock(uint32_t Hz);
-}
+};
 
 class C_I2C_Dev : public Stream{
 private:
@@ -22,4 +22,4 @@ public:
     set_TransMode(TransTypeStru trans);
     Mem_write(uint16_t mem_addr, uint8_t *pData, uint16_t Size);
     Mem_read(uint16_t mem_addr, uint8_t *pData, uint16_t Size);
-}
+};

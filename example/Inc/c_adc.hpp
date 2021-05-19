@@ -16,7 +16,7 @@
 class C_ADC{
 public:
 	uint16_t read_channel(uint32_t channel, uint32_t sample_time);
-}
+};
 
 
 class C_ADCEx{
