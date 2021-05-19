@@ -11,16 +11,7 @@
 #include <string>
 using namespace std;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void X_Error(string file, int line);
-
-#ifdef __cplusplus
-}
-#endif
-
+void X_ErrorLog(string _file, int _line);
 
 
 #endif /* COMMON_INC_X_LOGS_HPP_ */

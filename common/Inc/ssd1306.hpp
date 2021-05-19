@@ -9,6 +9,7 @@
 #define INC_SSD1306_HPP_
 
 #include "cmsis_os2.h"
+#include "c_i2c.hpp"
 
 /* I2C slave address of SSD1306
  *   MSB  .   .   .   .   .   .  LSB

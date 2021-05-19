@@ -1,3 +1,7 @@
+#include "pins_manager.hpp"
+#include "x_logs.hpp"
+
+
 uint16_t pins_use_state[16];  //TODO: use FreeRTOS event flags, can wait
 
 inline bool isPinUsed(Pin_8b pin)
@@ -23,10 +27,10 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
     this->pins = pins;
     this->N_pin = N_pin;
     ManagerPin* p1 = pins;
-    for(int i=0;i<N_pin;i++){
-        if(p1->keep | p1->cfg0==InitCfg_Enable){
+    for(uint32_t i=0;i<N_pin;i++){
+        if(p1->keep || p1->cfg0==InitCfg_Enable){
             if(isPinUsed(p1->p8b)){
-                Error_Handle();
+            	X_ErrorLog(__FILE__, __LINE__);
             }else{
                 setPinUsed(p1->p8b, true);
             }
@@ -44,7 +48,7 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
                 break;
         }
         if(p1->lock == LockAtInitConn){
-            LockPin(p1->p8b);
+            lockPinCfg(p1->p8b);
         }
         p1++;
     }

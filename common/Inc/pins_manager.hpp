@@ -28,14 +28,14 @@ typedef struct{
 //TODO: auto config periph during enable.
 class GPIO_Conn{
 private:
-	Pin* pins;
+	ManagerPin* pins;
 	uint32_t N_pin;
 public:
 	GPIO_Conn(ManagerPin* pins, uint32_t N_pin);
 	bool isAvailable();
 	X_State Enable();
 	X_State Disable();
-}
+};
 
 inline bool isPinUsed(Pin_8b pin);
 inline void setPinUsed(Pin_8b pin, bool used);

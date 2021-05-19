@@ -1,4 +1,4 @@
-#include <x_logs.hpp>
+#include "x_logs.hpp"
 #include "f1_adc.hpp"
 
 
@@ -12,9 +12,9 @@ void F1_ADCEx::ConfigFastMode(u32 CHx, u32 tSAMP, u32 nADC)
 	ADC_MultiModeTypeDef multimode;
 	uint32_t samp_clks = T_SAMP2CLKS(tSAMP) + 13;
 	if(nADC <1 || nADC > TOTAL_ADCs){
-		X_Error(__FILE__, __LINE__);
+		X_ErrorLog(__FILE__, __LINE__);
 	}if(tSAMP > ADC_SAMPLETIME_13CYCLES_5){
-		X_Error(__FILE__, __LINE__);
+		X_ErrorLog(__FILE__, __LINE__);
 	}
 	//config channal
 	load_regular_one_channel(CHx, tSAMP);

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "x_base.hpp"
 
 typedef enum{
 TransBlocking = 0,
@@ -6,9 +7,9 @@ TransInterrupt,
 }TransType;
 
 typedef enum{
-Wait_error = 0;
-Wait_while,
-Wait_rtos
+    Wait_error = 0,
+    Wait_while,
+    Wait_rtos
 }WaitType;
 
 typedef struct{
@@ -21,9 +22,9 @@ typedef struct{
 
 class Stream{
 public:
-    send(uint8_t* data, uint32_t size);
-    recv(uint8_t* data, uint32_t size);
-}
+	X_State send(uint8_t* data, uint32_t size);
+	X_State recv(uint8_t* data, uint32_t size);
+};
 
 class StrStream{
 private:
@@ -36,4 +37,4 @@ public:
     void scanf(const char *fmt, uint32_t len, ...);
     StrStream& operator<<(const int i);
     StrStream& operator<<(const char* c);
-}
+};
