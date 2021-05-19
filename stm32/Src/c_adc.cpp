@@ -13,6 +13,7 @@
 #include "main.h"
 #include "ops.h"
 
+#define NDTR CNDTR //replace for STM32F1 DMA regs name
 
 void osSemClear(osSemaphoreId_t sem)
 {
