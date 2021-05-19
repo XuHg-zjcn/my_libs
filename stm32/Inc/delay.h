@@ -8,7 +8,7 @@
 #ifndef INC_DELAY_H_
 #define INC_DELAY_H_
 
-#include "stm32f4xx_hal.h"
+#include "mylibs_config.h"
 
 void Delay_loopN(uint32_t n);
 void Delay_clocks(uint32_t n);

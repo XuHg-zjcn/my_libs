@@ -2,6 +2,7 @@
 #define PIN_MANAGER_HPP
 
 #include "x_base.hpp"
+#include "mylibs_config.h"
 
 typedef enum{
 	NoLock = 0,

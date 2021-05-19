@@ -8,6 +8,8 @@
 #ifndef C_RCC_H_
 #define C_RCC_H_
 
+#include "mylibs_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -7,7 +7,7 @@
 
 #include "delay.h"
 
-#include "stm32f4xx_hal.h"
+#include "mylibs_config.h"
 
 #define clk_loop 7
 #define clk_call 3
