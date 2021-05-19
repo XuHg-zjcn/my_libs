@@ -159,7 +159,9 @@ void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
 	}
 	//osSemClear(buff.w_head.sem);
 	mode.Enum = blocking ? ADC_dma_once_Blocking : ADC_dma_once_NoBlock;
+#ifdef ADC_CR2_DDS
 	CLEAR_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
+#endif
 	htim->set_CountEnable(true);
 	u32 *p = (u32*)w_head->put_dma_once(Nsamp);
 	if(!p){  //get pointer failed
@@ -179,7 +181,9 @@ void C_ADCEx::DMA_cycle(u32 cycle)
 	}
 	//osSemClear(buff.sem);
 	mode.Enum = ADC_dma_cont_Multi;
+#ifdef ADC_CR2_DDS
 	SET_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
+#endif
 	//TODO: set htim_pack
 	uint32_t *p = (uint32_t*)w_head->put_dma_cycle(cycle);
 	HAL_ADC_Start_DMA(hadc, p, w_head->get_capacity());
