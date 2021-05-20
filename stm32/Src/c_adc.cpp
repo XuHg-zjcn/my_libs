@@ -13,6 +13,10 @@
 #include "main.h"
 #include "ops.h"
 
+//replace for STM32F1
+#define NDTR CNDTR
+#define ADC_CR2_EXTEN ADC_CR2_EXTTRIG
+#define ADC_CR2_JEXTEN ADC_CR2_JEXTTRIG
 
 void osSemClear(osSemaphoreId_t sem)
 {
@@ -32,7 +36,7 @@ uint16_t C_ADC::read_channel(u32 channel, u32 sample_time)
 	sConfigInjected.InjectedChannel = channel;
 	sConfigInjected.InjectedSamplingTime = sample_time;
 	sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
-	HAL_ADCEx_InjectedConfigChannel(this, sConfigInjected);
+	HAL_ADCEx_InjectedConfigChannel(this, &sConfigInjected);
 	//start conv in blocking mode
 	HAL_ADCEx_InjectedStart(this);
 	//read data

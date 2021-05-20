@@ -4,10 +4,10 @@
  *  Created on: Apr 17, 2021
  *      Author: xrj
  */
-#include "stm32_tim.hpp"
+#include "c_tim.hpp"
 
 #include <stdlib.h>
-#include "stm324_rcc.h"
+#include "c_rcc.hpp"
 
 
 /*

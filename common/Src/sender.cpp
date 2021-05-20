@@ -18,8 +18,8 @@ void UsbSender_ProcFunc(void *argument)
 	u32 be = head.bytes_elem();
 	while(1){
 		p = (u8*)head.get_frames(param->n);
-		HAL_GPIO_WritePin(D3_GPIO_Port, D3_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		USBD_CUSTOM_HID_SendReport(param->pdev, p, param->n*be);
-		HAL_GPIO_WritePin(D3_GPIO_Port, D3_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 	}
 }

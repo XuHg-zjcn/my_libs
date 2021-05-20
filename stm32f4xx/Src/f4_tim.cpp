@@ -1,4 +1,4 @@
-#include "stm32_tim.hpp"
+#include "f4_tim.hpp"
 
 u32 F4_TIM::maxcount()
 {

@@ -1,30 +1,33 @@
-#include <stdio.h>
+#include "c_stream.hpp"
+#include <stdarg.h>
 
-StrStream::printf(const char *fmt, ...)
+void StrStream::printf(const char *fmt, ...)
 {
     uint32_t len;
     va_list list;
     va_start(list, fmt);
-    len = vsnprintf(buff, b_size, fmt, list);
+    len = vsnprintf((char*)buff, b_size, fmt, list);
     va_end(list);
-    send(buff, len);
+    st.send(buff, len);
 }
 
-StrStream::scanf(const char *fmt, uint32_t len, ...)
+void StrStream::scanf(const char *fmt, uint32_t len, ...)
 {
-    recv(buff, len);
+    st.recv(buff, len);
     va_list list;
-    va_start(list, fmt);
-    vsscanf(buff, fmt, list);
+    va_start(list, len);
+    vsscanf((char*)buff, fmt, list);
     va_end(list);
 }
 
-StrStream& operator<<(const int i)
+StrStream& StrStream::operator<<(const int i)
 {
     printf("%d", i);
+    return *this;
 }
 
-StrStream& operator<<(const char* s)
+StrStream& StrStream::operator<<(const char* s)
 {
     printf("%s", s);
+    return *this;
 }

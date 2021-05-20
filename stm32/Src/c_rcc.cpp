@@ -5,7 +5,7 @@
  *      Author: xrj
  */
 
-#include "c_rcc.h"
+#include "c_rcc.hpp"
 
 #define APB1   (void*)0x40000000
 #define APB2   (void*)0x40010000

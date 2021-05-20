@@ -9,4 +9,4 @@ class C_TIM{
 public:
   	void set_Hz(Type_Hz Hz);
 	void set_ns(Type_ns ns);
-}
+};

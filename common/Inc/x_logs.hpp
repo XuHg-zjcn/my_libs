@@ -15,12 +15,11 @@ using namespace std;
 extern "C" {
 #endif
 
-void X_Error(string file, int line);
+void X_ErrorLog(string _file, int _line);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 
 #endif /* COMMON_INC_X_LOGS_HPP_ */

@@ -11,6 +11,55 @@
 #include "main.h"
 #include "c_tim.hpp"
 #include "cmsis_os2.h"
+#include "pins_manager.hpp"
+
+
+/*
+ * how to use the driver:
+ * the driver need FreeRTOS binary semaphore.
+ * the example use TIM2(32bit in STM32F4), you can change to other timer.
+ *
+ * 1. config by STM32Cube
+ *     set GPIO Pins to Output mode and add User Label 'SMx'(x=1..4)
+ *     set TIM2 clock source 'Internal Clock'
+ *     enable TIM2 global interrupt.
+ *
+ * 2. create user_code.cpp/hpp files for run user codes, codes in the example are C++
+ *
+ * 3. copy below code to global:
+ *     #include "main.h"
+ *
+ *     extern TIM_HandleTypeDef htim2;  //timer used for step motor
+ *     PinCfg cfg = (PinCfg)(GPIO_GP_PP0&OUT_2MHZ);
+ *     ManagerPin sm_pins[4] = {        //GPIO Pins connect to motor driver ULN2003
+ *     {Pin8b(SM1_GPIO_Port, SM1_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {Pin8b(SM2_GPIO_Port, SM2_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {Pin8b(SM3_GPIO_Port, SM3_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {Pin8b(SM4_GPIO_Port, SM4_Pin), true, InitCfg_Disable, NoLock, cfg, cfg}};
+ *     GPIO_Conn sm_conn = GPIO_Conn(sm_pins, 4);
+ *     StepMotor sm = StepMotor(sm_conn, (C_TIM*)&htim2);
+ *
+ * 4. call `sm.Init()` after `osKernelStart()`, init semaphore
+ *
+ * 5. call `sm.run_step()` in timer update event
+ *     add to `void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)`
+ *        \* USER CODE BEGIN Callback 1 *\
+ *        if (htim->Instance == TIM2){
+ *            StepMotor_TIMCallback();
+ *        }
+ *        \* USER CODE END Callback 1 *\
+ *
+ *    add to user_code.cpp, and extern "C" on .hpp file
+ *        void StepMotor_TIMCallback()
+ *        {
+ *            sm.run_step();
+ *        }
+ *
+ * 6. use the driver:
+ *     sm.run_us(10000, 32, true);   // 10ms/step, 32steps, blocking mode
+ *     sm.run_speed(10, 90, false);  // 10deg/sec, 90degs, no-blocking mode
+ */
+
 
 typedef struct{
 	unsigned int b1:1;
@@ -41,7 +90,8 @@ typedef struct{
 
 class StepMotor{
 private:
-	StepMotor_Connect conn;
+	uint32_t* odr_bitband[4];
+	C_TIM *htimx;
 	const StepMotor_State *seq;
 	int32_t seq_len;
 	int32_t seq_i;        // 0 <= seq_i < seq_len
@@ -53,12 +103,12 @@ private:
 	void setState(StepMotor_State State);
 public:
 	void (*FinishCallback)(void*);  // callback of `stop`
-	StepMotor();
-	void Init(StepMotor_Connect &conn);
+	StepMotor(GPIO_Conn &conn, C_TIM *htimx);
+	void Init();
 	void setMode(StepMotor_Mode mode);
 	void Stop();
 	void wait();
-	void run_us(int us, uint32_t steps, bool blocking);
+	void run_us(uint32_t us, int32_t steps, bool blocking);
 	void run_speed(float deg_sec, float total_deg, bool blocking);
 	void run_step();
 };

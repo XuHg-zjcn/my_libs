@@ -2,6 +2,7 @@
 #define PIN_MANAGER_HPP
 
 #include "x_base.hpp"
+#include "mylibs_config.hpp"
 
 typedef enum{
 	NoLock = 0,
@@ -16,27 +17,28 @@ typedef enum{
 }InitCfg;
 
 typedef struct{
-	Pin_8b p8b;
+	Pin8b p8b;
 	bool keep:1;    //keep use flag in disable, note: will still load CfgDisable when GPIO_Conn entry disable state.
 	InitCfg cfg0:2; //which cfg in init
 	PinLockType lock:2; //lock pin type
-	UnionPinCfg CfgEnable;
-	UnionPinCfg CfgDisable;
+	PinCfg CfgEnable:8;
+	PinCfg CfgDisable:8;
 }ManagerPin;
 
 //TODO: auto config periph during enable.
 class GPIO_Conn{
 private:
-	Pin* pins;
+	ManagerPin* pins;
 	uint32_t N_pin;
 public:
 	GPIO_Conn(ManagerPin* pins, uint32_t N_pin);
 	bool isAvailable();
 	X_State Enable();
 	X_State Disable();
-}
+	ManagerPin* operator[](int i);
+};
 
-inline bool isPinUsed(Pin_8b pin);
-inline void setPinUsed(Pin_8b pin, bool used);
+inline bool isPinUsed(Pin8b pin);
+inline void setPinUsed(Pin8b pin, bool used);
 
 #endif

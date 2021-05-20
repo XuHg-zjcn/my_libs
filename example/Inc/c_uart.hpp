@@ -25,4 +25,4 @@ public:
     void set_WordLength(WordLength wl);
     void set_StopBit(StopBitType stopbit);
     void set_Parity(ParityType parity);
-}
+};
