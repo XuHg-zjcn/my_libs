@@ -9,7 +9,8 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include "c_gpio.h"
+#include "mylibs_config.hpp"
+#include "bit_band.h"
 #include "c_tim.hpp"
 
 extern TIM_HandleTypeDef htim2;
@@ -28,7 +29,7 @@ const uint32_t seqs_len[3] = {4, 4, 8};
  * load default value to StepMotor_Handle.
  * hsm->conn need assign by user
  */
-StepMotor::StepMotor()
+StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *htimx)
 {
 	seq = seq_8;
 	seq_len = 8;
@@ -37,41 +38,34 @@ StepMotor::StepMotor()
 	rot = 0;
 	FinishCallback = DefaultFinishCallback;
 	timeout = 1000;
+	this->htimx = htimx;
+	conn.Enable();
+	for(int i=0;i<4;i++){
+		odr_bitband[i] = conn[i]->p8b.ODR_bitband();
+	}
 }
 
 /*
  * if you don't assign all value, please call `StepMotor_LoadDefault`,
  * to avoid error happend.
  */
-void StepMotor::Init(StepMotor_Connect &conn)
+void StepMotor::Init()
 {
-	this->conn = conn;
 	//stop TIM
-	HAL_TIM_Base_Stop_IT(this->conn.htimx);
+	HAL_TIM_Base_Stop_IT(htimx);
 
 	//init GPIO Pins
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
-	uint32_t **pin = &this->conn.P1;
-	for(int i=0;i<4;i++){
-		**pin = 0;
-		GPIO_InitStruct.Pin = BITBAND_GPIO_PIN_2N(*pin);
-	    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	    GPIO_InitStruct.Pull = GPIO_NOPULL;
-	    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	    HAL_GPIO_Init(BITBAND_GPIO_GPIOx(*pin), &GPIO_InitStruct);
-	    pin++;
-	}
 	osSemaphoreAttr_t attr_sem = {.name = "step_motor_sem"};
 	sem = osSemaphoreNew(1, 1, &attr_sem);
 }
 
 void StepMotor::setState(StepMotor_State State)
 {
-	uint32_t **pin = &conn.P1;
+	uint32_t **odr = odr_bitband;
 	uint32_t *bx = BIT_PTR(&State, 0);
 	for(int i=0;i<4;i++){
-		**pin = *bx;
-		pin++;
+		**odr = *bx;
+		odr++;
 		bx++;
 	}
 }
@@ -93,7 +87,7 @@ void StepMotor::Stop()
 	rot = 0;
 	seq_i = 0;
 	remain_step = 0;
-	HAL_TIM_Base_Stop_IT(conn.htimx);
+	HAL_TIM_Base_Stop_IT(htimx);
 	setState(stop);
 	osSemaphoreRelease(sem);
 	FinishCallback(this);
@@ -106,7 +100,7 @@ void StepMotor::wait()
 }
 
 //TODO: uint32_t us, int32_t step
-void StepMotor::run_us(int us, uint32_t steps, bool blocking)
+void StepMotor::run_us(uint32_t us, int32_t steps, bool blocking)
 {
 	osSemaphoreAcquire(sem, timeout);
 	if(us == 0){
@@ -117,8 +111,8 @@ void StepMotor::run_us(int us, uint32_t steps, bool blocking)
 	rot += (us>0);
 	rot -= (us<0);
 	remain_step = steps<=0 ? -1 : steps;
-	conn.htimx->set_ns((uint64_t)us*1000UL);
-	HAL_TIM_Base_Start_IT(conn.htimx);
+	htimx->set_ns((uint64_t)us*1000UL);
+	HAL_TIM_Base_Start_IT(htimx);
 	if(blocking){
 		wait();
 	}
@@ -140,8 +134,8 @@ void StepMotor::run_speed(float deg_sec, float total_deg, bool blocking)
 	}else{
 		remain_step = -1;
 	}
-	conn.htimx->set_Hz(step_sec);
-	HAL_TIM_Base_Start_IT(conn.htimx);
+	htimx->set_Hz(step_sec);
+	HAL_TIM_Base_Start_IT(htimx);
 	if(blocking){
 		wait();
 	}

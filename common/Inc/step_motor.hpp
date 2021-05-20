@@ -11,6 +11,7 @@
 #include "main.h"
 #include "c_tim.hpp"
 #include "cmsis_os2.h"
+#include "pins_manager.hpp"
 
 typedef struct{
 	unsigned int b1:1;
@@ -41,7 +42,8 @@ typedef struct{
 
 class StepMotor{
 private:
-	StepMotor_Connect conn;
+	uint32_t* odr_bitband[4];
+	C_TIM *htimx;
 	const StepMotor_State *seq;
 	int32_t seq_len;
 	int32_t seq_i;        // 0 <= seq_i < seq_len
@@ -53,12 +55,12 @@ private:
 	void setState(StepMotor_State State);
 public:
 	void (*FinishCallback)(void*);  // callback of `stop`
-	StepMotor();
-	void Init(StepMotor_Connect &conn);
+	StepMotor(GPIO_Conn &conn, C_TIM *htimx);
+	void Init();
 	void setMode(StepMotor_Mode mode);
 	void Stop();
 	void wait();
-	void run_us(int us, uint32_t steps, bool blocking);
+	void run_us(uint32_t us, int32_t steps, bool blocking);
 	void run_speed(float deg_sec, float total_deg, bool blocking);
 	void run_step();
 };
