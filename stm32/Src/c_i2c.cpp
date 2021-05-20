@@ -44,6 +44,7 @@ X_State C_I2C_Dev::Mem_write(uint16_t mem_addr, uint8_t *pData, uint16_t Size)
 	}else{
 		HAL_I2C_Mem_Write_IT(hi2c, DevAddr, mem_addr, MemAdd_size, pData, Size);
 	}
+	return X_OK;
 }
 
 X_State C_I2C_Dev::Mem_read(uint16_t mem_addr, uint8_t *pData, uint16_t Size)
@@ -55,4 +56,5 @@ X_State C_I2C_Dev::Mem_read(uint16_t mem_addr, uint8_t *pData, uint16_t Size)
 	}else{
 		HAL_I2C_Mem_Read_IT(hi2c, DevAddr, mem_addr, MemAdd_size, pData, Size);
 	}
+	return X_OK;
 }
