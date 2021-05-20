@@ -21,8 +21,8 @@ typedef struct{
 	bool keep:1;    //keep use flag in disable, note: will still load CfgDisable when GPIO_Conn entry disable state.
 	InitCfg cfg0:2; //which cfg in init
 	PinLockType lock:2; //lock pin type
-	PinCfg CfgEnable;
-	PinCfg CfgDisable;
+	PinCfg CfgEnable:8;
+	PinCfg CfgDisable:8;
 }ManagerPin;
 
 //TODO: auto config periph during enable.
@@ -35,6 +35,7 @@ public:
 	bool isAvailable();
 	X_State Enable();
 	X_State Disable();
+	ManagerPin* operator[](int i);
 };
 
 inline bool isPinUsed(Pin8b pin);

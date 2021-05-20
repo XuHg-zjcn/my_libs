@@ -86,3 +86,8 @@ X_State GPIO_Conn::Disable()
     }
     return X_OK;
 }
+
+ManagerPin* GPIO_Conn::operator[](int i)
+{
+	return &pins[i];
+}
