@@ -13,22 +13,22 @@ Pin8b::Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N){
 }
 
 
-inline GPIO_TypeDef* Pin8b::GPIOx()
+GPIO_TypeDef* Pin8b::GPIOx()
 {
 	return (GPIO_TypeDef *)(GPIOA_BASE + 0x400*PORTx);
 }
 
-inline uint32_t Pin8b::Pin2N()
+uint32_t Pin8b::Pin2N()
 {
 	return 1<<PINx;
 }
 
-inline uint32_t* Pin8b::ODR_bitband()
+uint32_t* Pin8b::ODR_bitband()
 {
 	return BIT_PTR(&(GPIOx()->ODR), PINx);
 }
 
-inline uint32_t* Pin8b::IDR_bitband()
+uint32_t* Pin8b::IDR_bitband()
 {
 	return BIT_PTR(&(GPIOx()->IDR), PINx);
 }

@@ -22,9 +22,9 @@ typedef enum{  //ODR 1b|CNF 2b|MODE 2b|
     GPIO_Keep_ODR0= 0b01100,
     GPIO_Keep_ODR1= 0b11100
 }PinCfg;
-#define OUT_10MHZ (~0b11 | Out_10MHz)
-#define OUT_2MHZ  (~0b11 | Out_2MHz)
-#define OUT_50MHZ (~0b11 | Out_50MHz)
+#define OUT_10MHZ (~0b11 | 0b01)
+#define OUT_2MHZ  (~0b11 | 0b10)
+#define OUT_50MHZ (~0b11 | 0b11)
 
 #define MODE_Msk      0b00011
 #define MODE_IN       0b00000
@@ -58,10 +58,10 @@ public:
     unsigned int PINx:4;
     Pin8b(uint32_t port, uint32_t pin);
     Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N);
-    inline GPIO_TypeDef* GPIOx();
-    inline uint32_t Pin2N();
-    inline uint32_t* ODR_bitband();
-    inline uint32_t* IDR_bitband();
+    GPIO_TypeDef* GPIOx();
+    uint32_t Pin2N();
+    uint32_t* ODR_bitband();
+    uint32_t* IDR_bitband();
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);
