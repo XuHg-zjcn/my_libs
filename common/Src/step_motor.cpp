@@ -19,7 +19,7 @@ extern TIM_HandleTypeDef htim2;
 const StepMotor_State seq_41[4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};  //单四拍
 const StepMotor_State seq_42[4] = {{1,1,0,0}, {0,1,1,0}, {0,0,1,1}, {1,0,0,1}};  //双四拍
 const StepMotor_State seq_8[8]  = {{1,0,0,0}, {1,1,0,0}, {0,1,0,0}, {0,1,1,0},   //八拍
-		                       {0,0,1,0}, {0,0,1,1}, {0,0,0,1}, {1,0,0,1}};
+                                   {0,0,1,0}, {0,0,1,1}, {0,0,0,1}, {1,0,0,1}};
 const StepMotor_State stop = {0,0,0,0};
 
 const StepMotor_State* seqs[3] = {seq_41, seq_42, seq_8};

@@ -4,7 +4,7 @@
 #include "c_adc.hpp"
 #include "stm32f1xx_hal.h"
 
-const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
+
 
 #define TOTAL_ADCs 2
 

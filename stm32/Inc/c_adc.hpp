@@ -15,7 +15,7 @@
 #include "myints.h"
 #include "mylibs_config.hpp"
 
-extern const uint32_t tSMPs[8];
+const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])
 
 #pragma pack(1)
@@ -70,6 +70,7 @@ protected:
 	C_TIM *htim;
 	BuffHeadWrite *w_head;
 	MyADCMode mode;
+	uint32_t timeout;
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
@@ -85,6 +86,7 @@ public:
 	void ConvCplt();      //please call in DMA Conv callback
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
+	uint16_t read_channel(u32 channel, u32 sample_time);
 };
 
 #endif /* INC_MY_ADC_HPP_ */

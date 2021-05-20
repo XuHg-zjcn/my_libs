@@ -30,17 +30,6 @@ void osSemClear(osSemaphoreId_t sem)
  */
 uint16_t C_ADC::read_channel(u32 channel, u32 sample_time)
 {
-	//config inject channel
-	ADC_InjectionConfTypeDef sConfigInjected;
-	sConfigInjected.InjectedNbrOfConversion = 1;
-	sConfigInjected.InjectedChannel = channel;
-	sConfigInjected.InjectedSamplingTime = sample_time;
-	sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
-	HAL_ADCEx_InjectedConfigChannel(this, &sConfigInjected);
-	//start conv in blocking mode
-	HAL_ADCEx_InjectedStart(this);
-	//read data
-	return HAL_ADCEx_InjectedGetValue(this, ADC_INJECTED_RANK_1);
 }
 
 
@@ -50,6 +39,7 @@ C_ADCEx::C_ADCEx()
 	this->hadc = nullptr;
 	this->w_head = nullptr;
 	this->mode.Enum = ADC_stopping;
+	this->timeout = 1000;
 }
 
 void C_ADCEx::Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim)
@@ -223,4 +213,21 @@ void C_ADCEx::ConvPack()
 		uint32_t NDTR = hadc->DMA_Handle->Instance->NDTR;
 		w_head->put_dma_notify(NDTR/2);
 	}
+}
+
+uint16_t C_ADCEx::read_channel(u32 channel, u32 sample_time)
+{
+	//config inject channel
+	ADC_InjectionConfTypeDef sConfigInjected;
+	sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
+	sConfigInjected.InjectedNbrOfConversion = 1;
+	sConfigInjected.InjectedChannel = channel;
+	sConfigInjected.InjectedSamplingTime = sample_time;
+	sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+	HAL_ADCEx_InjectedConfigChannel(hadc, &sConfigInjected);
+	//start conv in blocking mode
+	HAL_ADCEx_InjectedStart(hadc);
+	HAL_ADCEx_InjectedPollForConversion(hadc, timeout);
+	//read data
+	return HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
 }
