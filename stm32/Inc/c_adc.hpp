@@ -61,7 +61,6 @@ typedef union{
 
 class C_ADC : public ADC_HandleTypeDef{
 public:
-	u16 read_channel(u32 channel, u32 sample_time);
 };
 
 class C_ADCEx{
@@ -74,6 +73,9 @@ protected:
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
+	void conn_buff(BuffHeadWrite* w_head);
+	void set_SR_sps(u32 sps);
+	void set_SR_ns(u32 ns);
 	void set_Inject_ExtenTrig(u32 src, u32 edge);
 	void set_Regular_ExtenTrig(u32 src, u32 edge);
 	void load_regular_seq(ADC_SampSeq* sseq);

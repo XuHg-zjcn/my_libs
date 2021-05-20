@@ -25,13 +25,6 @@ void osSemClear(osSemaphoreId_t sem)
 	}
 }
 
-/*
- * use injected length=1 sequence. blocking to wait finish.
- */
-uint16_t C_ADC::read_channel(u32 channel, u32 sample_time)
-{
-}
-
 
 C_ADCEx::C_ADCEx()
 {
@@ -46,6 +39,21 @@ void C_ADCEx::Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim)
 {
     this->hadc = (C_ADC*)hadc;
     this->htim = (C_TIM*)htim;
+}
+
+void C_ADCEx::conn_buff(BuffHeadWrite* w_head)
+{
+       this->w_head = w_head;
+}
+
+void C_ADCEx::set_SR_sps(u32 sps)
+{
+       htim->set_Hz(sps);
+}
+
+void C_ADCEx::set_SR_ns(u32 ns)
+{
+       htim->set_ns(ns);
 }
 
 /*
@@ -215,6 +223,9 @@ void C_ADCEx::ConvPack()
 	}
 }
 
+/*
+ * use injected length=1 sequence. blocking to wait finish.
+ */
 uint16_t C_ADCEx::read_channel(u32 channel, u32 sample_time)
 {
 	//config inject channel
