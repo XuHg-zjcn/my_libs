@@ -67,22 +67,26 @@ bool GPIO_Conn::isAvailable()
 
 X_State GPIO_Conn::Enable()
 {
+    ManagerPin* p1 = pins;
     if(!isAvailable()){
         return X_Busy;
     }
     for(uint32_t i=0;i<N_pin;i++){
-        pins->p8b.loadCfg(pins->CfgEnable);
-        if(!pins->keep){
-            setPinUsed(pins->p8b, true);
+        p1->p8b.loadCfg(p1->CfgEnable);
+        if(!p1->keep){
+            setPinUsed(p1->p8b, true);
         }
+        p1++;
     }
     return X_OK;
 }
 
 X_State GPIO_Conn::Disable()
 {
+    ManagerPin* p1 = pins;
     for(uint32_t i=0;i<N_pin;i++){
-        pins->p8b.loadCfg(pins->CfgDisable);
+        p1->p8b.loadCfg(p1->CfgDisable);
+        p1++;
     }
     return X_OK;
 }
