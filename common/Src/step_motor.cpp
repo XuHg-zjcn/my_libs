@@ -141,6 +141,7 @@ void StepMotor::run_speed(float deg_sec, float total_deg, bool blocking)
 	}
 }
 
+//please call in timer update interrupt
 void StepMotor::run_step()
 {
 	if(rot == 0){
