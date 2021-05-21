@@ -9,6 +9,7 @@
 #include <cstdarg>
 #include <cstring>
 #include "ops.h"
+#include "FreeRTOS.h"
 
 /*
  * coding rules:
@@ -19,6 +20,7 @@
 SSD1306::SSD1306(C_I2C_Dev *dev)
 {
 	this->dev = dev;
+	col_i = 0xff;
 }
 
 void SSD1306::commd_bytes(uint8_t Byte0, ...)
@@ -69,7 +71,7 @@ void SSD1306::commd_bytes(uint8_t Byte0, ...)
     	bytes[i] = va_arg(list, int);
     }
     va_end(list);
-    dev->Mem_write(0x00, bytes, size);
+    dev->Mem_write(ConByte_Cmd, bytes, size);
 }
 
 void SSD1306::ScrollSetup(ScrollSetupCommd* commd)
@@ -88,7 +90,7 @@ void SSD1306::ScrollSetup(ScrollSetupCommd* commd)
 	default:
 		return;
 	}
-	dev->Mem_write(0x00, (uint8_t*)commd, size);
+	dev->Mem_write(ConByte_Cmd, (uint8_t*)commd, size);
 }
 
 void SSD1306::OnOffScroll(bool IsActivate)
@@ -124,13 +126,13 @@ void SSD1306::Init()
 
 void SSD1306::fill(uint8_t data)
 {
-	uint8_t x128[1024];
-	memset(x128, 0x00, 512);
-	memset(x128+512, 0xff, 512);
-	commd_bytes(0x21, 0, 127);  //page0-page1
-	//commd_bytes(0x00);	//low column start address
-	//commd_bytes(0x10);	//high column start address
-	dev->Mem_write(0x40, x128, 1024);
+	uint8_t* x128 = (uint8_t*)pvPortMalloc(1024);
+	memset(x128, data, 1024);
+	commd_bytes(ADDRESSING_MODE_1B,  0x01);
+	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);  //page0-page1
+	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
+	dev->Mem_write(ConByte_Data, x128, 1024);
+	vPortFree(x128);
 }
 
 void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
@@ -138,12 +140,12 @@ void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
 	uint64_t col;
 	uint32_t data2;
 	commd_bytes(ADDRESSING_MODE_1B,  0x01);
-	commd_bytes(0x21, 0, 127);  //page0-page1
-	commd_bytes(0x22, 0, 7);  //page0-page1
+	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);  //page0-page1
+	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
 	for(int i=0;i<128;i++){
 		data2 = value_upper(*data, maxh) + bias;
 		col = 1ULL<<data2;  //ULL = uint64_t
-		dev->Mem_write(0x40, (uint8_t*)&col, 8);
+		dev->Mem_write(ConByte_Data, (uint8_t*)&col, 8);
 		data++;
 	}
 }
@@ -171,23 +173,32 @@ void SSD1306::VH_scroll(int dx, int dy, uint8_t sta_page, uint8_t end_page, Fram
 	commd.end_page = end_page;
 	commd.v_offset = dy<0 ? 63+dy : dy;
 	ScrollSetup(&commd);
-	commd_bytes(0x2F);
-	commd_bytes(0x21, col_i, col_i+1);  //page0-page1
+	commd_bytes(ACTIVATE_SCROLL);
+	commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i+1);  //page0-page1
+}
+
+void SSD1306::Scroll_Disable()
+{
+	commd_bytes(DEACTIVATE_SCROLL);
+	col_i = 0xff;
 }
 
 void SSD1306::append_column(uint64_t col)
 {
-	commd_bytes(0x21, col_i, col_i+1);  //减少传输错误影响，避免大面积混乱
-	dev->Mem_write(0x40, (uint8_t*)&col, 8);
+	if(col_i != 0xff){  //滚动模式
+		//减少传输错误影响，避免大面积混乱
+		commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i+1);
+	}
+	dev->Mem_write(ConByte_Data, (uint8_t*)&col, 8);
 }
 
 void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
 {
-	commd_bytes(0x21, 0, 127);
-	commd_bytes(0x22, 0, 7);
 	commd_bytes(ADDRESSING_MODE_1B,  0x01);
+	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);
+	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);
 	for(uint32_t i=0;i<n_img;i++){
-		dev->Mem_write(0x40, imgs+i*1024, 1024);
+		dev->Mem_write(ConByte_Data, imgs+i*1024, 1024);
 		HAL_Delay(ms);
 	}
 }

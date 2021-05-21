@@ -23,6 +23,16 @@
 #define Addr_Write  (Addr_OLED | SA0 | Write)
 #define Addr_Read   (Addr_OLED | SA0 | Read)
 
+/* control byte, in HAL as mem_addr.
+ *   MSB  .   .   .   .   .   .  LSB
+ * bit7   6   5   4   3   2   1   0
+ *  |Co |D/C| 0 | 0 | 0 | 0 | 0 | 0 |
+ *
+ */
+#define ConByte_Contin 0x80
+#define ConByte_Data   0x40
+#define ConByte_Cmd    0x00
+
 /* Control Byte
  *   MSB  .   .   .   .   .   .  LSB
  * bit7   6   5   4   3   2   1   0
@@ -50,7 +60,8 @@
 #define ACTIVATE_SCROLL       0x2F
 
 #define ADDRESSING_MODE_1B    0x20
-
+#define SET_COLUMN_ADDR_2B    0x21
+#define SET_PAGE_ADDR_2B      0x22
 #define START_PAGE_ADDR_4b    0xB0
 
 #define OUTSCAN_NORM          0xC0
@@ -127,6 +138,7 @@ public:
 	void fill(uint8_t data);
 	void plot_128(uint8_t *data, uint8_t bias, uint8_t maxh);
 	void VH_scroll(int dx, int dy, uint8_t sta_page, uint8_t end_page, FrameOfStep frames);
+	void Scroll_Disable();
 	void append_column(uint64_t col);
 	void gif_show(uint8_t *imgs, uint32_t n_imgs, uint32_t ms);
 	void frame_callback();
