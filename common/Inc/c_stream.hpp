@@ -22,8 +22,8 @@ typedef struct{
 
 class Stream{
 public:
-	virtual X_State send(uint8_t* data, uint32_t size);
-	virtual X_State recv(uint8_t* data, uint32_t size);
+	virtual X_State send(uint8_t* data, uint32_t size)=0;
+	virtual X_State recv(uint8_t* data, uint32_t size)=0;
 };
 
 class StrStream{

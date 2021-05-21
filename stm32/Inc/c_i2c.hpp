@@ -35,6 +35,8 @@ public:
     void set_Clock(uint32_t Hz);
     void set_Timeout(uint32_t ms);
     void set_TransMode(TransTypeStru trans);
+    X_State send(uint8_t* data, uint32_t size);
+    X_State recv(uint8_t* data, uint32_t size);
     X_State Mem_write(uint16_t mem_addr, uint8_t *pData, uint16_t Size);
     X_State Mem_read(uint16_t mem_addr, uint8_t *pData, uint16_t Size);
 };
