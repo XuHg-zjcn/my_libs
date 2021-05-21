@@ -51,7 +51,7 @@ ElemState Buffer::get_ElemState(u32 i)
 {
 	if(i > w_head.fid){
 		return Elem_NoPuted;
-	}if(i+capacity > w_head.fid){ //TODO: u32 overflow
+	}if(i+capacity >= w_head.fid){ //TODO: u32 overflow
 		return Elem_GetAble;
 	}return Elem_OverWritten;
 }

@@ -14,7 +14,6 @@
 #include "ops.h"
 
 //replace for STM32F1
-#define NDTR CNDTR
 #define ADC_CR2_EXTEN ADC_CR2_EXTTRIG
 #define ADC_CR2_JEXTEN ADC_CR2_JEXTTRIG
 
@@ -33,6 +32,7 @@ C_ADCEx::C_ADCEx()
 	this->w_head = nullptr;
 	this->mode.Enum = ADC_stopping;
 	this->timeout = 1000;
+	this->NDTR = 0;
 }
 
 void C_ADCEx::Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim)
@@ -164,12 +164,15 @@ void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
 #ifdef ADC_CR2_DDS
 	CLEAR_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
 #endif
-	htim->set_CountEnable(true);
-	u32 *p = (u32*)w_head->put_dma_once(Nsamp);
+	u16 *p = (u16*)w_head->put_dma_once(Nsamp);
 	if(!p){  //get pointer failed
 		return;
 	}
-	HAL_ADC_Start_DMA(hadc, p, Nsamp);
+	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
+	NDTR = Nsamp;
+	hadc->DMA_Handle->Init.Mode = DMA_NORMAL;
+	HAL_DMA_Init(hadc->DMA_Handle);
+	HAL_ADC_Start_DMA(hadc, (u32*)p, NDTR);
 	if(blocking){
 		w_head->wait_lock();
 	}
@@ -187,15 +190,21 @@ void C_ADCEx::DMA_cycle(u32 cycle)
 	SET_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
 #endif
 	//TODO: set htim_pack
-	uint32_t *p = (uint32_t*)w_head->put_dma_cycle(cycle);
-	HAL_ADC_Start_DMA(hadc, p, w_head->get_capacity());
+	u16 *p = (u16*)w_head->put_dma_cycle(cycle);
+	if(!p){  //get pointer failed
+		return;
+	}
+	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
+	NDTR = w_head->get_capacity();
+	hadc->DMA_Handle->Init.Mode = DMA_CIRCULAR;
+	HAL_DMA_Init(hadc->DMA_Handle);
+	HAL_ADC_Start_DMA(hadc, (u32*)p, NDTR);
 }
 
 //please call in `HAL_ADC_ConvHalfCpltCallback`
 void C_ADCEx::ConvHalfCplt()
 {
 	if(mode.Stru.sem_half){
-		uint32_t NDTR = hadc->DMA_Handle->Instance->NDTR;
 		w_head->put_dma_notify(NDTR/2);
 	}
 }
@@ -204,12 +213,10 @@ void C_ADCEx::ConvHalfCplt()
 void C_ADCEx::ConvCplt()
 {
 	if(mode.Stru.sem_full){
-		uint32_t NDTR = hadc->DMA_Handle->Instance->NDTR;
-		NDTR /= mode.Stru.sem_half?2:1;
-		w_head->put_dma_notify(NDTR);
+		w_head->put_dma_notify(mode.Stru.sem_half ? NDTR/2 : NDTR);
 	}if(mode.Stru.contin != 3){
 		mode.Enum = ADC_stopping;
-		htim->set_CountEnable(false);
+		HAL_TIM_PWM_Stop(htim, TIM_CHANNEL_1);
 	}
 }
 
@@ -218,7 +225,6 @@ void C_ADCEx::ConvPack()
 {
 	if(mode.Stru.sem_pack){
 		//TODO: set buff.curr
-		uint32_t NDTR = hadc->DMA_Handle->Instance->NDTR;
 		w_head->put_dma_notify(NDTR/2);
 	}
 }

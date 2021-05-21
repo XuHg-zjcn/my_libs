@@ -99,13 +99,15 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 		osSemaphoreRelease(lock);
 	}
 	BuffHeadReads &r_heads = buff->r_heads;
-	u32 ef = osEventFlagsGet(r_heads.ef);
-	for(int i=0;i<24;i++){
+	u32 ef = ~osEventFlagsGet(r_heads.ef) & 0x00ffffff;
+	u32 i = 0;
+	while(ef){
 		//no flag
-		if(!(ef&0x1) && fid > r_heads[i]){
+		i += __builtin_ctz(ef);
+		ef >>= __builtin_ctz(ef);
+		if(fid > r_heads[i]){
 			osEventFlagsSet(r_heads.ef, 1<<i);
 		}
-		ef >>= 1;
 	}
 }
 
@@ -160,7 +162,7 @@ void* BuffHeadReads::get_frames(u32 head_id, u32 n)
 {
 	u32 fid0 = heads[head_id];
 	heads[head_id] += n;
-	while(buff->last_fid() <= heads[head_id]){ //avoid mistake set flag
+	while(buff->last_fid() < heads[head_id]){ //avoid mistake set flag
 		u32 mask = 1<<head_id;
 		osEventFlagsClear(ef, mask);
 		osEventFlagsWait(ef, mask, 0x0, LOCK_TIMEOUT);

@@ -11,12 +11,19 @@
 #include "buffer.hpp"
 #include "cmsis_os2.h"
 #include "usbd_customhid.h"
+#include "ssd1306.hpp"
+
 
 typedef struct{
 	Buffer *buf;
 	USBD_HandleTypeDef *pdev;
 	u32 n;
 }SenderParam;
+
+typedef struct{
+	Buffer *buf;
+	SSD1306 *oled;
+}ShowParam;
 
 void UsbSender_ProcFunc(void *argument);
 

@@ -70,6 +70,7 @@ protected:
 	BuffHeadWrite *w_head;
 	MyADCMode mode;
 	uint32_t timeout;
+	uint32_t NDTR;
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
