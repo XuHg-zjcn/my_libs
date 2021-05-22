@@ -60,6 +60,8 @@
  *     sm.run_speed(10, 90, false);  // 10deg/sec, 90degs, no-blocking mode
  */
 
+#define ROT_STATE_BKPREG_NUM 1
+
 
 typedef struct{
 	unsigned int b1:1;
@@ -100,6 +102,7 @@ private:
 	int32_t rot;          // 1:CCW, -1:CW, 0:stop
 	osSemaphoreId_t sem;
 	uint32_t timeout;
+	int16_t rot_state;   // save to RTC backup register, rot in 8step mode
 	void setState(StepMotor_State State);
 public:
 	void (*FinishCallback)(void*);  // callback of `stop`
@@ -111,6 +114,7 @@ public:
 	void run_us(uint32_t us, int32_t steps, bool blocking);
 	void run_speed(float deg_sec, float total_deg, bool blocking);
 	void run_step();
+	int16_t get_rot_state();
 };
 
 

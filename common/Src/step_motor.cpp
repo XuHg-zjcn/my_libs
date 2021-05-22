@@ -14,6 +14,7 @@
 #include "c_tim.hpp"
 
 extern TIM_HandleTypeDef htim2;
+extern RTC_HandleTypeDef hrtc;
 #define SM_TIMx htim2
 
 const StepMotor_State seq_41[4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};  //单四拍
@@ -43,6 +44,7 @@ StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *htimx)
 	for(int i=0;i<4;i++){
 		odr_bitband[i] = conn[i]->p8b.ODR_bitband();
 	}
+	rot_state = (int16_t)HAL_RTCEx_BKUPRead(&hrtc, ROT_STATE_BKPREG_NUM);
 }
 
 /*
@@ -99,18 +101,15 @@ void StepMotor::wait()
 	osSemaphoreRelease(sem);
 }
 
-//TODO: uint32_t us, int32_t step
 void StepMotor::run_us(uint32_t us, int32_t steps, bool blocking)
 {
 	osSemaphoreAcquire(sem, timeout);
-	if(us == 0){
+	if(steps == 0){
 		Stop();
 		return;
 	}
-	rot = 0;
-	rot += (us>0);
-	rot -= (us<0);
-	remain_step = steps<=0 ? -1 : steps;
+	rot = steps>0?1:-1;
+	remain_step = abs(steps);
 	htimx->set_ns((uint64_t)us*1000UL);
 	HAL_TIM_Base_Start_IT(htimx);
 	if(blocking){
@@ -161,4 +160,11 @@ void StepMotor::run_step()
 	}if(seq_i < 0){
 		seq_i = seq_len-1;
 	}
+	rot_state += seq_len==8 ? rot : rot*2;
+	HAL_RTCEx_BKUPWrite(&hrtc, ROT_STATE_BKPREG_NUM, rot_state);
+}
+
+int16_t StepMotor::get_rot_state()
+{
+	return rot_state;
 }
