@@ -46,6 +46,7 @@
 //from datasheet 9.1 COMMAND TABLE
 // ..._nb : n bits at last    commd_bytes(..._nb | bits);
 // ..._nB : n Bytes params    commd_bytes(..._nB, Byte1, Byte2, ..., ByteN);
+// ..._nbmB: n bits, m Bytes  commd_bytes(..._nbmB | bits, Byte1, ..., ByteM);
 
 #define DISPLAY_FOLLOWS_RAM   0xA4
 #define DISPLAY_IGNORES_RAM   0xA5
@@ -56,19 +57,30 @@
 #define DISPLAY_OFF           0xAE
 #define DISPLAY_ON            0xAF
 
-#define DEACTIVATE_SCROLL     0x2E
+#define H_SCORLL_1b6B         0x26 //advice use:
+#define VH_SCORLL_2b5B        0x28 //SSD1306::VH_scroll(...);
+#define DEACTIVATE_SCROLL     0x2E //SSD1306::Scroll_Disable();
 #define ACTIVATE_SCROLL       0x2F
+#define V_SCORLL_AREA_2B      0xA3
 
 #define ADDRESSING_MODE_1B    0x20
+#define HORZ_MODE             0x00
+#define VERT_MODE             0x01
+#define PAGE_MODE             0x02
+
+//commands in Horizontal/Vertical Mode
 #define SET_COLUMN_ADDR_2B    0x21
 #define SET_PAGE_ADDR_2B      0x22
+
+//commands in Page mode
+#define LOW_COL_ADDR_4b       0x00  //low 4bit
+#define HIGH_COL_ADDR_4b      0x10  //high 4bit
 #define START_PAGE_ADDR_4b    0xB0
+
 
 #define OUTSCAN_NORM          0xC0
 #define OUTSCAN_INV           0xC8
 
-#define LOW_COL_ADDR_4b       0x00
-#define HIGH_COL_ADDR_4b      0x10
 
 #define START_LINE_6b         0x40
 #define CONTRAST_1B           0x81
@@ -87,10 +99,10 @@
 #define SSD1306_NOP           0xE3
 
 typedef enum{
-	Scroll_Right = 0x26,
-	Scroll_Left  = 0x27,
-	Scroll_VertRight = 0x29,
-	Scroll_VertLeft  = 0x2A
+	Scroll_Right = H_SCORLL_1b6B | 0b0,
+	Scroll_Left  = H_SCORLL_1b6B | 0b1,
+	Scroll_VertRight = VH_SCORLL_2b5B | 0b01,
+	Scroll_VertLeft  = VH_SCORLL_2b5B | 0b10
 }ScrollType;
 
 typedef enum{

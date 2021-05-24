@@ -107,7 +107,6 @@ void SSD1306::Init()
 	  commd_bytes(HIGH_COL_ADDR_4b | 0b0000);
 	  commd_bytes(START_LINE_6b | 0b000000);
 	  commd_bytes(CONTRAST_1B, 0x1F);  //亮度
-	  commd_bytes(SEG_REMAP1);
 	  commd_bytes(NORMAL_DISPLAY);
 	  commd_bytes(MULTIPLEX_RATIO_1B,  0x3F);
 	  commd_bytes(DISPLAY_OFFSET_1B,   0x00);
@@ -117,9 +116,9 @@ void SSD1306::Init()
 	  commd_bytes(V_COMH_DESELECT_1B,  0x40);
 	  commd_bytes(CHARGE_PUMP_SET_1B,  0x14);  //电荷泵
 
-	  commd_bytes(ADDRESSING_MODE_1B,  0x01);
-	  /*commd_bytes(START_PAGE_ADDR_4b | 0b0000);
-	  commd_bytes(OUTSCAN_INV);*/
+	  commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
+	  commd_bytes(SEG_REMAP0);
+	  commd_bytes(OUTSCAN_INV);
 	  commd_bytes(DISPLAY_FOLLOWS_RAM);
 	  commd_bytes(DISPLAY_ON);
 }
@@ -128,7 +127,7 @@ void SSD1306::fill(uint8_t data)
 {
 	uint8_t* x128 = (uint8_t*)pvPortMalloc(1024);
 	memset(x128, data, 1024);
-	commd_bytes(ADDRESSING_MODE_1B,  0x01);
+	commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
 	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);  //page0-page1
 	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
 	dev->Mem_write(ConByte_Data, x128, 1024);
@@ -139,7 +138,7 @@ void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
 {
 	uint64_t col;
 	uint32_t data2;
-	commd_bytes(ADDRESSING_MODE_1B,  0x01);
+	commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
 	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);  //page0-page1
 	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
 	for(int i=0;i<128;i++){
@@ -194,7 +193,7 @@ void SSD1306::append_column(uint64_t col)
 
 void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
 {
-	commd_bytes(ADDRESSING_MODE_1B,  0x01);
+	commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
 	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);
 	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);
 	for(uint32_t i=0;i<n_img;i++){
