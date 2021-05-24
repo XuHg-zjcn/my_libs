@@ -15,6 +15,7 @@
  * coding rules:
  * use blocking transmit or receive for commands
  */
+extern uint16_t code3x5[];
 
 
 SSD1306::SSD1306(C_I2C_Dev *dev)
@@ -202,4 +203,38 @@ void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
 	}
 }
 
-//void SSD1306::print()
+void SSD1306::setVHAddr(uint8_t mode, uint8_t col_s, uint8_t col_e, uint8_t page_s, uint8_t page_e)
+{
+	if(mode == HORZ_MODE || mode == VERT_MODE){
+		commd_bytes(ADDRESSING_MODE_1B, mode);
+		commd_bytes(SET_COLUMN_ADDR_2B, col_s, col_e);
+		commd_bytes(SET_PAGE_ADDR_2B, page_s, page_e);
+	}
+}
+
+void SSD1306::setPageAddr(uint8_t col_s, uint8_t page_s)
+{
+	commd_bytes(ADDRESSING_MODE_1B, PAGE_MODE);
+	commd_bytes(START_PAGE_ADDR_4b | (page_s & 0xf));
+	commd_bytes(LOW_COL_ADDR_4b    | ( col_s & 0xf));
+	commd_bytes(HIGH_COL_ADDR_4b   | ((col_s>>4)&0xf));
+}
+
+/*
+ * show 3x5 ASCII text, support external table
+ * @param str: string
+ * @param y: 0<=y<=3
+ */
+void SSD1306::text_3x5(char* str, uint8_t y)
+{
+	uint16_t c16 = 0;
+	uint8_t c8[4] = {0,0,0,0};
+	while(*str){
+		c16 = code3x5[*str++];
+		for(int i=0;i<3;i++){
+			c8[i] = (c16&0x1f) << y;
+			c16 >>= 5;
+		}
+		dev->Mem_write(ConByte_Data, c8, 4);
+	}
+}
