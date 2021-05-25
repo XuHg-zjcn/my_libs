@@ -10,12 +10,13 @@
 #include <cstring>
 #include "ops.h"
 #include "FreeRTOS.h"
+#include "font_3x5.h"
+#include "font_5x7.h"
 
 /*
  * coding rules:
  * use blocking transmit or receive for commands
  */
-extern uint16_t code3x5[];
 
 
 SSD1306::SSD1306(C_I2C_Dev *dev)
@@ -118,8 +119,8 @@ void SSD1306::Init()
 	  commd_bytes(CHARGE_PUMP_SET_1B,  0x14);  //电荷泵
 
 	  commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
-	  commd_bytes(SEG_REMAP0);
-	  commd_bytes(OUTSCAN_INV);
+	  commd_bytes(SEG_REMAP0);   //左右翻转
+	  commd_bytes(OUTSCAN_NORM); //上下翻转
 	  commd_bytes(DISPLAY_FOLLOWS_RAM);
 	  commd_bytes(DISPLAY_ON);
 }
@@ -230,11 +231,24 @@ void SSD1306::text_3x5(char* str, uint8_t y)
 	uint16_t c16 = 0;
 	uint8_t c8[4] = {0,0,0,0};
 	while(*str){
-		c16 = code3x5[*str++];
+		c16 = font3x5[*str++];
 		for(int i=0;i<3;i++){
 			c8[i] = (c16&0x1f) << y;
 			c16 >>= 5;
 		}
 		dev->Mem_write(ConByte_Data, c8, 4);
+	}
+}
+
+void SSD1306::text_5x7(char* str)
+{
+	while(*str){
+		if(0x20<=*str && *str<=0x7f){
+			dev->Mem_write(ConByte_Data, (uint8_t*)&font5x7[(*str-0x20)*5], 5);
+		}else{
+			dev->Mem_write(ConByte_Data, (uint8_t*)&font5x7[0], 5);
+		}
+		dev->Mem_write(ConByte_Data, (uint8_t*)&font5x7[0], 1);
+		str++;
 	}
 }

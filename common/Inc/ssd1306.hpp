@@ -157,6 +157,7 @@ public:
 	void setVHAddr(uint8_t mode, uint8_t col_s, uint8_t col_e, uint8_t page_s, uint8_t page_e);
 	void setPageAddr(uint8_t col_s, uint8_t page_s);
 	void text_3x5(char* str, uint8_t y);
+	void text_5x7(char* str);
 };
 
 #endif /* INC_SSD1306_HPP_ */

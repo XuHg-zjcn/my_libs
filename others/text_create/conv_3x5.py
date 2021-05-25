@@ -85,5 +85,5 @@ for i in range(nY):
     commit.append('0x{:x}. {}'.format(i, chrs))
 
 # write to .c file, arr shape must 2d
-np2c = numpy2ccode('code.c', 'code3x5', out, commit)
+np2c = numpy2ccode('fonts/font_3x5.h', 'font3x5', out, commit)
 np2c.conv_1d(Ncol=16)
