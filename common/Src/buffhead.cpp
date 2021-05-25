@@ -105,8 +105,10 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 		//no flag
 		i += __builtin_ctz(ef);
 		ef >>= __builtin_ctz(ef);
-		if(fid > r_heads[i]){
+		if(fid >= r_heads[i]){
 			osEventFlagsSet(r_heads.ef, 1<<i);
+			i += 1;
+			ef >>= 1;
 		}
 	}
 }
