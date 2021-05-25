@@ -145,7 +145,7 @@ void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)
 	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
 	for(int i=0;i<128;i++){
 		data2 = value_upper(*data, maxh) + bias;
-		col = 1ULL<<data2;  //ULL = uint64_t
+		col = U64_BOTTOM>>(data2);  //ULL = uint64_t
 		dev->Mem_write(ConByte_Data, (uint8_t*)&col, 8);
 		data++;
 	}
@@ -188,7 +188,7 @@ void SSD1306::append_column(uint64_t col)
 {
 	if(col_i != 0xff){  //滚动模式
 		//减少传输错误影响，避免大面积混乱
-		commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i+1);
+		commd_bytes(SET_PAGE_ADDR_2B, 0, 7);//修改，未测试
 	}
 	dev->Mem_write(ConByte_Data, (uint8_t*)&col, 8);
 }

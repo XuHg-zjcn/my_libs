@@ -98,6 +98,10 @@
 #define CHARGE_PUMP_SET_1B    0x8D
 #define SSD1306_NOP           0xE3
 
+#define U64_TOP            (1ULL)     //use << operate
+#define U64_BOTTOM         (1ULL<<63) //use >> operate
+
+
 typedef enum{
 	Scroll_Right = H_SCORLL_1b6B | 0b0,
 	Scroll_Left  = H_SCORLL_1b6B | 0b1,
