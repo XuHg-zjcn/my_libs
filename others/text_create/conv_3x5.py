@@ -42,7 +42,7 @@ img = img.reshape(nX, dy, nX, dx)       # Y,y,X,x
 img = img.transpose(0, 2, 3, 1)         # Y,X,x,y
 img = img.reshape(nX*nY, dx, dy)        # X*Y,x,y
 
-img = img[:, 1:, :0:-1]                 # cut edge, flip y
+img = img[:, 1:, 1:]                    # cut edge, flip y
 img = img.reshape(-1, (dx-1)*(dy-1))    # filat
 img = img >= 128                        # bin
 img = img.astype(np.uint8)
