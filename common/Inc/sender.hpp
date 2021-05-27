@@ -10,9 +10,6 @@
 
 #include "buffer.hpp"
 #include "mylibs_config.hpp"
-#ifdef USE_USB
-#include "usbd_customhid.h"
-#endif
 #include "ssd1306.hpp"
 
 
