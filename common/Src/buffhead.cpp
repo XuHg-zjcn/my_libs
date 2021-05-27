@@ -38,6 +38,8 @@ void BuffHeadWrite::Init()
 #ifdef USE_FREERTOS
 	osSemaphoreAttr_t attr_lock = {.name = "buff_lock"};
 	this->lock = osSemaphoreNew(1, 1, &attr_lock);
+#else
+	this->lock = false;
 #endif
 }
 
@@ -76,6 +78,9 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
 	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
 		return nullptr;
 	}
+#else
+	while(lock);
+	lock = true;
 #endif
 	N_remain = N_elem;
 	return (*buff)[fid];
@@ -90,6 +95,9 @@ void* BuffHeadWrite::put_dma_cycle(u32 cycle)
 	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
 		return nullptr;
 	}
+#else
+	while(lock);
+	lock = true;
 #endif
 	fid = CEIL_DIV(fid, buff->be) * buff->be;  //reset to p0
 	return buff->p0;
@@ -121,6 +129,10 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 			ef >>= 1;
 		}
 	}
+#else
+	if(N_remain <= 0){
+		lock = false;
+	}
 #endif
 }
 
@@ -130,6 +142,8 @@ void BuffHeadWrite::wait_lock()
 	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
 		osSemaphoreRelease(lock);
 	}
+#else
+	while(lock);
 #endif
 }
 
@@ -184,8 +198,6 @@ void* BuffHeadReads::get_frames(u32 head_id, u32 n)
 		u32 mask = 1<<head_id;
 		osEventFlagsClear(ef, mask);
 		osEventFlagsWait(ef, mask, 0x0, LOCK_TIMEOUT);
-#else
-		return nullptr;
 #endif
 	}
 	return (*buff)[fid0];

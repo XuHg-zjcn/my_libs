@@ -35,6 +35,8 @@ private:
 	int32_t N_remain;
 #ifdef USE_FREERTOS
 	osSemaphoreId_t lock;  //lock for putting data
+#else
+	bool lock;  //true: locking
 #endif
 public:
 	BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid){};
