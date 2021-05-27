@@ -73,7 +73,7 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
 		return nullptr;  //over tail of buffer
 	}
 #ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) ！= osOK){
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
 		return nullptr;
 	}
 #endif
@@ -87,7 +87,7 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
 void* BuffHeadWrite::put_dma_cycle(u32 cycle)
 {
 #ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) ！= osOK){
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
 		return nullptr;
 	}
 #endif
