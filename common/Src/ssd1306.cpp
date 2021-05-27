@@ -173,8 +173,10 @@ void SSD1306::VH_scroll(int dx, int dy, uint8_t sta_page, uint8_t end_page, Fram
 	commd.end_page = end_page;
 	commd.v_offset = dy<0 ? 63+dy : dy;
 	ScrollSetup(&commd);
+	commd_bytes(V_SCORLL_AREA_2B, 0, 64);
 	commd_bytes(ACTIVATE_SCROLL);
-	commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i+1);  //page0-page1
+	commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i==0?1:0);  //page0-page1
+	commd_bytes(SET_PAGE_ADDR_2B, sta_page, end_page);
 }
 
 void SSD1306::Scroll_Disable()
@@ -187,7 +189,9 @@ void SSD1306::append_column(uint64_t col)
 {
 	if(col_i != 0xff){  //滚动模式
 		//减少传输错误影响，避免大面积混乱
-		commd_bytes(SET_PAGE_ADDR_2B, 0, 7);//修改，未测试
+		//实验结果：必须先传输列修改，否则会停止滚动
+		commd_bytes(SET_COLUMN_ADDR_2B, col_i, col_i==0?1:0);
+		commd_bytes(SET_PAGE_ADDR_2B, 0, 7);
 	}
 	dev->Mem_write(ConByte_Data, (uint8_t*)&col, 8);
 }
