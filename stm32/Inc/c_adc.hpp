@@ -10,7 +10,6 @@
 
 #include "c_adc.hpp"
 #include "c_tim.hpp"
-#include "cmsis_os2.h"
 #include "buffer.hpp"
 #include "myints.h"
 #include "mylibs_config.hpp"

@@ -57,8 +57,10 @@ void StepMotor::Init()
 	HAL_TIM_Base_Stop_IT(htimx);
 
 	//init GPIO Pins
+#ifdef USE_FREERTOS
 	osSemaphoreAttr_t attr_sem = {.name = "step_motor_sem"};
 	sem = osSemaphoreNew(1, 1, &attr_sem);
+#endif
 }
 
 void StepMotor::setState(StepMotor_State State)
@@ -91,19 +93,29 @@ void StepMotor::Stop()
 	remain_step = 0;
 	HAL_TIM_Base_Stop_IT(htimx);
 	setState(stop);
+#ifdef USE_FREERTOS
 	osSemaphoreRelease(sem);
+#endif
 	FinishCallback(this);
 }
 
 void StepMotor::wait()
 {
+#ifdef USE_FREERTOS
 	osSemaphoreAcquire(sem, timeout);
 	osSemaphoreRelease(sem);
+#else
+	while(rot);
+#endif
 }
 
 void StepMotor::run_us(uint32_t us, int32_t steps, bool blocking)
 {
+#ifdef USE_FREERTOS
 	osSemaphoreAcquire(sem, timeout);
+#else
+	if(rot){return;}
+#endif
 	if(steps == 0){
 		Stop();
 		return;
@@ -119,7 +131,11 @@ void StepMotor::run_us(uint32_t us, int32_t steps, bool blocking)
 
 void StepMotor::run_speed(float deg_sec, float total_deg, bool blocking)
 {
+#ifdef USE_FREERTOS
 	osSemaphoreAcquire(sem, timeout);
+#else
+	if(rot){return;}
+#endif
 	if(deg_sec == 0){
 		Stop();
 		return;

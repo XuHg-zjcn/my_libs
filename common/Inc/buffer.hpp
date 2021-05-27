@@ -9,7 +9,7 @@
 #define INC_BUFFER_HPP_
 
 #include "myints.h"
-#include "cmsis_os2.h"
+#include "mylibs_config.hpp"
 #include "buffhead.hpp"
 
 typedef enum{

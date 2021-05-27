@@ -9,6 +9,8 @@
 #include "buffhead.hpp"
 #include "main.h"
 
+#ifdef USE_FREERTOS
+#ifdef USE_USB
 void UsbSender_TaskFunc(void *argument)
 {
 	SenderParam *param = (SenderParam*)argument;
@@ -23,6 +25,7 @@ void UsbSender_TaskFunc(void *argument)
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 	}
 }
+#endif
 
 void OLEDShow_config(ShowParam *param)
 {
@@ -71,3 +74,4 @@ void OLEDShow_ms_TimerFunc(void *argument)
 	ShowParam *param = (ShowParam*)argument;
 	OLEDShow_config(param);
 }
+#endif

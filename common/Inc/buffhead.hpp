@@ -9,7 +9,7 @@
 #define DATAFLOW_INC_BUFFHEAD_HPP_
 
 #include "myints.h"
-#include "cmsis_os2.h"
+#include "mylibs_config.hpp"
 #include <vector>
 
 using namespace std;
@@ -33,7 +33,9 @@ public:
 class BuffHeadWrite : public BuffHead{
 private:
 	int32_t N_remain;
+#ifdef USE_FREERTOS
 	osSemaphoreId_t lock;  //lock for putting data
+#endif
 public:
 	BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid){};
 	void Init();
@@ -52,7 +54,9 @@ private:
 	Buffer *buff;
 	u32 heads[24]; //24heads
 	u32 enables;
+#ifdef USE_FREERTOS
 	osEventFlagsId_t ef; //bit without flag: head is waiting
+#endif
 public:
 	BuffHeadReads(Buffer *buff);
 	void Init();

@@ -9,7 +9,7 @@
 #include <cstring>
 #include "buffer.hpp"
 #include <algorithm>
-#include "FreeRTOS.h"
+#include "mylibs_config.hpp"
 
 //Methods of BufferHead
 BuffHead::BuffHead(Buffer *buff, u32 fid)
@@ -35,8 +35,10 @@ u32 BuffHead::bytes_elem()
 
 void BuffHeadWrite::Init()
 {
+#ifdef USE_FREERTOS
 	osSemaphoreAttr_t attr_lock = {.name = "buff_lock"};
 	this->lock = osSemaphoreNew(1, 1, &attr_lock);
+#endif
 }
 
 u32 BuffHeadWrite::bytes_elem()
@@ -47,13 +49,17 @@ u32 BuffHeadWrite::bytes_elem()
 //put single element
 u32 BuffHeadWrite::put_elem(void* elem)
 {
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
-		memcpy((*buff)[fid], elem, buff->be);
-		osSemaphoreRelease(lock);
-		return increse(1);
-	}else{
+#ifdef USE_FREERTOS
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
 		return ERR_FID;
 	}
+#endif
+	memcpy((*buff)[fid], elem, buff->be);
+#ifdef USE_FREERTOS
+	osSemaphoreRelease(lock);
+#endif
+	fid += 1;
+	return fid;
 }
 
 /*
@@ -65,12 +71,14 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
 {
 	if(fid%(buff->capacity) + N_elem > buff->capacity){
 		return nullptr;  //over tail of buffer
-	}if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
-		N_remain = N_elem;
-		return (*buff)[fid];
-	}else{
+	}
+#ifdef USE_FREERTOS
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) ！= osOK){
 		return nullptr;
 	}
+#endif
+	N_remain = N_elem;
+	return (*buff)[fid];
 }
 
 /*
@@ -78,12 +86,13 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
  */
 void* BuffHeadWrite::put_dma_cycle(u32 cycle)
 {
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
-		fid = CEIL_DIV(fid, buff->be) * buff->be;  //reset to p0
-		return buff->p0;
-	}else{
+#ifdef USE_FREERTOS
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) ！= osOK){
 		return nullptr;
 	}
+#endif
+	fid = CEIL_DIV(fid, buff->be) * buff->be;  //reset to p0
+	return buff->p0;
 }
 
 u32 BuffHeadWrite::get_capacity()
@@ -95,6 +104,7 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 {
 	fid += N_elem;
 	N_remain -= N_elem;
+#ifdef USE_FREERTOS
 	if(N_remain <= 0){
 		osSemaphoreRelease(lock);
 	}
@@ -111,13 +121,16 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 			ef >>= 1;
 		}
 	}
+#endif
 }
 
 void BuffHeadWrite::wait_lock()
 {
+#ifdef USE_FREERTOS
 	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
 		osSemaphoreRelease(lock);
 	}
+#endif
 }
 
 BuffHeadReads::BuffHeadReads(Buffer *buff)
@@ -131,9 +144,11 @@ BuffHeadReads::BuffHeadReads(Buffer *buff)
 
 void BuffHeadReads::Init()
 {
+#ifdef USE_FREERTOS
 	osEventFlagsAttr_t attr_event = {.name = "read_flags"};
 	ef = osEventFlagsNew(&attr_event);
 	osEventFlagsSet(ef, 0x00ffffff);
+#endif
 }
 
 int BuffHeadReads::new_head()
@@ -165,9 +180,13 @@ void* BuffHeadReads::get_frames(u32 head_id, u32 n)
 	u32 fid0 = heads[head_id];
 	heads[head_id] += n;
 	while(buff->last_fid() < heads[head_id]){ //avoid mistake set flag
+#ifdef USE_FREERTOS
 		u32 mask = 1<<head_id;
 		osEventFlagsClear(ef, mask);
 		osEventFlagsWait(ef, mask, 0x0, LOCK_TIMEOUT);
+#else
+		return nullptr;
+#endif
 	}
 	return (*buff)[fid0];
 }

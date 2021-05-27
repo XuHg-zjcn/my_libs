@@ -9,16 +9,20 @@
 #define DATAFLOW_INC_SENDER_HPP_
 
 #include "buffer.hpp"
-#include "cmsis_os2.h"
+#include "mylibs_config.hpp"
+#ifdef USE_USB
 #include "usbd_customhid.h"
+#endif
 #include "ssd1306.hpp"
 
 
+#ifdef USE_USB
 typedef struct{
 	Buffer *buf;
 	USBD_HandleTypeDef *pdev;
 	u32 n;
 }SenderParam;
+#endif
 
 /*
  * Show_fos only for `OLEDShow_ms_TimerFunc`,
@@ -39,8 +43,12 @@ typedef struct{
 	uint8_t y1; //oled->commd_bytes(SET_PAGE_ADDR_2B, y0, y1);
 }ShowParam;
 
+#ifdef USE_FREERTOS
+#ifdef USE_USB
 void UsbSender_TaskFunc(void *argument);
+#endif
 void OLEDShow_N_TaskFunc(void *argument);
 void OLEDShow_ms_TimerFunc(void *argument);
+#endif
 
 #endif /* DATAFLOW_INC_SENDER_HPP_ */

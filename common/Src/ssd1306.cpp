@@ -9,7 +9,6 @@
 #include <cstdarg>
 #include <cstring>
 #include "ops.h"
-#include "FreeRTOS.h"
 #include "font_3x5.h"
 #include "font_5x7.h"
 
@@ -127,13 +126,13 @@ void SSD1306::Init()
 
 void SSD1306::fill(uint8_t data)
 {
-	uint8_t* x128 = (uint8_t*)pvPortMalloc(1024);
+	uint8_t* x128 = (uint8_t*)XMalloc(1024);
 	memset(x128, data, 1024);
 	commd_bytes(ADDRESSING_MODE_1B, VERT_MODE);
 	commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);  //page0-page1
 	commd_bytes(SET_PAGE_ADDR_2B, 0, 7);  //page0-page1
 	dev->Mem_write(ConByte_Data, x128, 1024);
-	vPortFree(x128);
+	XFree(x128);
 }
 
 void SSD1306::plot_128(uint8_t *data, uint8_t bias, uint8_t maxh)

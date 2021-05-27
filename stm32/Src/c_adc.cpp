@@ -9,20 +9,13 @@
 #include "c_tim.hpp"
 
 #include <stdlib.h>
-#include "cmsis_os2.h"
 #include "main.h"
 #include "ops.h"
+#include "mylibs_config.hpp"
 
 //replace for STM32F1
 #define ADC_CR2_EXTEN ADC_CR2_EXTTRIG
 #define ADC_CR2_JEXTEN ADC_CR2_JEXTTRIG
-
-void osSemClear(osSemaphoreId_t sem)
-{
-	while(osSemaphoreGetCount(sem)>0){
-		osSemaphoreAcquire(sem, 0);
-	}
-}
 
 
 C_ADCEx::C_ADCEx()
@@ -137,7 +130,6 @@ void C_ADCEx::Injected_once(bool blocking)
  */
 void C_ADCEx::Regular_once(u16 *buf, bool blocking)
 {
-	//osSemClear(buff.sem);
 	mode.Enum = ADC_regular_scan;
 	SET_BIT(hadc->Instance->CR1, ADC_CR1_SCAN);
 	CLEAR_BIT(hadc->Instance->CR1, ADC_CR1_DISCEN);
@@ -159,7 +151,6 @@ void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
 	if(!w_head){
 		return;
 	}
-	//osSemClear(buff.w_head.sem);
 	mode.Enum = blocking ? ADC_dma_once_Blocking : ADC_dma_once_NoBlock;
 #ifdef ADC_CR2_DDS
 	CLEAR_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
@@ -184,7 +175,6 @@ void C_ADCEx::DMA_cycle(u32 cycle)
 	if(!w_head){
 		return;
 	}
-	//osSemClear(buff.sem);
 	mode.Enum = ADC_dma_cont_Multi;
 #ifdef ADC_CR2_DDS
 	SET_BIT(hadc->Instance->CR2, ADC_CR2_DDS);

@@ -8,7 +8,9 @@
 #include "buffer.hpp"
 #include <cstdlib>
 #include "myints.h"
+#ifdef USE_FREERTOS
 #include "FreeRTOS.h"
+#endif
 
 
 Buffer::Buffer(u32 byte_elem):be(byte_elem), w_head(this, 0), r_heads(this)
@@ -27,9 +29,9 @@ void Buffer::Init()
 BuffState Buffer::remalloc(u32 capacity)
 {
 	if(this->p0){
-		free(this->p0);
+		XFree(this->p0);
 	}
-	void *p = pvPortMalloc(be*capacity);
+	void *p = XMalloc(be*capacity);
 	if(p){
 		this->p0 = p;
 		this->capacity = capacity;

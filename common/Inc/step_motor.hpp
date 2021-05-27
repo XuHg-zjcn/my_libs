@@ -10,7 +10,7 @@
 
 #include "main.h"
 #include "c_tim.hpp"
-#include "cmsis_os2.h"
+#include "mylibs_config.hpp"
 #include "pins_manager.hpp"
 
 
@@ -100,7 +100,9 @@ private:
 	int64_t total_rot;    // +=rot; each RunStep
 	int32_t remain_step;  // --; each RunStep, -1 will always run;
 	int32_t rot;          // 1:CCW, -1:CW, 0:stop
+#ifdef USE_FREERTOS
 	osSemaphoreId_t sem;
+#endif
 	uint32_t timeout;
 	int16_t rot_state;   // save to RTC backup register, rot in 8step mode
 	void setState(StepMotor_State State);

@@ -8,7 +8,7 @@
 #ifndef INC_SSD1306_HPP_
 #define INC_SSD1306_HPP_
 
-#include "cmsis_os2.h"
+#include "mylibs_config.hpp"
 #include "c_i2c.hpp"
 
 /* I2C slave address of SSD1306
