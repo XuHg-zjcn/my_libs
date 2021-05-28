@@ -104,4 +104,97 @@ public:
 	void CCxChannelCmd(TIM_CHx Channel, TIM_CCxE ChannelState);
 };
 
+
+//low level API get/set ClockDiv(CKD), PreScale(PSC), AutoLoad(ARR)
+
+//get bit masked clock div value
+inline u32 C_TIM::get_clockdiv_sft()
+{
+	return __HAL_TIM_GET_CLOCKDIVISION(this);
+}
+
+//get 2^n clock div value
+inline u32 C_TIM::get_clockdiv_2n()
+{
+	return __HAL_TIM_GET_CLOCKDIVISION(this) >> TIM_CR1_CKD_Pos;
+}
+
+inline u32 C_TIM::get_prescale()
+{
+	return READ_REG(this->Instance->PSC);
+}
+
+inline u32 C_TIM::get_autoload()
+{
+	return READ_REG(this->Instance->ARR);
+}
+
+inline void C_TIM::set_clockdiv_sft(u32 ckd)
+{
+	__HAL_TIM_SET_CLOCKDIVISION(this, ckd);
+}
+
+
+inline void C_TIM::set_clockdiv_2n(u32 ckd_2n)
+{
+	__HAL_TIM_SET_CLOCKDIVISION(this, ckd_2n << TIM_CR1_CKD_Pos);
+}
+
+inline void C_TIM::set_prescale(u32 psc)
+{
+	WRITE_REG(this->Instance->PSC, psc);
+}
+
+inline void C_TIM::set_autoload(u32 arr)
+{
+	WRITE_REG(this->Instance->ARR, arr);
+}
+
+
+/*
+ * set count mode.
+ * @param mode: can be TIM_CountMode_(Up/Down/Cen1/Cen2/Cen3)
+ */
+inline void C_TIM::set_CountMode(TIM_CountMode mode)
+{
+	MODIFY_REG(this->Instance->CR1, TIM_CR1_DIR|TIM_CR1_CMS, mode);
+}
+
+//reset count value, upcounter set to 0, downcounter set to autoload value.
+inline void C_TIM::reset_count()
+{
+	uint32_t cnt = __HAL_TIM_IS_TIM_COUNTING_DOWN(this)?__HAL_TIM_GET_AUTORELOAD(this):0;
+	__HAL_TIM_SET_COUNTER(this, cnt);
+}
+
+
+
+//operate single channels
+
+//get single channel compare value
+inline u32 C_TIM::get_comp(TIM_CHx Channel)
+{
+	return __HAL_TIM_GET_COMPARE(this, Channel);
+}
+
+//get single channel duty 0..1
+inline float C_TIM::get_duty(TIM_CHx Channel)
+{
+	uint32_t al = __HAL_TIM_GET_AUTORELOAD(this);
+	return (float)__HAL_TIM_GET_COMPARE(this, Channel)/al;
+}
+
+//set single channel compare value
+inline void C_TIM::set_comp(TIM_CHx Channel, u32 comp)
+{
+	__HAL_TIM_SET_COMPARE(this, Channel, comp);
+}
+
+//set single channel compare value by duty 0..1
+inline void C_TIM::set_duty(TIM_CHx Channel, float duty)
+{
+	uint32_t al = __HAL_TIM_GET_AUTORELOAD(this);
+	__HAL_TIM_SET_COMPARE(this, Channel, duty*al);
+}
+
 #endif /* INC_TIMER_HPP_ */
