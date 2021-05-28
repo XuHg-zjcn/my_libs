@@ -213,3 +213,32 @@ void C_TIM::CCxChannelCmd(TIM_CHx Channel, TIM_CCxE ChannelState)
 {
 	TIM_CCxChannelCmd(this->Instance, Channel, ChannelState);
 }
+
+
+
+//single channel class
+TIM_CH::TIM_CH(C_TIM *htim, TIM_CHx Channel)
+{
+	this->htim = htim;
+	this->Channel = Channel;
+}
+
+void TIM_CH::pluse_ns(u32 delay_ns, u32 pluse_ns, bool blocking)
+{
+	htim->pluse_ns(Channel, delay_ns, pluse_ns, blocking);
+}
+
+void TIM_CH::pluse_clk(u32 delay_clk, u32 pluse_clk, bool blocking)
+{
+	htim->pluse_clk(Channel, delay_clk, pluse_clk, blocking);
+}
+
+void TIM_CH::set_OCMode(TIM_OCMode mode)
+{
+	htim->set_OCMode(Channel, mode);
+}
+
+void TIM_CH::CCxChannelCmd(TIM_CCxE ChannelState)
+{
+	htim->CCxChannelCmd(Channel, ChannelState);
+}

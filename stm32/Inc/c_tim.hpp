@@ -67,14 +67,14 @@ public:
 	void set_Trig(u32 trig, u32 polar, u32 prescale, u32 filter);
 	void set_ExtClk(bool isExtern);
 	//low level API get/set ClockDiv(CKD), PreScale(PSC), AutoLoad(ARR)
-	inline u32 get_clockdiv_sft();
-	inline u32 get_clockdiv_2n();
-	inline u32 get_prescale();
-	inline u32 get_autoload();
-	inline void set_clockdiv_sft(u32 ckd);
-	inline void set_clockdiv_2n(u32 ckd_2n);
-	inline void set_prescale(u32 psc);
-	inline void set_autoload(u32 arr);
+	inline u32 get_clockdiv_sft()			{return __HAL_TIM_GET_CLOCKDIVISION(this);}
+	inline u32 get_clockdiv_2n()			{return __HAL_TIM_GET_CLOCKDIVISION(this) >> TIM_CR1_CKD_Pos;}
+	inline u32 get_prescale()				{return READ_REG(this->Instance->PSC);}
+	inline u32 get_autoload()				{return READ_REG(this->Instance->ARR);}
+	inline void set_clockdiv_sft(u32 ckd)	{__HAL_TIM_SET_CLOCKDIVISION(this, ckd);}
+	inline void set_clockdiv_2n(u32 ckd_2n)	{__HAL_TIM_SET_CLOCKDIVISION(this, ckd_2n << TIM_CR1_CKD_Pos);}
+	inline void set_prescale(u32 psc)		{WRITE_REG(this->Instance->PSC, psc);}
+	inline void set_autoload(u32 arr)		{WRITE_REG(this->Instance->ARR, arr);}
 	//high level API get/set ClockDiv(CKD), PreScale(PSC), AutoLoad(ARR)
 	TypeDiv get_div(TIM_ClockLevel level);
 	Type_Hz get_Hz(TIM_ClockLevel level);
@@ -84,15 +84,18 @@ public:
 	void set_ns(Type_ns ns);
 	//others
 	void set_CountEnable(bool isEnable);
-	inline void set_CountMode(TIM_CountMode mode);
-	inline void reset_count();
+	inline void set_CountMode(TIM_CountMode mode) {MODIFY_REG(this->Instance->CR1, TIM_CR1_DIR|TIM_CR1_CMS, mode);};
+	inline void reset_count(){
+		uint32_t cnt = __HAL_TIM_IS_TIM_COUNTING_DOWN(this)?__HAL_TIM_GET_AUTORELOAD(this):0;
+		__HAL_TIM_SET_COUNTER(this, cnt);
+	}
 	u32 maxcount();
 
 	//operate single channel
-	inline u32   get_comp(TIM_CHx Channel);
-	inline float get_duty(TIM_CHx Channel);
-	inline void set_comp(TIM_CHx Channel, u32 comp);
-	inline void set_duty(TIM_CHx Channel, float duty);
+	inline u32   get_comp(TIM_CHx Channel)    {return __HAL_TIM_GET_COMPARE(this, Channel);}
+	inline float get_duty(TIM_CHx Channel)    {return (float)__HAL_TIM_GET_COMPARE(this, Channel)/__HAL_TIM_GET_AUTORELOAD(this);}
+	inline void set_comp(TIM_CHx Channel, u32 comp)   {__HAL_TIM_SET_COMPARE(this, Channel, comp);}
+	inline void set_duty(TIM_CHx Channel, float duty) {__HAL_TIM_SET_COMPARE(this, Channel, duty*__HAL_TIM_GET_AUTORELOAD(this));}
 	//operate 4 channels
 	void set_comp4(u32 comp1, u32 comp2, u32 comp3, u32 comp4);
 	void set_duty4(float duty1, float duty2, float duty3, float duty4);
@@ -105,96 +108,25 @@ public:
 };
 
 
-//low level API get/set ClockDiv(CKD), PreScale(PSC), AutoLoad(ARR)
 
-//get bit masked clock div value
-inline u32 C_TIM::get_clockdiv_sft()
-{
-	return __HAL_TIM_GET_CLOCKDIVISION(this);
-}
-
-//get 2^n clock div value
-inline u32 C_TIM::get_clockdiv_2n()
-{
-	return __HAL_TIM_GET_CLOCKDIVISION(this) >> TIM_CR1_CKD_Pos;
-}
-
-inline u32 C_TIM::get_prescale()
-{
-	return READ_REG(this->Instance->PSC);
-}
-
-inline u32 C_TIM::get_autoload()
-{
-	return READ_REG(this->Instance->ARR);
-}
-
-inline void C_TIM::set_clockdiv_sft(u32 ckd)
-{
-	__HAL_TIM_SET_CLOCKDIVISION(this, ckd);
-}
-
-
-inline void C_TIM::set_clockdiv_2n(u32 ckd_2n)
-{
-	__HAL_TIM_SET_CLOCKDIVISION(this, ckd_2n << TIM_CR1_CKD_Pos);
-}
-
-inline void C_TIM::set_prescale(u32 psc)
-{
-	WRITE_REG(this->Instance->PSC, psc);
-}
-
-inline void C_TIM::set_autoload(u32 arr)
-{
-	WRITE_REG(this->Instance->ARR, arr);
-}
-
-
-/*
- * set count mode.
- * @param mode: can be TIM_CountMode_(Up/Down/Cen1/Cen2/Cen3)
- */
-inline void C_TIM::set_CountMode(TIM_CountMode mode)
-{
-	MODIFY_REG(this->Instance->CR1, TIM_CR1_DIR|TIM_CR1_CMS, mode);
-}
-
-//reset count value, upcounter set to 0, downcounter set to autoload value.
-inline void C_TIM::reset_count()
-{
-	uint32_t cnt = __HAL_TIM_IS_TIM_COUNTING_DOWN(this)?__HAL_TIM_GET_AUTORELOAD(this):0;
-	__HAL_TIM_SET_COUNTER(this, cnt);
-}
-
-
-
-//operate single channels
-
-//get single channel compare value
-inline u32 C_TIM::get_comp(TIM_CHx Channel)
-{
-	return __HAL_TIM_GET_COMPARE(this, Channel);
-}
-
-//get single channel duty 0..1
-inline float C_TIM::get_duty(TIM_CHx Channel)
-{
-	uint32_t al = __HAL_TIM_GET_AUTORELOAD(this);
-	return (float)__HAL_TIM_GET_COMPARE(this, Channel)/al;
-}
-
-//set single channel compare value
-inline void C_TIM::set_comp(TIM_CHx Channel, u32 comp)
-{
-	__HAL_TIM_SET_COMPARE(this, Channel, comp);
-}
-
-//set single channel compare value by duty 0..1
-inline void C_TIM::set_duty(TIM_CHx Channel, float duty)
-{
-	uint32_t al = __HAL_TIM_GET_AUTORELOAD(this);
-	__HAL_TIM_SET_COMPARE(this, Channel, duty*al);
-}
+//single channel class
+class TIM_CH{
+private:
+	C_TIM *htim;
+	TIM_CHx Channel;
+	bool allowCNT;
+public:
+	TIM_CH(C_TIM *htim, TIM_CHx Channel);
+	inline u32   get_comp()    {return __HAL_TIM_GET_COMPARE(htim, Channel);}
+	inline float get_duty()    {return (float)__HAL_TIM_GET_COMPARE(htim, Channel)/__HAL_TIM_GET_AUTORELOAD(htim);}
+	inline void set_comp(u32 comp)   {__HAL_TIM_SET_COMPARE(htim, Channel, comp);}
+	inline void set_duty(float duty) {__HAL_TIM_SET_COMPARE(htim, Channel, duty*__HAL_TIM_GET_AUTORELOAD(htim));}
+	//OnePluse Mode
+	void pluse_ns(u32 delay_ns, u32 pluse_ns, bool blocking);
+	void pluse_clk(u32 delay_clk, u32 pluse_clk, bool blocking);
+	//others
+	void set_OCMode(TIM_OCMode mode);
+	void CCxChannelCmd(TIM_CCxE ChannelState);
+};
 
 #endif /* INC_TIMER_HPP_ */
