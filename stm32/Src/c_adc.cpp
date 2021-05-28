@@ -101,7 +101,7 @@ void C_ADCEx::load_inject_seq(ADC_SampSeq* sseq)
 	}
 }
 
-void C_ADCEx::load_regular_one_channel(u32 CHx, u32 tSAMP)
+void C_ADCEx::load_regular_one_channel(ADC_CHx CHx, u32 tSAMP)
 {
 	CLEAR_BIT(hadc->Instance->SQR1, ADC_SQR1_L);  //length=1
 	ADC_ChannelConfTypeDef sConfig = {0};
@@ -222,7 +222,7 @@ void C_ADCEx::ConvPack()
 /*
  * use injected length=1 sequence. blocking to wait finish.
  */
-uint16_t C_ADCEx::read_channel(u32 channel, u32 sample_time)
+uint16_t C_ADCEx::read_channel(ADC_CHx channel, u32 sample_time)
 {
 	//config inject channel
 	ADC_InjectionConfTypeDef sConfigInjected;

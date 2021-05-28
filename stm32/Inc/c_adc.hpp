@@ -53,6 +53,26 @@ typedef enum{              // |PHFCCIR,
 	ADC_dma_cont_Multi     = 0b1001101,
 }MyADCModeEnum;
 
+typedef enum{
+	ADC_CH1  = ADC_CHANNEL_1,
+	ADC_CH2  = ADC_CHANNEL_2,
+	ADC_CH3  = ADC_CHANNEL_3,
+	ADC_CH4  = ADC_CHANNEL_4,
+	ADC_CH5  = ADC_CHANNEL_5,
+	ADC_CH6  = ADC_CHANNEL_6,
+	ADC_CH7  = ADC_CHANNEL_7,
+	ADC_CH8  = ADC_CHANNEL_8,
+	ADC_CH9  = ADC_CHANNEL_9,
+	ADC_CH10 = ADC_CHANNEL_10,
+	ADC_CH11 = ADC_CHANNEL_11,
+	ADC_CH12 = ADC_CHANNEL_12,
+	ADC_CH13 = ADC_CHANNEL_13,
+	ADC_CH14 = ADC_CHANNEL_14,
+	ADC_CH15 = ADC_CHANNEL_15,
+	ADC_CH16 = ADC_CHANNEL_16,
+	ADC_CH17 = ADC_CHANNEL_17
+}ADC_CHx;
+
 typedef union{
 	MyADCModeStruct Stru;
 	MyADCModeEnum Enum;
@@ -80,7 +100,7 @@ public:
 	void set_Regular_ExtenTrig(u32 src, u32 edge);
 	void load_regular_seq(ADC_SampSeq* sseq);
 	void load_inject_seq(ADC_SampSeq* sseq);
-	void load_regular_one_channel(u32 CHx, u32 tSAMP);
+	void load_regular_one_channel(ADC_CHx CHx, u32 tSAMP);
 	void Injected_once(bool blocking);
 	void Regular_once(u16 *buf, bool blocking);
 	void DMA_once(u32 Nsamp, bool blocking);
@@ -88,7 +108,7 @@ public:
 	void ConvCplt();      //please call in DMA Conv callback
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
-	uint16_t read_channel(u32 channel, u32 sample_time);
+	uint16_t read_channel(ADC_CHx channel, u32 sample_time);
 };
 
 #endif /* INC_MY_ADC_HPP_ */
