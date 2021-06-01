@@ -10,7 +10,7 @@
 
 #include <stdlib.h>
 #include "main.h"
-#include "ops.h"
+#include "ops.hpp"
 #include "mylibs_config.hpp"
 
 //replace for STM32F1

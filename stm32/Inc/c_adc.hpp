@@ -17,31 +17,6 @@
 const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])
 
-#pragma pack(1)
-/*
- * sample time register has each CHANNEL in ADC_SMPRx (x=1,2)
- * can't set different sample time to same channel.
- */
-typedef struct{
-	unsigned int CHx:5;   //ADC_CHANNEL_xx
-	unsigned int tSMP:3;  //ADC_SAMPLETIME_xxCYCLES
-}ADC_aSamp;
-
-typedef struct{
-	uint8_t len;    //length of sequence-1
-	ADC_aSamp *seq;
-}ADC_SampSeq;
-#pragma pack()
-
-typedef struct{
-	unsigned int running:1;   // 0:stopping, 1:running
-	unsigned int inject:1;    // 0:regular,  1:injected
-	unsigned int contin:2;    // 0:sample one, 1:scan once, 2:DMA once, 3:DMA multiply
-	unsigned int sem_full:1;  // sem release on full cpkt
-	unsigned int sem_half:1;  // sem release on half cpkt
-	unsigned int sem_pack:1;
-}MyADCModeStruct;
-
 typedef enum{              // |PHFCCIR,
 	ADC_stopping           = 0b0000000,
 	ADC_injected           = 0b0000011,
@@ -72,6 +47,42 @@ typedef enum{
 	ADC_CH16 = ADC_CHANNEL_16,
 	ADC_CH17 = ADC_CHANNEL_17
 }ADC_CHx;
+
+typedef enum{
+	ADC_tSMP_1Cyc5   = ADC_SAMPLETIME_1CYCLE_5,
+	ADC_tSMP_7Cyc5   = ADC_SAMPLETIME_7CYCLES_5,
+	ADC_tSMP_13Cyc5  = ADC_SAMPLETIME_13CYCLES_5,
+	ADC_tSMP_28Cyc5  = ADC_SAMPLETIME_28CYCLES_5,
+	ADC_tSMP_41Cyc5  = ADC_SAMPLETIME_41CYCLES_5,
+	ADC_tSMP_55Cyc5  = ADC_SAMPLETIME_55CYCLES_5,
+	ADC_tSMP_71Cyc5  = ADC_SAMPLETIME_71CYCLES_5,
+	ADC_tSMP_239Cyc5 = ADC_SAMPLETIME_239CYCLES_5
+}ADC_tSMP;
+
+#pragma pack(1)
+/*
+ * sample time register has each CHANNEL in ADC_SMPRx (x=1,2)
+ * can't set different sample time to same channel.
+ */
+typedef struct{
+	ADC_CHx CHx:5;   //ADC_CHANNEL_xx
+	ADC_tSMP tSMP:3;  //ADC_SAMPLETIME_1CYCLES5
+}ADC_aSamp;
+
+typedef struct{
+	uint8_t len;    //length of sequence-1
+	ADC_aSamp *seq;
+}ADC_SampSeq;
+#pragma pack()
+
+typedef struct{
+	unsigned int running:1;   // 0:stopping, 1:running
+	unsigned int inject:1;    // 0:regular,  1:injected
+	unsigned int contin:2;    // 0:sample one, 1:scan once, 2:DMA once, 3:DMA multiply
+	unsigned int sem_full:1;  // sem release on full cpkt
+	unsigned int sem_half:1;  // sem release on half cpkt
+	unsigned int sem_pack:1;
+}MyADCModeStruct;
 
 typedef union{
 	MyADCModeStruct Stru;
