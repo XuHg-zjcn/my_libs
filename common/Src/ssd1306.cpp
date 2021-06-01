@@ -8,7 +8,7 @@
 #include <ssd1306.hpp>
 #include <cstdarg>
 #include <cstring>
-#include "ops.h"
+#include "ops.hpp"
 #include "font_3x5.h"
 #include "font_5x7.h"
 
