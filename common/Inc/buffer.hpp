@@ -35,6 +35,7 @@ public:
 	BuffHeadWrite w_head;
 	BuffHeadReads r_heads;
 	Buffer(u32 byte_elem);
+	~Buffer();
 	void Init();
 	BuffState remalloc(u32 capacity);
 	//u32 remalloc(float sys_perc);

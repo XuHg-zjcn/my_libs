@@ -20,6 +20,11 @@ Buffer::Buffer(u32 byte_elem):be(byte_elem), w_head(this, 0), r_heads(this)
 	w_head.fid = 0;
 }
 
+Buffer::~Buffer()
+{
+	XFree(this->p0);
+}
+
 void Buffer::Init()
 {
 	w_head.Init();
