@@ -217,10 +217,11 @@ void C_TIM::CCxChannelCmd(TIM_CHx Channel, TIM_CCxE ChannelState)
 
 
 //single channel class
-TIM_CH::TIM_CH(C_TIM *htim, TIM_CHx Channel)
+TIM_CH::TIM_CH(C_TIM *htim, TIM_CHx Channel, bool allowCNT)
 {
 	this->htim = htim;
 	this->Channel = Channel;
+	this->allowCNT = allowCNT;
 }
 
 void TIM_CH::pluse_ns(u32 delay_ns, u32 pluse_ns, bool blocking)

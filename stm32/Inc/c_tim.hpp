@@ -116,7 +116,7 @@ private:
 	TIM_CHx Channel;
 	bool allowCNT;
 public:
-	TIM_CH(C_TIM *htim, TIM_CHx Channel);
+	TIM_CH(C_TIM *htim, TIM_CHx Channel, bool allowCNT);
 	inline u32   get_comp()    {return __HAL_TIM_GET_COMPARE(htim, Channel);}
 	inline float get_duty()    {return (float)__HAL_TIM_GET_COMPARE(htim, Channel)/__HAL_TIM_GET_AUTORELOAD(htim);}
 	inline void set_comp(u32 comp)   {__HAL_TIM_SET_COMPARE(htim, Channel, comp);}
@@ -127,6 +127,11 @@ public:
 	//others
 	void set_OCMode(TIM_OCMode mode);
 	void CCxChannelCmd(TIM_CCxE ChannelState);
+
+	Type_Hz get_Hz(TIM_ClockLevel level){return htim->get_Hz(level);}
+	Type_ns get_ns(TIM_ClockLevel level){return htim->get_ns(level);}
+	void set_Hz(Type_Hz Hz)             {htim->set_Hz(Hz);}
+	void set_ns(Type_ns ns)             {htim->set_ns(ns);}
 };
 
 #endif /* INC_TIMER_HPP_ */
