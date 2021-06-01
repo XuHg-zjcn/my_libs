@@ -57,7 +57,7 @@ public:
 	void setDuty(float duty);
 	float LTest();  //电感量测试
 	float RTest();  //电阻测试
-	void wait_OK();
+	u32 t_value(BuffHeadRead head);
 	void run_monitor(ControlConfig &cfg, SSD1306 &oled);
 };
 

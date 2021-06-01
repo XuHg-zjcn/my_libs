@@ -52,9 +52,22 @@ void DC_Motor::setDuty(float duty)
 	tim_pwm.set_duty(duty);
 }
 
-void DC_Motor::wait_OK()
+u32 DC_Motor::t_value(BuffHeadRead head)
 {
-
+	u32 Sxx = ((NZIP*NZIP-1)/12)*NZIP;
+	hadc->DMA_once(NSAMP, true);
+	u16 *p = (u16*)head.get_frames(NSAMP);
+	filter(p, NSAMP, 300);
+	mean_zip(p, NSAMP/NZIP, NZIP, 5);
+	u32 Eiy = isum(p, NZIP);
+	u32 Ey = sum(p, NZIP);
+	u32 Ey2 = sum2<u16,u32>(p, NZIP);
+	i32 Sxy = Eiy - Ey/2*(NZIP-1);
+	u64 Sxy2 = (i64)Sxy*(i64)Sxy;
+	u32 Syy = Ey2 - Ey/NZIP*Ey;
+	i32 b_ = Sxy/(i32)(Sxx/1000);
+	i64 t = Sxy2*(NZIP-2)*10000LL/((i64)Syy*(i64)Sxx-Sxy2);
+	return u64_sqrt(t);
 }
 
 void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
@@ -81,36 +94,34 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	p = (u16*)head.get_frames(NSAMP);
 	u32 s0 = sum(p, NSAMP);
 	tim_pwm.CCxChannelCmd(TIM_CCx_Enable);
-	u32 Sxx = ((NZIP*NZIP-1)/12)*NZIP;
-	i64 t = 10000;
-	while(t>50){
-		hadc->DMA_once(NSAMP, true);
-		p = (u16*)head.get_frames(NSAMP);
-		filter(p, NSAMP, 300);
-		mean_zip(p, NSAMP/NZIP, NZIP, 5);
-		u32 Eiy = isum(p, NZIP);
-		u32 Ey = sum(p, NZIP);
-		u32 Ey2 = sum2<u16,u32>(p, NZIP);
-		i32 Sxy = Eiy - Ey/2*(NZIP-1);
-		u64 Sxy2 = (i64)Sxy*(i64)Sxy;
-		u32 Syy = Ey2 - Ey/NZIP*Ey;
-		i32 b_ = Sxy/(i32)(Sxx/1000);
-		t = Sxy2*(NZIP-2)*10000LL/((i64)Syy*(i64)Sxx-Sxy2);
-		t = u64_sqrt(t);
-		/*if(Sxy < 0){
-			t *= -1;
-		}*/
+	int i=0;
+	while(i<9){
+		while(t_value(head)>50);
+		for(i=0;i<10 && t_value(head)<200;i++);
 	}
 	HAL_Delay(500);
 	*led = 0;
 	hadc->DMA_once(NSAMP, true);
 	p = (u16*)head.get_frames(NSAMP);
 	u32 s1 = sum(p, NSAMP);
-	u32 max = s0 + xfact((s1-s0), 1001, 1000); //使用积分检测
+	u32 max = s0 + xfact((s1-s0), 102, 100); //使用积分检测
+	char str[20];
+	oled.setVHAddr(HORZ_MODE, 0, 127, 0, 1);
+	snprintf(str, 20, " s0:%5d", s0/409);
+	oled.text_5x7(str);
+	oled.setVHAddr(HORZ_MODE, 0, 127, 1, 2);
+	snprintf(str, 20, " s1:%5d", s1/409);
+	oled.text_5x7(str);
+	oled.setVHAddr(HORZ_MODE, 0, 127, 2, 3);
+	snprintf(str, 20, "max:%5d", max/409);
+	oled.text_5x7(str);
 	while(1){
 		hadc->DMA_once(NSAMP, true);
 		p = (u16*)head.get_frames(NSAMP);
 		u32 s2 = sum(p, NSAMP);
+		oled.setVHAddr(HORZ_MODE, 0, 127, 4, 5);
+		snprintf(str, 20, " s2:%5d", s2/409);
+		oled.text_5x7(str);
 		if(s2 > max){
 			tim_pwm.CCxChannelCmd(TIM_CCx_Disable);
 			return;
