@@ -10,6 +10,7 @@
 
 #include <ctime>
 #include "mylibs_config.hpp"
+#include "myints.h"
 
 using namespace std;
 

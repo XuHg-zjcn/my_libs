@@ -9,6 +9,7 @@
 #define INC_OPS_H_
 
 #include "mylibs_config.hpp"
+#include "myints.h"
 
 typedef int32_t i32;
 typedef int64_t i64;
