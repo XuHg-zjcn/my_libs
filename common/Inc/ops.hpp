@@ -10,15 +10,40 @@
 
 #include "mylibs_config.hpp"
 
+typedef int32_t i32;
+typedef int64_t i64;
 
 //a,b,c const, x,y,z vars
 
 #define value_lower(x, a)   (x<a)?a:x
 #define value_upper(x, b)   (x>b)?b:x
-#define value_clip(x, a, b) (x<a)?a:(x>b?b:x)
+#define value_clip(x, a, b) ((x<a)?a:(x>b?b:x))
 
 #define mean(s, n)      (s/n)
 #define std(s, s2, n)   ((s2 - s1*s1/n)/n)
+
+template<typename T>
+u32 uint_sqrt(T x)
+{
+	if(x == 0){ //CLZ undefined at 0
+		return 0;
+	}
+	u32 bits = sizeof(T)*8 - __builtin_clzll(x);
+	u32 ret = 0;
+	i32 i=(bits-1)/2;
+	for(;i>=0;i--){
+		u32 tmp = ret|(1<<i);
+		T x2 = (T)tmp*(T)tmp;
+		if(x2 == x){
+			return tmp;
+		}else if(x2 < x){
+			ret = tmp;
+		}/*else if(x2 > x){
+			continue;
+		}*/
+	}
+	return ret;
+}
 
 template<typename T>
 uint32_t sum(T* p, uint32_t n)
@@ -30,7 +55,11 @@ uint32_t sum(T* p, uint32_t n)
 	return ret;
 }
 
-//for 12bit ADC sample, n should <= 256, else maybe overflow
+/*
+ * for 12bit ADC sample, else maybe overflow
+ * To=u32, n should <= 256
+ * To=u64, n can be 2^40
+ */
 template<typename T, typename To>
 To sum2(T* p, uint32_t n)
 {
@@ -40,6 +69,20 @@ To sum2(T* p, uint32_t n)
 		p++;
 	}
 	return ret;
+}
+
+//var>=0, so can use unsigned long long
+template<typename T>
+u64 n2var(T* p, uint32_t n)
+{
+	u64 s = sum(p, n);
+	return sum2<T, u64>(p, n)*n - s*s;
+}
+
+template<typename T>
+u32 istd(T* p, uint32_t n)
+{
+	return uint_sqrt<u64>(n2var(p, n))/n;
 }
 
 //for 12bit ADC sample, n should < 2^10.5 = 1448, else maybe overflow
@@ -66,9 +109,6 @@ void zxg(T* p, u32 len, u32 *res, u32 n)
 	}
 }
 
-u32 u32_sqrt(u32 x);
-u32 u64_sqrt(u64 x);
-
 template<typename T>
 void linear_fill(T* p, u32 len, T a, T b)
 {
@@ -84,7 +124,7 @@ void filter(T* p, u32 len, u32 xstd100)
 {
 	u32 s = sum(p, len);
 	u64 s2 = sum2<T, u64>(p, len);
-	u32 nstd = u64_sqrt(s2*len - (u64)s*s);
+	u32 nstd = uint_sqrt(s2*len - (u64)s*s);
 	u32 max = (s*100+nstd*xstd100)/(len*100);
 	u32 min = (s*100-nstd*xstd100)/(len*100);
 	p++;
