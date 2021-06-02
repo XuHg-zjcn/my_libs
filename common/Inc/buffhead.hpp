@@ -62,7 +62,7 @@ private:
 public:
 	BuffHeadReads(Buffer *buff);
 	void Init();
-	int new_head();
+	int new_head();  //TODO: return Head obj
 	void disable_head(int head_id);
 	void* get_frames(u32 head_id, u32 n);
 	u32 operator[](u32 i);

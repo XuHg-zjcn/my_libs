@@ -34,6 +34,7 @@ void C_ADCEx::Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim)
     this->htim = (C_TIM*)htim;
 }
 
+//TODO: change to Buffer ptr
 void C_ADCEx::conn_buff(BuffHeadWrite* w_head)
 {
        this->w_head = w_head;

@@ -104,7 +104,7 @@ protected:
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
-	void conn_buff(BuffHeadWrite* w_head);
+	void conn_buff(BuffHeadWrite* w_head);  //TODO: auto create buffer
 	void set_SR_sps(u32 sps);
 	void set_SR_ns(u32 ns);
 	void set_Inject_ExtenTrig(u32 src, u32 edge);
@@ -121,5 +121,7 @@ public:
 	void ConvPack();
 	uint16_t read_channel(ADC_CHx channel, u32 sample_time);
 };
+
+//TODO: single channel API
 
 #endif /* INC_MY_ADC_HPP_ */
