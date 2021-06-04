@@ -47,28 +47,61 @@ void SMG8::connTIM(C_TIM* tim)
 	this->tim = tim;
 }
 
-void SMG8::showNum(int num, int point)
+/*
+ * @param i0: index of start
+ * @param i1: index of end+1
+ * @param num: number to show
+ * @param point: 0:don't show, otherwise:point at n th number
+ * @param fill0: is fill 0 at head?
+ */
+void SMG8::showNum(int i0, int i1, int num, int point, bool fill0)
 {
-	if(num>=10000 || num <=-1000){
+	int i=i1-i0;
+	if(num<0){
+		i-=1;
+	}
+	u32 m=1;
+	for(;i>0;i--){
+		m*=10;
+	}
+	if(abs(num)>=m){
 		return;
 	}
-	uint8_t *p = &buf[3];
+	uint8_t *p = &buf[i1-1];
 	do{
 		*p-- = fontsmg8[num%10];
 		num/=10;
 	}while(num!=0);
-	while(p >= buf){
-		*p-- = 0;
+	u8 fill = fill0 ? fontsmg8[0] : 0;
+	while(p >= buf+i0){
+		*p-- = fill;
+	}
+	if(point){
+		buf[i0+point-1] |= 0x80;
 	}
 }
 
 void SMG8::showTime(int n, bool c, int m)
 {
-	buf[0] = (n>9)?fontsmg8[(n/10)]:0;
-	buf[1] = fontsmg8[n%10];
-	buf[2] = fontsmg8[m/10];
-	buf[3] = fontsmg8[m%10];
+	showNum(0, 2, n, 0, false);
+	showNum(2, 4, m, 0, true);
 	colon_state = c;
+}
+
+
+void SMG8::showCurrYear()
+{
+	RTC_DateTypeDef sDate;
+	rtc->GetDate(&sDate, RTC_FORMAT_BIN);
+	showNum((u32)sDate.Year+2000);
+}
+
+void SMG8::showCurrDate()
+{
+	RTC_DateTypeDef sDate;
+	rtc->GetDate(&sDate, RTC_FORMAT_BIN);
+	showNum(0, 2, (u32)sDate.Month, 2, false);
+	showNum(2, 4, (u32)sDate.Date, 0, false);
 }
 
 /*
