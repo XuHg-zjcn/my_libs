@@ -14,6 +14,7 @@
 #define CompKeep 0xffffffff  //flag for `set_comp4()` keep old compare value.
 #define DutyKeep -1          //flag for `set_duty4()` keep old compare value.
 
+//TODO: use #include<ratio>
 typedef uint64_t Type_ns;
 typedef float    Type_Hz;
 typedef uint64_t TypeDiv;
@@ -60,6 +61,21 @@ typedef enum{
 	TIM_OCMode_Forced_InActive = TIM_OCMODE_FORCED_INACTIVE
 }TIM_OCMode;
 
+typedef enum{
+	TIM_IT_update = TIM_IT_UPDATE,
+	TIM_IT_cc1 = TIM_IT_CC1,
+	TIM_IT_cc2 = TIM_IT_CC2,
+	TIM_IT_cc3 = TIM_IT_CC3,
+	TIM_IT_cc4 = TIM_IT_CC4,
+	TIM_IT_com = TIM_IT_COM,
+	TIM_IT_trigger = TIM_IT_TRIGGER,
+	TIM_IT_break = TIM_IT_BREAK
+}TIM_IT;
+
+#define TIM_CH2IT(x) (x==TIM_Channel_1 ? TIM_IT_cc1:\
+		             (x==TIM_Channel_2 ? TIM_IT_cc2:\
+		             (x==TIM_Channel_3 ? TIM_IT_cc3:\
+		             TIM_IT_cc4)))
 
 class C_TIM : public TIM_HandleTypeDef{
 public:
@@ -70,11 +86,11 @@ public:
 	inline u32 get_clockdiv_sft()			{return __HAL_TIM_GET_CLOCKDIVISION(this);}
 	inline u32 get_clockdiv_2n()			{return __HAL_TIM_GET_CLOCKDIVISION(this) >> TIM_CR1_CKD_Pos;}
 	inline u32 get_prescale()				{return READ_REG(this->Instance->PSC);}
-	inline u32 get_autoload()				{return READ_REG(this->Instance->ARR);}
+	inline u32 get_autoload()				{return __HAL_TIM_GET_AUTORELOAD(this);}
 	inline void set_clockdiv_sft(u32 ckd)	{__HAL_TIM_SET_CLOCKDIVISION(this, ckd);}
 	inline void set_clockdiv_2n(u32 ckd_2n)	{__HAL_TIM_SET_CLOCKDIVISION(this, ckd_2n << TIM_CR1_CKD_Pos);}
-	inline void set_prescale(u32 psc)		{WRITE_REG(this->Instance->PSC, psc);}
-	inline void set_autoload(u32 arr)		{WRITE_REG(this->Instance->ARR, arr);}
+	inline void set_prescale(u32 psc)		{__HAL_TIM_SET_PRESCALER(this, psc);}
+	inline void set_autoload(u32 arr)		{__HAL_TIM_SET_AUTORELOAD(this, arr);}
 	//high level API get/set ClockDiv(CKD), PreScale(PSC), AutoLoad(ARR)
 	TypeDiv get_div(TIM_ClockLevel level);
 	Type_Hz get_Hz(TIM_ClockLevel level);
@@ -105,6 +121,85 @@ public:
 	//others
 	void set_OCMode(TIM_CHx Channel, TIM_OCMode mode);
 	void CCxChannelCmd(TIM_CHx Channel, TIM_CCxE ChannelState);
+
+	void EnableIT(TIM_IT IT)            {__HAL_TIM_ENABLE_IT(this, IT);}
+	void DisableIT(TIM_IT IT)           {__HAL_TIM_DISABLE_IT(this, IT);}
+
+	/* Time Base functions ********************************************************/
+	inline HAL_StatusTypeDef Base_Init()      {return HAL_TIM_Base_Init(this);}
+	inline HAL_StatusTypeDef Base_Deinit()    {return HAL_TIM_Base_DeInit(this);}
+	inline void Base_MspInit()                {HAL_TIM_Base_MspInit(this);}
+	inline void Base_MspDeInit()              {HAL_TIM_Base_MspDeInit(this);}
+	inline HAL_StatusTypeDef Base_Start()     {return HAL_TIM_Base_Start(this);}
+	inline HAL_StatusTypeDef Base_Stop()      {return HAL_TIM_Base_Stop(this);}
+	inline HAL_StatusTypeDef Base_Start_IT()  {return HAL_TIM_Base_Start_IT(this);}
+	inline HAL_StatusTypeDef Base_Stop_IT()   {return HAL_TIM_Base_Stop_IT(this);}
+	inline HAL_StatusTypeDef Base_Start_DMA(uint32_t *pData, uint16_t Length)
+		                     {return HAL_TIM_Base_Start_DMA(this, pData, Length);}
+	inline HAL_StatusTypeDef Base_Stop_DMA()  {return HAL_TIM_Base_Stop_DMA(this);}
+
+	/* Timer Output Compare functions *********************************************/
+	inline HAL_StatusTypeDef OC_Init()      {return HAL_TIM_OC_Init(this);}
+	inline HAL_StatusTypeDef OC_Deinit()    {return HAL_TIM_OC_DeInit(this);}
+	inline void OC_MspInit()                {HAL_TIM_OC_MspInit(this);}
+	inline void OC_MspDeInit()              {HAL_TIM_OC_MspDeInit(this);}
+	inline HAL_StatusTypeDef OC_Start(TIM_CHx Channel)     {return HAL_TIM_OC_Start(this, Channel);}
+	inline HAL_StatusTypeDef OC_Stop(TIM_CHx Channel)      {return HAL_TIM_OC_Stop(this, Channel);}
+	inline HAL_StatusTypeDef OC_Start_IT(TIM_CHx Channel)  {return HAL_TIM_OC_Start_IT(this, Channel);}
+	inline HAL_StatusTypeDef OC_Stop_IT(TIM_CHx Channel)   {return HAL_TIM_OC_Stop_IT(this, Channel);}
+	inline HAL_StatusTypeDef OC_Start_DMA(TIM_CHx Channel, uint32_t *pData, uint16_t Length)
+		                     {return HAL_TIM_OC_Start_DMA(this, Channel, pData, Length);}
+	inline HAL_StatusTypeDef OC_Stop_DMA(TIM_CHx Channel)  {return HAL_TIM_OC_Stop_DMA(this, Channel);}
+
+	/* Timer PWM functions ********************************************************/
+	inline HAL_StatusTypeDef PWM_Init()      {return HAL_TIM_PWM_Init(this);}
+	inline HAL_StatusTypeDef PWM_Deinit()    {return HAL_TIM_PWM_DeInit(this);}
+	inline void PWM_MspInit()                {HAL_TIM_PWM_MspInit(this);}
+	inline void PWM_MspDeInit()              {HAL_TIM_PWM_MspDeInit(this);}
+	inline HAL_StatusTypeDef PWM_Start(TIM_CHx Channel)     {return HAL_TIM_PWM_Start(this, Channel);}
+	inline HAL_StatusTypeDef PWM_Stop(TIM_CHx Channel)      {return HAL_TIM_PWM_Stop(this, Channel);}
+	inline HAL_StatusTypeDef PWM_Start_IT(TIM_CHx Channel)  {return HAL_TIM_PWM_Start_IT(this, Channel);}
+	inline HAL_StatusTypeDef PWM_Stop_IT(TIM_CHx Channel)   {return HAL_TIM_PWM_Stop_IT(this, Channel);}
+	inline HAL_StatusTypeDef PWM_Start_DMA(TIM_CHx Channel, uint32_t *pData, uint16_t Length)
+		                     {return HAL_TIM_PWM_Start_DMA(this, Channel, pData, Length);}
+	inline HAL_StatusTypeDef PWM_Stop_DMA(TIM_CHx Channel)  {return HAL_TIM_PWM_Stop_DMA(this, Channel);}
+
+	/* Timer Input Capture functions **********************************************/
+	inline HAL_StatusTypeDef IC_Init()      {return HAL_TIM_IC_Init(this);}
+	inline HAL_StatusTypeDef IC_Deinit()    {return HAL_TIM_IC_DeInit(this);}
+	inline void IC_MspInit()                {HAL_TIM_IC_MspInit(this);}
+	inline void IC_MspDeInit()              {HAL_TIM_IC_MspDeInit(this);}
+	inline HAL_StatusTypeDef IC_Start(TIM_CHx Channel)     {return HAL_TIM_IC_Start(this, Channel);}
+	inline HAL_StatusTypeDef IC_Stop(TIM_CHx Channel)      {return HAL_TIM_IC_Stop(this, Channel);}
+	inline HAL_StatusTypeDef IC_Start_IT(TIM_CHx Channel)  {return HAL_TIM_IC_Start_IT(this, Channel);}
+	inline HAL_StatusTypeDef IC_Stop_IT(TIM_CHx Channel)   {return HAL_TIM_IC_Stop_IT(this, Channel);}
+	inline HAL_StatusTypeDef IC_Start_DMA(TIM_CHx Channel, uint32_t *pData, uint16_t Length)
+		                     {return HAL_TIM_IC_Start_DMA(this, Channel, pData, Length);}
+	inline HAL_StatusTypeDef IC_Stop_DMA(TIM_CHx Channel)  {return HAL_TIM_IC_Stop_DMA(this, Channel);}
+
+	/* Timer One Pulse functions **************************************************/
+	inline HAL_StatusTypeDef OnePulse_Init(u32 mode)            {return HAL_TIM_OnePulse_Init(this, mode);}
+	inline HAL_StatusTypeDef OnePulse_Deinit()                  {return HAL_TIM_OnePulse_DeInit(this);}
+	inline void OnePulse_MspInit()                              {HAL_TIM_OnePulse_MspInit(this);}
+	inline void OnePulse_MspDeInit()                            {HAL_TIM_OnePulse_MspDeInit(this);}
+	inline HAL_StatusTypeDef OnePulse_Start(TIM_CHx Channel)    {return HAL_TIM_OnePulse_Start(this, Channel);}
+	inline HAL_StatusTypeDef OnePulse_Stop(TIM_CHx Channel)     {return HAL_TIM_OnePulse_Stop(this, Channel);}
+	inline HAL_StatusTypeDef OnePulse_Start_IT(TIM_CHx Channel) {return HAL_TIM_OnePulse_Start_IT(this, Channel);}
+	inline HAL_StatusTypeDef OnePulse_Stop_IT(TIM_CHx Channel)  {return HAL_TIM_OnePulse_Stop_IT(this, Channel);}
+
+	/* Timer Encoder functions ****************************************************/
+	inline HAL_StatusTypeDef Encoder_Init(TIM_Encoder_InitTypeDef *sConfig)
+							{return HAL_TIM_Encoder_Init(this, sConfig);}
+	inline HAL_StatusTypeDef Encoder_Deinit()    {return HAL_TIM_Encoder_DeInit(this);}
+	inline void Encoder_MspInit()                {HAL_TIM_Encoder_MspInit(this);}
+	inline void Encoder_MspDeInit()              {HAL_TIM_Encoder_MspDeInit(this);}
+	inline HAL_StatusTypeDef Encoder_Start(TIM_CHx Channel)     {return HAL_TIM_Encoder_Start(this, Channel);}
+	inline HAL_StatusTypeDef Encoder_Stop(TIM_CHx Channel)      {return HAL_TIM_Encoder_Stop(this, Channel);}
+	inline HAL_StatusTypeDef Encoder_Start_IT(TIM_CHx Channel)  {return HAL_TIM_Encoder_Start_IT(this, Channel);}
+	inline HAL_StatusTypeDef Encoder_Stop_IT(TIM_CHx Channel)   {return HAL_TIM_Encoder_Stop_IT(this, Channel);}
+	inline HAL_StatusTypeDef Encoder_Start_DMA(TIM_CHx Channel, u32 *pData1, u32 *pData2, u16 Length)
+		                     {return HAL_TIM_Encoder_Start_DMA(this, Channel, pData1, pData2, Length);}
+	inline HAL_StatusTypeDef Encoder_Stop_DMA(TIM_CHx Channel)  {return HAL_TIM_Encoder_Stop_DMA(this, Channel);}
 };
 
 
@@ -132,6 +227,9 @@ public:
 	Type_ns get_ns(TIM_ClockLevel level){return htim->get_ns(level);}
 	void set_Hz(Type_Hz Hz)             {htim->set_Hz(Hz);}
 	void set_ns(Type_ns ns)             {htim->set_ns(ns);}
+
+	void EnableIT()           {htim->EnableIT(TIM_CH2IT(Channel));}
+	void DisableIT()          {htim->DisableIT(TIM_CH2IT(Channel));}
 };
 
 #endif /* INC_TIMER_HPP_ */
