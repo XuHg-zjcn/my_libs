@@ -7,6 +7,12 @@ Pin8b::Pin8b(uint32_t port, uint32_t pin){
 	PINx = pin;
 }
 
+Pin8b::Pin8b(std::initializer_list<uint32_t> lst)
+{
+	PORTx = *lst.begin();
+	PINx = *(lst.begin()+1);
+}
+
 Pin8b::Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N){
 	PORTx = (((uint32_t)GPIOx) - GPIOA_BASE)/0x400;
 	PINx = __builtin_ctz(pin2N);
@@ -31,6 +37,16 @@ uint32_t* Pin8b::ODR_bitband()
 uint32_t* Pin8b::IDR_bitband()
 {
 	return BIT_PTR(&(GPIOx()->IDR), PINx);
+}
+
+void Pin8b::write_pin(bool x)
+{
+	HAL_GPIO_WritePin(GPIOx(), Pin2N(), (GPIO_PinState)x);
+}
+
+bool Pin8b::read_pin()
+{
+	return HAL_GPIO_ReadPin(GPIOx(), Pin2N());
 }
 
 void Pin8b::loadCfg(PinCfg cfg)

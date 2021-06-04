@@ -2,6 +2,7 @@
 #define F1_GPIO_HPP
 
 #include "stm32f1xx_hal.h"
+#include <map>
 
 #define TOTAL_PORTS 7 //GPIOx(x=ABCDEFG)
 
@@ -57,11 +58,14 @@ public:
     unsigned int PORTx:4;
     unsigned int PINx:4;
     Pin8b(uint32_t port, uint32_t pin);
+    Pin8b(std::initializer_list<uint32_t> lst);
     Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N);
     GPIO_TypeDef* GPIOx();
     uint32_t Pin2N();
     uint32_t* ODR_bitband();
     uint32_t* IDR_bitband();
+    void write_pin(bool x);
+    bool read_pin();
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);

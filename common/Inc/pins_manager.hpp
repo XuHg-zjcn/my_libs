@@ -32,10 +32,15 @@ private:
 	uint32_t N_pin;
 public:
 	GPIO_Conn(ManagerPin* pins, uint32_t N_pin);
+	GPIO_Conn(Pin8b* p8b, uint32_t N_pin, bool keep,
+			InitCfg cfg0, PinLockType lock,
+			PinCfg CfgEnable, PinCfg CfgDisable);
 	bool isAvailable();
 	X_State Enable();
 	X_State Disable();
 	ManagerPin* operator[](int i);
+	void WritePins(uint32_t bits);
+	uint32_t ReadPins();
 };
 
 inline bool isPinUsed(Pin8b pin);

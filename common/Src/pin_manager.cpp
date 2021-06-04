@@ -54,6 +54,24 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
     }
 }
 
+GPIO_Conn::GPIO_Conn(Pin8b* p8b, uint32_t N_pin, bool keep,
+					InitCfg cfg0, PinLockType lock,
+					PinCfg CfgEnable, PinCfg CfgDisable)
+{
+	pins = (ManagerPin*)XMalloc(sizeof(ManagerPin)*N_pin); //TODO: call XFree in ~GPIO_Conn
+	ManagerPin *pins2 = pins;
+	for(uint32_t i=0;i<N_pin;i++){
+		pins2->p8b = *p8b++;
+		pins2->keep = keep;
+		pins2->cfg0 = cfg0;
+		pins2->lock = lock;
+		pins2->CfgEnable = CfgEnable;
+		pins2->CfgDisable = CfgDisable;
+		pins2++;
+	}
+	new (this)GPIO_Conn(pins, N_pin);
+}
+
 bool GPIO_Conn::isAvailable()
 {
     ManagerPin* p1 = pins;
@@ -94,4 +112,24 @@ X_State GPIO_Conn::Disable()
 ManagerPin* GPIO_Conn::operator[](int i)
 {
 	return &pins[i];
+}
+
+//modify ODR
+void GPIO_Conn::WritePins(uint32_t bits)
+{
+	ManagerPin* p1 = pins;
+	for(uint32_t i=0;i<N_pin;i++){
+		p1++->p8b.write_pin((GPIO_PinState)(bits&0x1));
+		bits>>=1;
+	}
+}
+
+uint32_t GPIO_Conn::ReadPins()
+{
+	uint32_t ret=0;
+	ManagerPin* p1 = pins;
+	for(uint32_t i=0;i<N_pin;i++){
+		ret |= (p1++->p8b.read_pin())<<i;
+	}
+	return ret;
 }
