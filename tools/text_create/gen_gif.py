@@ -63,5 +63,5 @@ elif n == 4:
     ims = [im0, im1]
 ims = np.array(ims)
 
-np2c = numpy2ccode('img.c', 'codetab', ims.reshape(-1))
+np2c = numpy2ccode('../../common/fonts/img.c', 'codetab', ims.reshape(-1))
 np2c.conv_1d(Ncol=ims.shape[-1])

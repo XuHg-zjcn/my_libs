@@ -31,5 +31,5 @@ for i in range(1, h+1):
         arr.append(hx)
 
 arr = np.array(arr, dtype=np.uint8)
-np2c = numpy2ccode('fonts/font_smg8.h', 'fontsmg8', arr)
+np2c = numpy2ccode('../../common/fonts/font_smg8.h', 'fontsmg8', arr)
 np2c.conv_1d(Ncol=w)
