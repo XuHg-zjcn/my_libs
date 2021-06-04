@@ -76,12 +76,21 @@ void C_RTC::set_cnt(u32 cnt)
 	RTC_WriteTimeCounter(this, cnt);
 }
 
-void C_RTC::BKUPWrite(uint32_t BackupRegister, uint32_t Data)
+void C_RTC::SetAlarm(RTC_TimeTypeDef *sTime, uint32_t Format, bool IT)
 {
-	HAL_RTCEx_BKUPWrite(this, BackupRegister, Data);
+	RTC_AlarmTypeDef sAlarm;
+	sAlarm.AlarmTime = *sTime;
+	sAlarm.Alarm = RTC_ALARM_A;
+	if(IT){
+		HAL_RTC_SetAlarm_IT(this, &sAlarm, Format);
+	}else{
+		HAL_RTC_SetAlarm(this, &sAlarm, Format);
+	}
 }
 
-u32 C_RTC::BKUPRead(uint32_t BackupRegister)
+void C_RTC::GetAlarm(RTC_TimeTypeDef *sTime, uint32_t Format)
 {
-    return HAL_RTCEx_BKUPRead(this, BackupRegister);
+	RTC_AlarmTypeDef sAlarm;
+	HAL_RTC_GetAlarm(this, &sAlarm, RTC_ALARM_A, Format);
+	*sTime = sAlarm.AlarmTime;
 }
