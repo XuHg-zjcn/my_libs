@@ -42,6 +42,11 @@ void SMG8::connRTC(C_RTC* rtc)
 	this->rtc = rtc;
 }
 
+void SMG8::connTIM(C_TIM* tim)
+{
+	this->tim = tim;
+}
+
 void SMG8::showNum(int num, int point)
 {
 	if(num>=10000 || num <=-1000){
@@ -120,6 +125,27 @@ void SMG8::FreeRTOSTimer(uint32_t ms_on, uint32_t ms_off)
 }
 #endif
 
+/*
+ * @param us_on: microsecond of on
+ * @param us_off: microsecond of off
+ *
+ * call TimerFunc() in HAL_TIM_PWM_PulseFinishedCallback
+ * call off() HAL_TIM_PWM_PulseFinishedCallback
+ */
+void SMG8::HardWareTimer(uint32_t us_on, uint32_t us_off)
+{
+	tim->set_ns((us_on+us_off)*1000);
+	tim->Base_Start_IT();
+	if(us_off != 0){
+		tim->set_duty(TIM_Channel_1, (float)us_on/(us_on+us_off));
+		tim->PWM_Start_IT(TIM_Channel_1);
+	}
+}
+
+/*
+ * callback of RTC second interrupt.
+ * note: NVIC RTC priority should lower than TIM.
+ */
 void SMG8::RTCSecondCallback()
 {
 	RTC_TimeTypeDef sTime;
