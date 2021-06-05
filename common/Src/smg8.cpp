@@ -88,20 +88,16 @@ void SMG8::showTime(int n, bool c, int m)
 	colon_state = c;
 }
 
-
 void SMG8::showCurrYear()
 {
-	RTC_DateTypeDef sDate;
-	rtc->GetDate(&sDate, RTC_FORMAT_BIN);
-	showNum((u32)sDate.Year+2000);
+	showNum(rtc->get_tm()->tm_year+1900);
 }
 
 void SMG8::showCurrDate()
 {
-	RTC_DateTypeDef sDate;
-	rtc->GetDate(&sDate, RTC_FORMAT_BIN);
-	showNum(0, 2, (u32)sDate.Month, 2, false);
-	showNum(2, 4, (u32)sDate.Date, 0, false);
+	struct tm tm1 = *rtc->get_tm();
+	showNum(0, 2, tm1.tm_mon+1, 2, false);
+	showNum(2, 4, tm1.tm_mday, 0, false);
 }
 
 /*
@@ -181,7 +177,6 @@ void SMG8::HardWareTimer(uint32_t us_on, uint32_t us_off)
  */
 void SMG8::RTCSecondCallback()
 {
-	RTC_TimeTypeDef sTime;
-	rtc->GetTime(&sTime, RTC_FORMAT_BIN);
-	this->showTime(sTime.Hours, sTime.Seconds%2==0, sTime.Minutes);
+	struct tm tm2 = *rtc->get_tm();
+	this->showTime(tm2.tm_hour, tm2.tm_sec%2==0, tm2.tm_min);
 }

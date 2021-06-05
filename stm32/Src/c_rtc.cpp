@@ -8,89 +8,123 @@
 
 #include "c_rtc.hpp"
 
-struct tm tm1;
 
-extern uint32_t RTC_ReadTimeCounter(RTC_HandleTypeDef*);
-extern HAL_StatusTypeDef RTC_WriteTimeCounter(RTC_HandleTypeDef*, uint32_t);
-
-
-void C_RTC::HAL2tm(struct tm* tm2, RTC_DateTypeDef *sDate, RTC_TimeTypeDef *sTime)
+//copy from "stm32f1xx_hal_rtc.c"
+X_State C_RTC::EnterInitMode()
 {
-	tm2->tm_year = (int)sDate->Year+100;
-	tm2->tm_mon = sDate->Month-1;
-	tm2->tm_mday = sDate->Date;
-	tm2->tm_wday = sDate->WeekDay;
-	tm2->tm_hour = sTime->Hours;
-	tm2->tm_min = sTime->Minutes;
-	tm2->tm_sec = sTime->Seconds;
+  uint32_t tickstart = 0U;
+
+  tickstart = HAL_GetTick();
+  /* Wait till RTC is in INIT state and if Time out is reached exit */
+  while ((this->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET){
+    if ((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE){
+      return X_Timeout;
+    }
+  }
+
+  /* Disable the write protection for RTC registers */
+  __HAL_RTC_WRITEPROTECTION_DISABLE(this);
+
+  return X_OK;
 }
 
-void C_RTC::tm2HAL(struct tm* tm2, RTC_DateTypeDef *sDate, RTC_TimeTypeDef *sTime)
+X_State C_RTC::ExitInitMode()
 {
-	sDate->Year = tm2->tm_year-100;
-	sDate->Month = tm2->tm_mon+1;
-	sDate->Date = tm2->tm_mday;
-	sDate->WeekDay = tm2->tm_wday;
-	sTime->Hours = tm2->tm_hour;
-	sTime->Minutes = tm2->tm_min;
-	sTime->Seconds = tm2->tm_sec;
+  uint32_t tickstart = 0U;
+
+  /* Disable the write protection for RTC registers */
+  __HAL_RTC_WRITEPROTECTION_ENABLE(this);
+
+  tickstart = HAL_GetTick();
+  /* Wait till RTC is in INIT state and if Time out is reached exit */
+  while ((this->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET)
+  {
+    if ((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE){
+      return X_Timeout;
+    }
+  }
+  return X_OK;
+}
+
+u32 C_RTC::ReadTimeCounter()
+{
+	u16 high1 = 0U, high2 = 0U, low = 0U;
+
+	high1 = READ_REG(this->Instance->CNTH & RTC_CNTH_RTC_CNT);
+	low   = READ_REG(this->Instance->CNTL & RTC_CNTL_RTC_CNT);
+	high2 = READ_REG(this->Instance->CNTH & RTC_CNTH_RTC_CNT);
+
+	if(high1 != high2){
+	  low = READ_REG(this->Instance->CNTL & RTC_CNTL_RTC_CNT);
+	}
+	return (((u32)high1 << 16U) | low);
+}
+
+X_State C_RTC::WriteTimeCounter(uint32_t TimeCounter)
+{
+	X_State status = X_OK;
+	if(EnterInitMode() != X_OK){
+		status = X_Error;
+	}else{
+		WRITE_REG(this->Instance->CNTH, (TimeCounter >> 16U));
+		WRITE_REG(this->Instance->CNTL, (TimeCounter & RTC_CNTL_RTC_CNT));
+		if (ExitInitMode() != X_OK){
+			status = X_Error;
+		}
+	}
+	return status;
+}
+
+uint32_t C_RTC::ReadAlarmCounter()
+{
+	  uint16_t high1 = 0U, low = 0U;
+
+	  high1 = READ_REG(this->Instance->ALRH & RTC_CNTH_RTC_CNT);
+	  low   = READ_REG(this->Instance->ALRL & RTC_CNTL_RTC_CNT);
+
+	  return (((uint32_t) high1 << 16U) | low);
+}
+
+X_State C_RTC::WriteAlarmCounter(uint32_t AlarmCounter)
+{
+	X_State status = X_OK;
+	if(EnterInitMode() != X_OK){
+		status = X_Error;
+	}else{
+		WRITE_REG(this->Instance->ALRH, (AlarmCounter >> 16U));
+		WRITE_REG(this->Instance->ALRL, (AlarmCounter & RTC_ALRL_RTC_ALR));
+
+		/* Wait for synchro */
+		if (ExitInitMode() != X_OK){
+		  status = X_OK;
+		}
+	}
+	return status;
+}
+
+uint16_t C_RTC::ReadPRLL()
+{
+	return READ_REG(this->Instance->PRLL & RTC_PRLH_PRL);
+}
+
+time_t C_RTC::get_ts1970()
+{
+	return (time_t)ReadTimeCounter() + TIMESTAMP1970_BIAS;
+}
+
+X_State C_RTC::set_ts1970(time_t ts)
+{
+	return WriteTimeCounter(ts - TIMESTAMP1970_BIAS);
 }
 
 struct tm* C_RTC::get_tm()
 {
-	RTC_TimeTypeDef sTime;
-	RTC_DateTypeDef sDate;
-	HAL_RTC_GetTime(this, &sTime, RTC_FORMAT_BIN);
-	HAL_RTC_GetDate(this, &sDate, RTC_FORMAT_BIN);
-	HAL2tm(&tm1, &sDate, &sTime);
-	return &tm1;
+	time_t ts = get_ts1970();
+	return localtime(&ts);
 }
 
-void C_RTC::set_tm(struct tm *tm2)
+X_State C_RTC::set_tm(struct tm *tm2)
 {
-	RTC_TimeTypeDef sTime;
-	RTC_DateTypeDef sDate;
-	tm2HAL(tm2, &sDate, &sTime);
-	HAL_RTC_SetTime(this, &sTime, RTC_FORMAT_BIN);
-	HAL_RTC_SetDate(this, &sDate, RTC_FORMAT_BIN);
-}
-
-time_t C_RTC::get_timestamp()
-{
-	return mktime(get_tm());
-}
-
-void C_RTC::set_timestamp(time_t ts)
-{
-	struct tm *tm2 = localtime(&ts);
-	set_tm(tm2);
-}
-
-u32 C_RTC::get_cnt()
-{
-	  return RTC_ReadTimeCounter(this);
-}
-
-void C_RTC::set_cnt(u32 cnt)
-{
-	RTC_WriteTimeCounter(this, cnt);
-}
-
-void C_RTC::SetAlarm(RTC_TimeTypeDef *sTime, uint32_t Format, bool IT)
-{
-	RTC_AlarmTypeDef sAlarm;
-	sAlarm.AlarmTime = *sTime;
-	sAlarm.Alarm = RTC_ALARM_A;
-	if(IT){
-		HAL_RTC_SetAlarm_IT(this, &sAlarm, Format);
-	}else{
-		HAL_RTC_SetAlarm(this, &sAlarm, Format);
-	}
-}
-
-void C_RTC::GetAlarm(RTC_TimeTypeDef *sTime, uint32_t Format)
-{
-	RTC_AlarmTypeDef sAlarm;
-	HAL_RTC_GetAlarm(this, &sAlarm, RTC_ALARM_A, Format);
-	*sTime = sAlarm.AlarmTime;
+	time_t ts = mktime(tm2);
+	return set_ts1970(ts);
 }
