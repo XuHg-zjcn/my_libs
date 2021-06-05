@@ -25,3 +25,8 @@ void USBHID::recv_callback(int8_t (*OutEvent)(u8 event_idx, u8 state))
 {
 	((USBD_CUSTOM_HID_ItfTypeDef *)this->pUserData)->OutEvent = OutEvent;
 }
+
+void USBHID::RegisterInterface(USBD_CUSTOM_HID_ItfTypeDef *fops)
+{
+	USBD_CUSTOM_HID_RegisterInterface(this, fops);
+}

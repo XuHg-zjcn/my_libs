@@ -12,4 +12,5 @@ public:
 	u8 send(u8* p, u16 len);
 	void wait();
 	void recv_callback(int8_t (* OutEvent)(u8 event_idx, u8 state));
+	void RegisterInterface(USBD_CUSTOM_HID_ItfTypeDef *fops);
 };
