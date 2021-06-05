@@ -28,7 +28,7 @@ public:
 	X_State WriteTimeCounter(uint32_t TimeCounter);
 	u32     ReadAlarmCounter();
 	X_State WriteAlarmCounter(uint32_t AlarmCounter);
-	u16     ReadPRLL();
+	u16     ReadDIVL();
 	time_t  get_ts1970();
 	X_State set_ts1970(time_t ts);
 	struct tm* get_tm();

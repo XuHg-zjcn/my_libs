@@ -102,9 +102,10 @@ X_State C_RTC::WriteAlarmCounter(uint32_t AlarmCounter)
 	return status;
 }
 
-uint16_t C_RTC::ReadPRLL()
+//subsecons of timestamp = (32767-divl)/32768
+uint16_t C_RTC::ReadDIVL()
 {
-	return READ_REG(this->Instance->PRLL & RTC_PRLH_PRL);
+	return READ_REG(this->Instance->DIVL);
 }
 
 time_t C_RTC::get_ts1970()
