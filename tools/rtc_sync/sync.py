@@ -19,7 +19,7 @@ for i in range(16):
     cnt, prl = struct.unpack('IH', rtc)
     rtc = cnt + (32767-prl)/32768
     pc = pc2
-    print(rtc, rtc)
+    print(rtc, pc)
     err.append(rtc-pc)
 
 err = np.array(err)
