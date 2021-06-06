@@ -49,6 +49,11 @@ bool Pin8b::read_pin()
 	return HAL_GPIO_ReadPin(GPIOx(), Pin2N());
 }
 
+void Pin8b::toggle_pin()
+{
+	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
+}
+
 void Pin8b::loadCfg(PinCfg cfg)
 {
     if(PORTx >= TOTAL_PORTS){

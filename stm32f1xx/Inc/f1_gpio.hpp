@@ -66,6 +66,7 @@ public:
     uint32_t* IDR_bitband();
     void write_pin(bool x);
     bool read_pin();
+    void toggle_pin();
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);
