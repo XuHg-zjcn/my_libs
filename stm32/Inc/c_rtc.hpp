@@ -15,7 +15,12 @@
 
 using namespace std;
 
-#define TIMESTAMP1970_BIAS 946684800  //2000.1.1
+
+void MyLocalTime(u32 cnt, struct tm* tm);
+u32 MyMkTime(struct tm* tm);
+#ifdef USE_TIME_H
+void TimeH_tz();
+#endif
 
 //not suggest use HAL RTC, it will lost date when reboot!
 //TODO: cache date
@@ -24,16 +29,16 @@ private:
 	X_State EnterInitMode();
 	X_State ExitInitMode();
 public:
-	u32     ReadTimeCounter();
-	X_State WriteTimeCounter(uint32_t TimeCounter);
-	u32     ReadAlarmCounter();
-	X_State WriteAlarmCounter(uint32_t AlarmCounter);
-	u16     ReadDIVL();
+	u32     get_cnt();
+	X_State set_cnt(uint32_t TimeCounter);
+	u32     get_alarm_cnt();
+	X_State set_alarm_cnt(uint32_t AlarmCounter);
+	u16     get_divl();
 	time_t  get_ts1970();
 	X_State set_ts1970(time_t ts);
 	struct tm* get_tm();
 	X_State    set_tm(struct tm *tm2);
-#ifdef USE_HAL_TIM
+#ifdef USE_HAL_RTC
 	void GetTime(RTC_TimeTypeDef *sTime, u32 Format) {HAL_RTC_GetTime(this, sTime, Format);}
 	void GetDate(RTC_DateTypeDef *sDate, u32 Format) {HAL_RTC_GetDate(this, sDate, Format);}
 	void SetAlarm(RTC_TimeTypeDef *sTime, u32 Format, bool IT);

@@ -95,9 +95,9 @@ void SMG8::showCurrYear()
 
 void SMG8::showCurrDate()
 {
-	struct tm tm1 = *rtc->get_tm();
-	showNum(0, 2, tm1.tm_mon+1, 2, false);
-	showNum(2, 4, tm1.tm_mday, 0, false);
+	struct tm *tm = rtc->get_tm();
+	showNum(0, 2, tm->tm_mon+1, 2, false);
+	showNum(2, 4, tm->tm_mday, 0, false);
 }
 
 /*
@@ -177,6 +177,6 @@ void SMG8::HardWareTimer(uint32_t us_on, uint32_t us_off)
  */
 void SMG8::RTCSecondCallback()
 {
-	struct tm tm2 = *rtc->get_tm();
-	this->showTime(tm2.tm_hour, tm2.tm_sec%2==0, tm2.tm_min);
+	struct tm *tm2 = rtc->get_tm();
+	this->showTime(tm2->tm_hour, tm2->tm_sec%2==0, tm2->tm_min);
 }
