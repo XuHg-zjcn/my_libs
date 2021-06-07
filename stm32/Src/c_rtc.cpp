@@ -129,6 +129,11 @@ X_State C_RTC::ExitInitMode()
   return X_OK;
 }
 
+X_State C_RTC::wait_sync()
+{
+	return (X_State)HAL_RTC_WaitForSynchro(this);
+}
+
 u32 C_RTC::get_cnt()
 {
 	u16 high1 = 0U, high2 = 0U, low = 0U;
@@ -140,7 +145,7 @@ u32 C_RTC::get_cnt()
 	if(high1 != high2){
 	  low = READ_REG(this->Instance->CNTL & RTC_CNTL_RTC_CNT);
 	}
-	return (((u32)high1 << 16U) | low);
+	return (((u32)high2 << 16U) | low);
 }
 
 X_State C_RTC::set_cnt(uint32_t TimeCounter)
@@ -168,7 +173,7 @@ uint32_t C_RTC::get_alarm_cnt()
 	  return (((uint32_t) high1 << 16U) | low);
 }
 
-X_State C_RTC::set_alarm_cnt(uint32_t AlarmCounter)
+X_State C_RTC::set_alarm_cnt(uint32_t AlarmCounter, bool IT)
 {
 	X_State status = X_OK;
 	if(EnterInitMode() != X_OK){
@@ -179,10 +184,24 @@ X_State C_RTC::set_alarm_cnt(uint32_t AlarmCounter)
 
 		/* Wait for synchro */
 		if (ExitInitMode() != X_OK){
-		  status = X_OK;
+		  status = X_Error;
 		}
 	}
+	if(IT && status == X_OK){
+		__HAL_RTC_ALARM_CLEAR_FLAG(this, RTC_FLAG_ALRAF);
+		__HAL_RTC_ALARM_ENABLE_IT(this, RTC_IT_ALRA);
+		__HAL_RTC_ALARM_EXTI_CLEAR_FLAG();
+		HAL_NVIC_ClearPendingIRQ(RTC_IRQn);
+		__HAL_RTC_ALARM_EXTI_ENABLE_IT();
+		__HAL_RTC_ALARM_EXTI_ENABLE_RISING_EDGE();
+	}
 	return status;
+}
+
+X_State C_RTC::set_alarm_sec(u32 sec, bool IT)
+{
+	u32 cnt = get_cnt();
+	return set_alarm_cnt(cnt+sec, IT);
 }
 
 //subsecons of timestamp = (32767-divl)/32768

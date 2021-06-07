@@ -24,15 +24,18 @@ void TimeH_tz();
 
 //not suggest use HAL RTC, it will lost date when reboot!
 //TODO: cache date
+//TODO: cron alarms, save alarms to flash
 class C_RTC : public RTC_HandleTypeDef{
 private:
 	X_State EnterInitMode();
 	X_State ExitInitMode();
 public:
+	X_State wait_sync();
 	u32     get_cnt();
 	X_State set_cnt(uint32_t TimeCounter);
 	u32     get_alarm_cnt();
-	X_State set_alarm_cnt(uint32_t AlarmCounter);
+	X_State set_alarm_cnt(uint32_t AlarmCounter, bool IT);
+	X_State set_alarm_sec(u32 sec, bool IT);
 	u16     get_divl();
 	time_t  get_ts1970();
 	X_State set_ts1970(time_t ts);
