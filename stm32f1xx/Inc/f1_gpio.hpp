@@ -2,6 +2,7 @@
 #define F1_GPIO_HPP
 
 #include "stm32f1xx_hal.h"
+#include "myints.h"
 #include <map>
 
 #define TOTAL_PORTS 7 //GPIOx(x=ABCDEFG)
@@ -53,6 +54,8 @@ typedef enum{
 #define EXTI_FALL_Msk 0b10
 #define EXTI_EVT_Msk 0b100
 
+//TODO: use enum PinState instead bool
+
 class Pin8b{
 public:
     unsigned int PORTx:4;
@@ -64,9 +67,11 @@ public:
     uint32_t Pin2N();
     uint32_t* ODR_bitband();
     uint32_t* IDR_bitband();
-    void write_pin(bool x);
+    void write_pin(bool x);  //TODO: remove "_pin"
     bool read_pin();
     void toggle_pin();
+    void wait_pin(bool state);
+    u32 wait_timeout(bool state, u32 timeout);
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);

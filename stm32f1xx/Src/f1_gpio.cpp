@@ -54,6 +54,20 @@ void Pin8b::toggle_pin()
 	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
 }
 
+//blocking until read_pin() == state
+void Pin8b::wait_pin(bool state)
+{
+	while(read_pin() xor state);
+}
+
+u32 Pin8b::wait_timeout(bool state, u32 timeout)
+{
+	while((read_pin() xor state) and timeout){
+		timeout--;
+	}
+	return timeout;
+}
+
 void Pin8b::loadCfg(PinCfg cfg)
 {
     if(PORTx >= TOTAL_PORTS){
