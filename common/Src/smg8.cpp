@@ -81,6 +81,12 @@ void SMG8::showNum(int i0, int i1, int num, int point, bool fill0)
 	}
 }
 
+void SMG8::showNum(int num1, int point, int num2)
+{
+	showNum(0, point, num1, point, false);
+	showNum(point, 4, num2, 0, false);
+}
+
 void SMG8::showTime(int n, bool c, int m)
 {
 	showNum(0, 2, n, 0, false);

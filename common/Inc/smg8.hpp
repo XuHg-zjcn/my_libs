@@ -31,6 +31,7 @@ public:
 	void connRTC(C_RTC* rtc);
 	void connTIM(C_TIM* tim);
 	void showNum(int i0, int i1, int num, int point, bool fill0);
+	void showNum(int num1, int point, int num2);
 	void showNum(int num, int point) {showNum(0, 4, num, point, false);}
 	void showNum(int num)            {showNum(0, 4, num, 0, false);}
 	void showStr(char* str);
