@@ -72,6 +72,7 @@ public:
     void toggle_pin();
     void wait_pin(bool state);
     u32 wait_timeout(bool state, u32 timeout);
+    u32 wait_count(bool state, u32 m, u32 M);
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);

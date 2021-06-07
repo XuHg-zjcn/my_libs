@@ -68,6 +68,17 @@ u32 Pin8b::wait_timeout(bool state, u32 timeout)
 	return timeout;
 }
 
+//阻塞式测量
+u32 Pin8b::wait_count(bool state, u32 m, u32 M)
+{
+	u32 n=0;
+	state = !state;
+	while((read_pin() xor state) and n<M or n<m){
+		n++;
+	}
+	return n;
+}
+
 void Pin8b::loadCfg(PinCfg cfg)
 {
     if(PORTx >= TOTAL_PORTS){
