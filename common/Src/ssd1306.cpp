@@ -24,47 +24,57 @@ SSD1306::SSD1306(C_I2C_Dev *dev)
 	col_i = 0xff;
 }
 
+bool isIn(u8 elem, u8* p, u32 n)
+{
+	for(int i=0;i<n;i++){
+		if(*p++ == elem){
+			return true;
+		}
+	}
+	return false;
+}
+
+int SSD1306::n_bytes(uint8_t Byte0)
+{
+	u8 b1[] = {0x2E, 0x2F, 0xA0, 0xA1, 0xAE, 0xAF, 0xC0, 0xC8, 0xE3};
+	u8 b2[] = {0x20, 0x81, 0x8D, 0xA8, 0xD3, 0xD5, 0xD9, 0xDA, 0xDB};
+	u8 b3[] = {0x21, 0x22, 0xA3};
+	if((Byte0&0xC0) == 0x40){  //Set Display Start Line
+		return 1;
+	}
+	u8 H4 = Byte0&0xF0;
+	if(H4 == 0x00 ||  //Set Lower/Higher Column Start Address for Page Addressing Mode
+	   H4 == 0xB0){   //Set Page Start Address for Page Addressing Mode
+		return 1;
+	}
+	if((Byte0&0xF8) == 0xA4){  //Entire display ON, Set Normal/Inverse Display
+		return 1;
+	}
+	//find Byte0 in list
+	if(isIn(Byte0, b1, 13)){
+		return 1;
+	}if(isIn(Byte0, b2, 9)){
+		return 2;
+	}if(isIn(Byte0, b3, 3)){
+		return 3;
+	}
+	switch(Byte0){
+	case 0x26: case 0x27:
+		return 7;
+	case 0x29: case 0x2A:
+		return 8;
+	default:
+		return 0;
+	}
+}
+
 void SSD1306::commd_bytes(uint8_t Byte0, ...)
 {
-	int size;
-	uint8_t bytes[8];
-	switch(Byte0){
-	case 0x00 ... 0x1F:   //Set Lower/Higher Column Start Address for Page Addressing Mode
-	case 0x40 ... 0x7F:   //Set Display Start Line
-	case 0xA4 ... 0xA7:   //Entire display ON, Set Normal/Inverse Display
-	case 0xB0 ... 0xB7:   //Set Page Start Address for Page Addressing Mode
-	case 0x2E: case 0x2F: //Deactivate/Activate scroll
-	case 0xA0: case 0xA1: //Set Segment Re-map
-	case 0xAE: case 0xAF: //Set Display ON/OFF
-	case 0xC0: case 0xC8: //Set COM Output Scan Direction
-	case 0xE3:            //NOP
-		size = 1;
-		break;
-	case 0x20:  //Set Memory Addressing Mode
-	case 0x81:  //Set Contrast Control
-	case 0xA8:  //Set Multiplex Ratio
-	case 0xD3:  //Set Display Offset
-	case 0xD5:  //Set Display Clock Divide Ratio/ Oscillator Frequency
-	case 0xD9:  //Set Pre-charge Period
-	case 0xDA:  //Set COM Pins Hardware Configuration
-	case 0xDB:  //Set V COMH Deselect Level
-	case 0x8D:  //change pump
-		size = 2;
-		break;
-	case 0xA3:  //Set Vertical Scroll Area
-	case 0x21:  //Set Column Address
-	case 0x22:  //Set Page Address
-		size = 3;
-		break;
-	case 0x26: case 0x27:
-		size = 7;
-		break;
-	case 0x29: case 0x2A:
-		size = 8;
-		break;
-	default:
+	int size = n_bytes(Byte0);
+	if(size == 0){
 		return;
 	}
+	uint8_t bytes[8];
 	bytes[0] = Byte0;
     va_list list;
     va_start(list, Byte0);

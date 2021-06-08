@@ -142,6 +142,7 @@ private:
 	uint8_t *imgs;
 	uint32_t n_imgs;
 	uint32_t img_i;
+	static int n_bytes(uint8_t Byte0);
 #ifdef CMSIS_OS2_H_
 	osSemaphoreId_t lock;
 #endif
