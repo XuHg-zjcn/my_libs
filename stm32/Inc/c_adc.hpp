@@ -101,6 +101,7 @@ protected:
 	MyADCMode mode;
 	uint32_t timeout;
 	uint32_t NDTR;
+	uint16_t Xref; //1.2V基准电压
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
@@ -120,6 +121,11 @@ public:
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
 	uint16_t read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	//get voltage, base ADC_CH17 1.2V ref
+	uint16_t update_ref();
+	uint16_t read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	uint16_t Vdd_mV();
+	float mcu_temp();
 };
 
 //TODO: single channel API

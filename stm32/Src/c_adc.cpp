@@ -32,6 +32,7 @@ void C_ADCEx::Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim)
 {
     this->hadc = (C_ADC*)hadc;
     this->htim = (C_TIM*)htim;
+    update_ref();
 }
 
 //TODO: change to Buffer ptr
@@ -244,4 +245,29 @@ uint16_t C_ADCEx::read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 		ret+=HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
 	}
 	return ret/n;
+}
+
+uint16_t C_ADCEx::update_ref()
+{
+	Xref = read_channel(ADC_CH17, ADC_tSMP_239Cyc5, 9);
+	return Xref;
+}
+
+uint16_t C_ADCEx::read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+{
+	uint32_t x=read_channel(channel, sample_time, n);
+	return x*1200/Xref;
+}
+
+uint16_t C_ADCEx::Vdd_mV()
+{
+	uint16_t x=update_ref();//1.2V
+	return 4096*1200/x;
+}
+
+float C_ADCEx::mcu_temp()
+{
+	update_ref();
+	int16_t x = read_mV(ADC_CH16, ADC_tSMP_239Cyc5, 9);
+	return (1430-x)/43.0f + 25.0f;
 }
