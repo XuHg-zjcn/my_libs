@@ -24,21 +24,19 @@ SSD1306::SSD1306(C_I2C_Dev *dev)
 	col_i = 0xff;
 }
 
-bool isIn(u8 elem, u8* p, u32 n)
+bool isIn(u8 elem, const u8* p, u32 n)
 {
-	for(int i=0;i<n;i++){
-		if(*p++ == elem){
-			return true;
-		}
-	}
-	return false;
+	const u8 *p2 = p+n;
+	while(*p!=elem && p++<p2);
+	return p<p2;
 }
+
+const u8 b1[] = {0x2E, 0x2F, 0xA0, 0xA1, 0xAE, 0xAF, 0xC0, 0xC8, 0xE3};
+const u8 b2[] = {0x20, 0x81, 0x8D, 0xA8, 0xD3, 0xD5, 0xD9, 0xDA, 0xDB};
+const u8 b3[] = {0x21, 0x22, 0xA3};
 
 int SSD1306::n_bytes(uint8_t Byte0)
 {
-	u8 b1[] = {0x2E, 0x2F, 0xA0, 0xA1, 0xAE, 0xAF, 0xC0, 0xC8, 0xE3};
-	u8 b2[] = {0x20, 0x81, 0x8D, 0xA8, 0xD3, 0xD5, 0xD9, 0xDA, 0xDB};
-	u8 b3[] = {0x21, 0x22, 0xA3};
 	if((Byte0&0xC0) == 0x40){  //Set Display Start Line
 		return 1;
 	}
@@ -51,7 +49,7 @@ int SSD1306::n_bytes(uint8_t Byte0)
 		return 1;
 	}
 	//find Byte0 in list
-	if(isIn(Byte0, b1, 13)){
+	if(isIn(Byte0, b1, 9)){
 		return 1;
 	}if(isIn(Byte0, b2, 9)){
 		return 2;
