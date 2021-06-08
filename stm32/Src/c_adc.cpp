@@ -267,13 +267,13 @@ float C_ADCEx::Vdd_Volt()
 #else
 uint16_t C_ADCEx::read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
-	uint32_t x=read_channel(channel, sample_time, n);
-	return x*REF_TEMP_NSAMP*1200/Xref;
+	uint32_t x=read_channel_sum(channel, sample_time, n);
+	return x*REF_NSAMP*1200/(Xref*n);
 }
 
 uint16_t C_ADCEx::Vdd_mV()
 {
 	uint32_t x=update_ref();//1.2V
-	return 4096*REF_TEMP_NSAMP*1200/x;
+	return 4096*REF_NSAMP*1200/x;
 }
 #endif

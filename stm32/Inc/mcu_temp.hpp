@@ -37,7 +37,7 @@ public:
 	float get_temp();
 #else
 	u16 read_mV();
-	u16 calib_mV25(u32 temp100);
+	u16 calib_mV25(i32 temp100);
 	i32 get_temp100();
 #endif
 	void save(TempSenParam *param);

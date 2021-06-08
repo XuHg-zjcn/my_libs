@@ -128,8 +128,8 @@ public:
 	float read_Volt(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
 	float Vdd_Volt();
 #else
-	uint16_t read_V(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
-	uint16_t Vdd_V();
+	uint16_t read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	uint16_t Vdd_mV();
 #endif
 };
 
