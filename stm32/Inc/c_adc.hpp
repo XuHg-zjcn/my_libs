@@ -119,7 +119,7 @@ public:
 	void ConvCplt();      //please call in DMA Conv callback
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
-	uint16_t read_channel(ADC_CHx channel, u32 sample_time);
+	uint16_t read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
 };
 
 //TODO: single channel API

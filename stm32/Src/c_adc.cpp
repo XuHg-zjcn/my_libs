@@ -223,8 +223,11 @@ void C_ADCEx::ConvPack()
 /*
  * use injected length=1 sequence. blocking to wait finish.
  */
-uint16_t C_ADCEx::read_channel(ADC_CHx channel, u32 sample_time)
+uint16_t C_ADCEx::read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
+	if(n==0){
+		return 0;
+	}
 	//config inject channel
 	ADC_InjectionConfTypeDef sConfigInjected;
 	sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
@@ -233,9 +236,12 @@ uint16_t C_ADCEx::read_channel(ADC_CHx channel, u32 sample_time)
 	sConfigInjected.InjectedSamplingTime = sample_time;
 	sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
 	HAL_ADCEx_InjectedConfigChannel(hadc, &sConfigInjected);
-	//start conv in blocking mode
-	HAL_ADCEx_InjectedStart(hadc);
-	HAL_ADCEx_InjectedPollForConversion(hadc, timeout);
-	//read data
-	return HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
+	//convert n times in blocking mode.
+	u32 ret=0;
+	for(u32 i=0;i<n;i++){
+		HAL_ADCEx_InjectedStart(hadc);
+		HAL_ADCEx_InjectedPollForConversion(hadc, timeout);
+		ret+=HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
+	}
+	return ret/n;
 }
