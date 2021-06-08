@@ -53,6 +53,8 @@ public:
 #ifdef USE_VAR_SPLIT
 	u32 carlib_split();
 #endif
+	static float hum(DHT11_RAW *data);
+	static float temp(DHT11_RAW *data);
 };
 
 

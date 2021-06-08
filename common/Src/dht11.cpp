@@ -141,3 +141,21 @@ u32 DHT11::carlib_split()
 	split = spt-2;
 	return split;
 }
+
+float DHT11::hum(DHT11_RAW *data)
+{
+	float ret=data->hum_H + data->hum_L/10.0;
+	if(data->hum_L & 0x80){
+		ret*=-1;
+	}
+	return ret;
+}
+
+float DHT11::temp(DHT11_RAW *data)
+{
+	float ret=data->temp_H + data->temp_L/10.0;
+	if(data->temp_L & 0x80){
+		ret*=-1;
+	}
+	return ret;
+}
