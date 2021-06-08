@@ -17,6 +17,9 @@
 const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])
 #define REF_NSAMP  9
+#ifndef USE_FLOAT
+#define MV_MUL    10    //multiply to result, can improve accuracy, too big maybe overflow!
+#endif
 
 typedef enum{              // |PHFCCIR,
 	ADC_stopping           = 0b0000000,

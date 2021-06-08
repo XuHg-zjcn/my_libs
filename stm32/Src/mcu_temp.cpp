@@ -11,7 +11,7 @@
 #ifdef USE_FLOAT
 const TempSenParam tsp={1.34, 232.5, ADC_tSMP_239Cyc5, 9, 0};
 #else
-const TempSenParam tsp={1340, 233, ADC_tSMP_239Cyc5, 9, 0};
+const TempSenParam tsp={1340*MV_MUL, 233, ADC_tSMP_239Cyc5, 9, 0};
 #endif
 
 
@@ -52,7 +52,7 @@ u16 MCUTempSen::calib_mV25(i32 temp100)
 {
 	i32 mV_sen = read_mV();
 	i32 mV_25 = mV_sen + (temp100-2500)*10/tsp.oC_V;
-	if(mV_25<1200 or mV_25 >1600){
+	if(mV_25<1200*MV_MUL or mV_25 >1600*MV_MUL){
 		return 0;
 	}return mV_25;
 }
@@ -60,7 +60,7 @@ u16 MCUTempSen::calib_mV25(i32 temp100)
 i32 MCUTempSen::get_temp100()
 {
 	i32 mV_sen = read_mV();
-	return ((i32)tsp.mV_25-mV_sen)*(i32)tsp.oC_V/10 + 2500;
+	return ((i32)tsp.mV_25-mV_sen)*(i32)tsp.oC_V/(10*MV_MUL) + 2500;
 }
 #endif
 
