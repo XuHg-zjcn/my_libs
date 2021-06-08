@@ -7,6 +7,7 @@
 
 #include "smg8.hpp"
 #include "font_smg8.h"
+#include "myints.h"
 
 SMG8::SMG8():buf({0,0,0,0}),index(0)
 {
@@ -84,7 +85,28 @@ void SMG8::showNum(int i0, int i1, int num, int point, bool fill0)
 void SMG8::showNum(int num1, int point, int num2)
 {
 	showNum(0, point, num1, point, false);
-	showNum(point, 4, num2, 0, false);
+	showNum(point, 4, num2, 0, true);
+}
+
+void SMG8::showNum(float num)
+{
+	int32_t tmp=flog10(num)+1;
+	if(tmp<0){
+		tmp=1;
+	}else if(tmp>(num>0?4:3)){
+		return; //太大
+	}
+	showNum(num, tmp);
+}
+
+void SMG8::showNum(float num, int point)
+{
+	u32 mul = 1;
+	for(int i=point;i<4;i++){
+		mul*=10;
+	}
+	int n2=(int)num;
+	showNum(n2, point, (int)((num-n2)*mul));
 }
 
 void SMG8::showTime(int n, bool c, int m)

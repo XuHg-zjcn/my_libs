@@ -34,6 +34,8 @@ public:
 	void showNum(int num1, int point, int num2);
 	void showNum(int num, int point) {showNum(0, 4, num, point, false);}
 	void showNum(int num)            {showNum(0, 4, num, 0, false);}
+	void showNum(float num);
+	void showNum(float num, int point);
 	void showStr(char* str);
 	void showTime(int n, bool c, int m);
 	void showCurrYear();
