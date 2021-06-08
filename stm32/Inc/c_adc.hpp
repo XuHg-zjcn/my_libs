@@ -16,6 +16,7 @@
 
 const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])
+#define REF_NSAMP  9
 
 typedef enum{              // |PHFCCIR,
 	ADC_stopping           = 0b0000000,
@@ -101,7 +102,7 @@ protected:
 	MyADCMode mode;
 	uint32_t timeout;
 	uint32_t NDTR;
-	uint16_t Xref; //1.2V基准电压
+	uint32_t Xref; //1.2V基准电压, REF_NSAMP次采样求和
 public:
 	C_ADCEx();
 	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
@@ -120,12 +121,16 @@ public:
 	void ConvCplt();      //please call in DMA Conv callback
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
-	uint16_t read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	uint32_t read_channel_sum(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
 	//get voltage, base ADC_CH17 1.2V ref
 	uint16_t update_ref();
-	uint16_t read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
-	uint16_t Vdd_mV();
-	float mcu_temp();
+#ifdef USE_FLOAT
+	float read_Volt(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	float Vdd_Volt();
+#else
+	uint16_t read_V(ADC_CHx channel, ADC_tSMP sample_time, u32 n);
+	uint16_t Vdd_V();
+#endif
 };
 
 //TODO: single channel API

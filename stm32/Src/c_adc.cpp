@@ -224,7 +224,7 @@ void C_ADCEx::ConvPack()
 /*
  * use injected length=1 sequence. blocking to wait finish.
  */
-uint16_t C_ADCEx::read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+uint32_t C_ADCEx::read_channel_sum(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
 	if(n==0){
 		return 0;
@@ -244,30 +244,36 @@ uint16_t C_ADCEx::read_channel(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 		HAL_ADCEx_InjectedPollForConversion(hadc, timeout);
 		ret+=HAL_ADCEx_InjectedGetValue(hadc, ADC_INJECTED_RANK_1);
 	}
-	return ret/n;
+	return ret;
 }
 
 uint16_t C_ADCEx::update_ref()
 {
-	Xref = read_channel(ADC_CH17, ADC_tSMP_239Cyc5, 9);
+	Xref = read_channel_sum(ADC_CH17, ADC_tSMP_239Cyc5, REF_NSAMP);
 	return Xref;
 }
+#ifdef USE_FLOAT
+float C_ADCEx::read_Volt(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+{
+	uint32_t x=read_channel_sum(channel, sample_time, n);
+	return (x*REF_NSAMP)*1.2f/(Xref*n);
+}
 
+float C_ADCEx::Vdd_Volt()
+{
+	float x=update_ref();//1.2V
+	return 4096*REF_NSAMP*1.2f/x;
+}
+#else
 uint16_t C_ADCEx::read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
 	uint32_t x=read_channel(channel, sample_time, n);
-	return x*1200/Xref;
+	return x*REF_TEMP_NSAMP*1200/Xref;
 }
 
 uint16_t C_ADCEx::Vdd_mV()
 {
-	uint16_t x=update_ref();//1.2V
-	return 4096*1200/x;
+	uint32_t x=update_ref();//1.2V
+	return 4096*REF_TEMP_NSAMP*1200/x;
 }
-
-float C_ADCEx::mcu_temp()
-{
-	update_ref();
-	int16_t x = read_mV(ADC_CH16, ADC_tSMP_239Cyc5, 9);
-	return (1430-x)/43.0f + 25.0f;
-}
+#endif
