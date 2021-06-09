@@ -163,6 +163,7 @@ public:
 	void setPageAddr(uint8_t col_s, uint8_t page_s);
 	void text_3x5(char* str, uint8_t y);
 	void text_5x7(char* str);
+	void write_data(uint8_t* p, uint32_t size);
 };
 
 #endif /* INC_SSD1306_HPP_ */

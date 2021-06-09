@@ -263,3 +263,8 @@ void SSD1306::text_5x7(char* str)
 		str++;
 	}
 }
+
+void SSD1306::write_data(uint8_t* p, uint32_t size)
+{
+	dev->Mem_write(ConByte_Data, p, size);
+}
