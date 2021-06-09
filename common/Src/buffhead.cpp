@@ -32,7 +32,16 @@ u32 BuffHead::bytes_elem()
 
 
 //Methods of BufferHeadWrite
+BuffHeadWrite::BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid)
+{
+	func = nullptr;
+	put_timer.etim = nullptr;
+#ifdef USE_FREERTOS
+	put_type = t_null;
+#endif
+}
 
+//Methods of BufferHeadWrite
 void BuffHeadWrite::Init()
 {
 #ifdef USE_FREERTOS
@@ -43,25 +52,50 @@ void BuffHeadWrite::Init()
 #endif
 }
 
-u32 BuffHeadWrite::bytes_elem()
+void* BuffHeadWrite::lock_p()
 {
-	return buff->be;
+#ifdef USE_FREERTOS
+	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
+		return nullptr;
+	}
+#else
+	while(lock);
+	lock = true;
+#endif
+	return (*buff)[fid];
 }
+
+/*
+ * @note: update `fid` before unlock.
+ */
+void BuffHeadWrite::unlock()
+{
+#ifdef USE_FREERTOS
+	osSemaphoreRelease(lock);
+#else
+	lock = false;
+#endif
+}
+
+void BuffHeadWrite::wait_lock()
+{
+	lock_p();
+	unlock();
+}
+
 
 //put single element
 u32 BuffHeadWrite::put_elem(void* elem)
 {
-#ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
+	void *p = lock_p();
+	if(p){
+		memcpy(p, elem, buff->be);
+		fid++;
+		unlock();
+		return fid;
+	}else{
 		return ERR_FID;
 	}
-#endif
-	memcpy((*buff)[fid], elem, buff->be);
-#ifdef USE_FREERTOS
-	osSemaphoreRelease(lock);
-#endif
-	fid += 1;
-	return fid;
 }
 
 /*
@@ -74,16 +108,11 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
 	if(fid%(buff->capacity) + N_elem > buff->capacity){
 		return nullptr;  //over tail of buffer
 	}
-#ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
-		return nullptr;
+	void* p=lock_p();
+	if(p){
+		N_remain = N_elem;
 	}
-#else
-	while(lock);
-	lock = true;
-#endif
-	N_remain = N_elem;
-	return (*buff)[fid];
+	return p;
 }
 
 /*
@@ -91,16 +120,13 @@ void* BuffHeadWrite::put_dma_once(u32 N_elem)
  */
 void* BuffHeadWrite::put_dma_cycle(u32 cycle)
 {
-#ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) != osOK){
+	if(lock_p()){
+		fid = CEIL_DIV(fid, buff->be) * buff->be;  //reset to p0
+		return buff->p0;
+	}else{
 		return nullptr;
 	}
-#else
-	while(lock);
-	lock = true;
-#endif
-	fid = CEIL_DIV(fid, buff->be) * buff->be;  //reset to p0
-	return buff->p0;
+
 }
 
 u32 BuffHeadWrite::get_capacity()
@@ -112,10 +138,10 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 {
 	fid += N_elem;
 	N_remain -= N_elem;
-#ifdef USE_FREERTOS
 	if(N_remain <= 0){
-		osSemaphoreRelease(lock);
+		unlock();
 	}
+#ifdef USE_FREERTOS
 	BuffHeadReads &r_heads = buff->r_heads;
 	u32 ef = ~osEventFlagsGet(r_heads.ef) & 0x00ffffff;
 	u32 i = 0;
@@ -129,21 +155,68 @@ void BuffHeadWrite::put_dma_notify(u32 N_elem)
 			ef >>= 1;
 		}
 	}
-#else
-	if(N_remain <= 0){
-		lock = false;
-	}
 #endif
 }
 
-void BuffHeadWrite::wait_lock()
+void hwtim_callback(void* param)
+{
+	((BuffHeadWrite*)param)->put_bound();
+}
+
+void BuffHeadWrite::put_bound()
+{
+	func((*buff)[fid++]);
+}
+
+void BuffHeadWrite::put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIMEx* etim)
+{
+	if(!lock_p()){
+		return;
+	}
+	this->func = func;
+#ifdef USE_FREERTOS
+	if(put_type == t_os2){
+		osTimerDelete(put_timer.os2);
+	}
+	put_timer.etim = etim;
+#else
+	put_timer = etim;
+#endif
+	etim->ctim->set_ns(us*1000);
+	etim->ctim->EnableIT(TIM_IT_update);
+	etim->set_callback(TIM_IT_update, hwtim_callback, this);
+}
+
+#ifdef USE_FREERTOS
+void BuffHeadWrite::put_freertos_timer(void (*func)(void*), u32 n, u32 ms)
+{
+	if(put_type != t_os2){
+		osTimerAttr_t attr = { .name = "buff_write_put" };
+		put_timer.os2 = osTimerNew(&hwtim_callback, osTimerPeriodic, this, &attr);
+	}
+	osTimerStart(put_timer.os2, ms);
+}
+#endif
+
+void BuffHeadWrite::put_timer_stop()
 {
 #ifdef USE_FREERTOS
-	if(osSemaphoreAcquire(lock, LOCK_TIMEOUT) == osOK){
-		osSemaphoreRelease(lock);
+	switch(put_type){
+	case t_os2:
+		osTimerStop(put_timer.os2);
+		break;
+	case t_etim:
+		put_timer.etim->ctim->DisableIT(TIM_IT_update);
+		break;
+	case t_null:
+		return;
 	}
+	unlock();
 #else
-	while(lock);
+	if(put_type){
+		put_timer->ctim->DisableIT(TIM_IT_update);
+		unlock();
+	}
 #endif
 }
 

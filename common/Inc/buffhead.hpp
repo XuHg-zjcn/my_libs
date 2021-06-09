@@ -10,6 +10,7 @@
 
 #include "myints.h"
 #include "mylibs_config.hpp"
+#include "c_tim.hpp"
 #include <vector>
 
 using namespace std;
@@ -33,22 +34,34 @@ public:
 class BuffHeadWrite : public BuffHead{
 private:
 	int32_t N_remain;
+	void (*func)(void*);
 #ifdef USE_FREERTOS
 	osSemaphoreId_t lock;  //lock for putting data
+	union {osTimerId_t os2; C_TIMEx* etim;}put_timer;
+	enum {t_null=0,t_os2,t_etim}put_type;
 #else
 	bool lock;  //true: locking
+	C_TIMEx* put_timer;
 #endif
 public:
-	BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid){};
+	BuffHeadWrite(Buffer *buff, u32 fid);
 	void Init();
-	u32 bytes_elem();
+	void* lock_p();
+	void unlock();
+	void wait_lock();  //rename to `wait_unlock()`
 	u32 put_elem(void* elem);
 	void* put_dma_once(u32 N_elem);
 	void* put_dma_cycle(u32 cycle);
 	u32 get_capacity();
 	void put_dma_notify(u32 N_elem);
 	u32 put_dma_finish();
-	void wait_lock();
+	//bound put
+	void put_bound();
+	void put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIMEx* etim);
+#ifdef USE_FREERTOS
+	void put_freertos_timer(void (*func)(void*), u32 n, u32 ms);
+#endif
+	void put_timer_stop();
 };
 
 class BuffHeadReads{
