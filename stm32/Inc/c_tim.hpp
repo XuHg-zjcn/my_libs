@@ -70,7 +70,8 @@ typedef enum{
 	TIM_IT_cc4 = TIM_IT_CC4,
 	TIM_IT_com = TIM_IT_COM,
 	TIM_IT_trigger = TIM_IT_TRIGGER,
-	TIM_IT_break = TIM_IT_BREAK
+	TIM_IT_break = TIM_IT_BREAK,
+	TIM_IT_all = 0xfff
 }TIM_IT;
 
 #define TIM_CH2IT(x) (x==TIM_Channel_1 ? TIM_IT_cc1:\
@@ -125,6 +126,7 @@ public:
 
 	void EnableIT(TIM_IT IT)            {__HAL_TIM_ENABLE_IT(this, IT);}
 	void DisableIT(TIM_IT IT)           {__HAL_TIM_DISABLE_IT(this, IT);}
+	void ClearITFlag(TIM_IT IT)         {__HAL_TIM_CLEAR_IT(this, IT);}
 
 	/* Time Base functions ********************************************************/
 	inline HAL_StatusTypeDef Base_Init()      {return HAL_TIM_Base_Init(this);}
