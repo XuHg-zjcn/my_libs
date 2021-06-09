@@ -243,3 +243,38 @@ void TIM_CH::CCxChannelCmd(TIM_CCxE ChannelState)
 {
 	htim->CCxChannelCmd(Channel, ChannelState);
 }
+
+
+C_TIMEx::C_TIMEx(TIM_HandleTypeDef* htim)
+{
+	ctim = (C_TIM*)htim;
+}
+
+void C_TIMEx::set_callback(TIM_IT IT, void (*func)(void*), void* param)
+{
+	int i=__builtin_ctz(IT);
+	if(0<i or i>=N_IT){
+		return;
+	}
+	callbacks[i]=func;
+	params[i]=param;
+}
+
+void C_TIMEx::clear_callback(TIM_IT IT)
+{
+	set_callback(IT, nullptr, nullptr);
+}
+
+void C_TIMEx::ISR_func()
+{
+	u32 sr=READ_REG(ctim->Instance->SR);
+	if(!sr){
+		return;
+	}
+	for(int i=0;i<N_IT;i++){
+		if(sr&1 && callbacks[i]){
+			callbacks[i](params[i]);
+		}
+		sr>>=1;
+	}
+}

@@ -11,6 +11,7 @@
 #include "myints.h"
 #include "mylibs_config.hpp"
 
+#define N_IT     8           //number interrupts of timer
 #define CompKeep 0xffffffff  //flag for `set_comp4()` keep old compare value.
 #define DutyKeep -1          //flag for `set_duty4()` keep old compare value.
 
@@ -230,6 +231,18 @@ public:
 
 	void EnableIT()           {htim->EnableIT(TIM_CH2IT(Channel));}
 	void DisableIT()          {htim->DisableIT(TIM_CH2IT(Channel));}
+};
+
+class C_TIMEx{
+private:
+	void* params[N_IT];
+	void (*callbacks[N_IT])(void*);
+public:
+	C_TIM* ctim;
+	C_TIMEx(TIM_HandleTypeDef* htim);
+	void set_callback(TIM_IT IT, void (*func)(void*), void* param);
+	void clear_callback(TIM_IT IT);
+	void ISR_func();
 };
 
 #endif /* INC_TIMER_HPP_ */
