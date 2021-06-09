@@ -268,15 +268,15 @@ void C_TIMEx::clear_callback(TIM_IT IT)
 //ref to `C_TIMEx_ISR_func()`
 void C_TIMEx::from_ISR()
 {
-	u32 sr=READ_REG(ctim->Instance->SR);
-	if(!sr){
-		return;
-	}
-	for(int i=0;i<N_IT;i++){
-		if(sr&1 && callbacks[i]){
+	u32 sr=READ_REG(ctim->Instance->SR) & READ_REG(ctim->Instance->DIER) & 0xff;
+	int i=-1;
+	while(sr && i<N_IT){
+		int di=__builtin_ctz(sr)+1;
+		i+=di;
+		sr>>=di;
+		if(callbacks[i]){
 			callbacks[i](params[i]);
 		}
-		sr>>=1;
 	}
 }
 
