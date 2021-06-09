@@ -253,7 +253,7 @@ C_TIMEx::C_TIMEx(TIM_HandleTypeDef* htim)
 void C_TIMEx::set_callback(TIM_IT IT, void (*func)(void*), void* param)
 {
 	int i=__builtin_ctz(IT);
-	if(0<i or i>=N_IT){
+	if(i<0 or i>=N_IT){
 		return;
 	}
 	callbacks[i]=func;
@@ -265,7 +265,8 @@ void C_TIMEx::clear_callback(TIM_IT IT)
 	set_callback(IT, nullptr, nullptr);
 }
 
-void C_TIMEx::ISR_func()
+//ref to `C_TIMEx_ISR_func()`
+void C_TIMEx::from_ISR()
 {
 	u32 sr=READ_REG(ctim->Instance->SR);
 	if(!sr){
@@ -277,4 +278,20 @@ void C_TIMEx::ISR_func()
 		}
 		sr>>=1;
 	}
+}
+
+/*
+ * example:
+ * in stm32f1xx_it.c add these code:
+ *
+ * typedef void C_TIMEx;
+ * extern C_TIMEx etim2;  //"etim2" just example name
+ * void C_TIMEx_ISR_func(C_TIMEx* etim);
+ *
+ * edit ISR func `void TIM2_IRQHandler(void)`:
+ * call `C_TIMEx_ISR_func(&etim2);` before `HAL_TIM_IRQHandler(&htim2);`
+ */
+void C_TIMEx_ISR_func(C_TIMEx* etim)
+{
+	etim->from_ISR();
 }

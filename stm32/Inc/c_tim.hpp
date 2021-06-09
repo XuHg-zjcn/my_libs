@@ -242,7 +242,11 @@ public:
 	C_TIMEx(TIM_HandleTypeDef* htim);
 	void set_callback(TIM_IT IT, void (*func)(void*), void* param);
 	void clear_callback(TIM_IT IT);
-	void ISR_func();
+	void from_ISR();
 };
+
+extern "C"{
+	void C_TIMEx_ISR_func(C_TIMEx* etim);
+}
 
 #endif /* INC_TIMER_HPP_ */
