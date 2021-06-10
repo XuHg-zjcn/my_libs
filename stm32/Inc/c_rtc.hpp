@@ -26,10 +26,9 @@ void TimeH_tz();
 //TODO: cache date
 //TODO: cron alarms, save alarms to flash
 class C_RTC : public RTC_HandleTypeDef{
-private:
+public:
 	X_State EnterInitMode();
 	X_State ExitInitMode();
-public:
 	X_State wait_sync();
 	u32     get_cnt();
 	X_State set_cnt(uint32_t TimeCounter);
@@ -55,7 +54,9 @@ public:
 	void BKUPWrite(u32 BackupRegister, u32 Data)     {HAL_RTCEx_BKUPWrite(this, BackupRegister, Data);};
 	u32 BKUPRead(u32 BackupRegister)                 {return HAL_RTCEx_BKUPRead(this, BackupRegister);};
 	void set_clock(u32 prescale, u8 calib);
+	void set_calib(u8 calib);
 	u8 get_calib();
+	u32 get_prescale();
 #ifdef USE_USB
 	void USB_Calib(USBD_HandleTypeDef *usb);
 #endif

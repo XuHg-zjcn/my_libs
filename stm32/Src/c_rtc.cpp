@@ -150,17 +150,13 @@ u32 C_RTC::get_cnt()
 
 X_State C_RTC::set_cnt(uint32_t TimeCounter)
 {
-	X_State status = X_OK;
-	if(EnterInitMode() != X_OK){
-		status = X_Error;
+	WRITE_REG(this->Instance->CNTH, (TimeCounter >> 16U));
+	WRITE_REG(this->Instance->CNTL, (TimeCounter & RTC_CNTL_RTC_CNT));
+	if(this->Instance->CRL & RTC_CRL_RTOFF){
+		return X_OK;
 	}else{
-		WRITE_REG(this->Instance->CNTH, (TimeCounter >> 16U));
-		WRITE_REG(this->Instance->CNTL, (TimeCounter & RTC_CNTL_RTC_CNT));
-		if (ExitInitMode() != X_OK){
-			status = X_Error;
-		}
+		return X_Error;
 	}
-	return status;
 }
 
 uint32_t C_RTC::get_alarm_cnt()
@@ -250,9 +246,25 @@ void C_RTC::set_clock(u32 prescale, u8 calib)
 	HAL_RTCEx_SetSmoothCalib(this, 0, 0, calib);
 }
 
+void C_RTC::set_calib(u8 calib)
+{
+	HAL_RTCEx_SetSmoothCalib(this, 0, 0, calib);
+}
+
 u8 C_RTC::get_calib()
 {
 	return BKP->RTCCR & 0x3f;
+}
+
+u32 C_RTC::get_prescale()
+{
+	u32 psc;
+	while(this->Instance->DIVL || this->Instance->DIVH); //wait to all are 0
+	while(!psc){
+		psc  = this->Instance->DIVH << 16;
+		psc |= this->Instance->DIVL;
+	}
+	return psc;
 }
 
 #ifdef USE_USB
@@ -275,53 +287,48 @@ void C_RTC::USB_Calib(USBD_HandleTypeDef *usb)
 			*(u32*)&usb_buff[2] = rtc->get_cnt();
 			*(u16*)&usb_buff[0] = rtc->get_divl();
 			USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 6);
-			XDelayMs(usb_ms);
 		}
+		XDelayMs(usb_ms);
 	}
 }
 
-/*
- * USB commands:
- * 0x00 pack_CNT, DIV //返回收到数据包的时间
- * 0x01 getN_CNT, DIV //从机发送多次时间戳
- * 0x02 stop_get      //停止连续发送时间戳
- * 0x03 read_clock    //设置分频和校准
- * 0x04 set_clock     //设置分频和校准
- * 0x05 prep_CNT      //准备CNT
- * 0x06 set_prep      //设置已准备的CNT值
- * 0x07 exit          //退出
- */
 int8_t usb_callback(u8 event_idx, u8 state)
 {
 	USBD_CUSTOM_HID_HandleTypeDef *hhid = (USBD_CUSTOM_HID_HandleTypeDef *)hUsbDeviceFS.pClassData;
 	switch(event_idx){
-	case 0x00:
+	case 0x00:  //返回收到数据包的时间
 		*(u16*)&usb_buff[0] = rtc->get_divl();
 		*(u32*)&usb_buff[2] = rtc->get_cnt();
 		USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 6);
 		break;
-	case 0x01:
+	case 0x01:  //连续发送时间戳
 		usb_count = *(u16*)(hhid->Report_buf+1);
 		usb_ms = *(u16*)(hhid->Report_buf+3);
 		break;
-	case 0x02:
+	case 0x02:  //停止连续发送时间戳
 		usb_count = 0;
 		break;
-	case 0x03:
+	case 0x03:  //读取校准
 		usb_buff[0] = rtc->get_calib();
 		USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 1);
 		break;
-	case 0x04:
-		rtc->set_clock(*(u32*)(hhid->Report_buf+1), *(u8*)(hhid->Report_buf+5));
+	case 0x04:  //设置校准
+		rtc->set_calib(hhid->Report_buf[1]);
 		break;
-	case 0x05:
+	case 0x05:  //设置分频和校准
+		rtc->set_clock(*(u32*)(hhid->Report_buf+1), hhid->Report_buf[5]);
+		break;
+	case 0x06:  //准备CNT
 		*(u32*)usb_buff = *(u32*)(hhid->Report_buf+1);
+		rtc->EnterInitMode();
 		break;
-	case 0x06:
+	case 0x07:  //设置已准备的CNT值
 		rtc->set_cnt(*(u32*)usb_buff);
+		rtc->ExitInitMode();
 		break;
-	case 0x07:
+	case 0x08:  //退出
 		memset(usb_buff, -1, 6);
+		rtc->ExitInitMode();
 		break;
 	default:
 		break;
