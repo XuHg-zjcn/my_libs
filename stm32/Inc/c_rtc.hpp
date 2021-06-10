@@ -54,6 +54,11 @@ public:
 	//backup register operate
 	void BKUPWrite(u32 BackupRegister, u32 Data)     {HAL_RTCEx_BKUPWrite(this, BackupRegister, Data);};
 	u32 BKUPRead(u32 BackupRegister)                 {return HAL_RTCEx_BKUPRead(this, BackupRegister);};
+	void set_clock(u32 prescale, u8 calib);
+	u8 get_calib();
+#ifdef USE_USB
+	void USB_Calib(USBD_HandleTypeDef *usb);
+#endif
 };
 
 

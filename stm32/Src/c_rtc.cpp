@@ -242,3 +242,89 @@ X_State C_RTC::set_tm(struct tm *tm2)
 	return set_cnt(cnt);
 #endif
 }
+
+void C_RTC::set_clock(u32 prescale, u8 calib)
+{
+	this->Init.AsynchPrediv = prescale;
+	HAL_RTC_Init(this);
+	HAL_RTCEx_SetSmoothCalib(this, 0, 0, calib);
+}
+
+u8 C_RTC::get_calib()
+{
+	return BKP->RTCCR & 0x3f;
+}
+
+#ifdef USE_USB
+extern USBD_HandleTypeDef hUsbDeviceFS;
+extern C_RTC *rtc;
+u16 usb_count=0;
+u16 usb_ms;
+u8 usb_buff[6];
+int8_t usb_callback(u8 event_idx, u8 state);
+
+void C_RTC::USB_Calib(USBD_HandleTypeDef *usb)
+{
+	usb_count = 0;
+	memset(usb_buff, 0, 6);
+	USBD_CUSTOM_HID_ItfTypeDef *itf = (USBD_CUSTOM_HID_ItfTypeDef*)hUsbDeviceFS.pUserData;
+	itf->OutEvent = &usb_callback;
+	while(usb_buff[0] != 0xff){
+		if(usb_count){
+			usb_count--;
+			*(u32*)&usb_buff[2] = rtc->get_cnt();
+			*(u16*)&usb_buff[0] = rtc->get_divl();
+			USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 6);
+			XDelayMs(usb_ms);
+		}
+	}
+}
+
+/*
+ * USB commands:
+ * 0x00 pack_CNT, DIV //返回收到数据包的时间
+ * 0x01 getN_CNT, DIV //从机发送多次时间戳
+ * 0x02 stop_get      //停止连续发送时间戳
+ * 0x03 read_clock    //设置分频和校准
+ * 0x04 set_clock     //设置分频和校准
+ * 0x05 prep_CNT      //准备CNT
+ * 0x06 set_prep      //设置已准备的CNT值
+ * 0x07 exit          //退出
+ */
+int8_t usb_callback(u8 event_idx, u8 state)
+{
+	USBD_CUSTOM_HID_HandleTypeDef *hhid = (USBD_CUSTOM_HID_HandleTypeDef *)hUsbDeviceFS.pClassData;
+	switch(event_idx){
+	case 0x00:
+		*(u16*)&usb_buff[0] = rtc->get_divl();
+		*(u32*)&usb_buff[2] = rtc->get_cnt();
+		USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 6);
+		break;
+	case 0x01:
+		usb_count = *(u16*)(hhid->Report_buf+1);
+		usb_ms = *(u16*)(hhid->Report_buf+3);
+		break;
+	case 0x02:
+		usb_count = 0;
+		break;
+	case 0x03:
+		usb_buff[0] = rtc->get_calib();
+		USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, usb_buff, 1);
+		break;
+	case 0x04:
+		rtc->set_clock(*(u32*)(hhid->Report_buf+1), *(u8*)(hhid->Report_buf+5));
+		break;
+	case 0x05:
+		*(u32*)usb_buff = *(u32*)(hhid->Report_buf+1);
+		break;
+	case 0x06:
+		rtc->set_cnt(*(u32*)usb_buff);
+		break;
+	case 0x07:
+		memset(usb_buff, -1, 6);
+		break;
+	default:
+		break;
+	}
+}
+#endif
