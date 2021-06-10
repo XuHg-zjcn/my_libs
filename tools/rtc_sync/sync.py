@@ -1,31 +1,55 @@
 #!/bin/python
-import numpy as np
+import csv
+import struct
 import time
 from datetime import datetime, timedelta
-import struct
 
-import numpy
+import numpy as np
 
 from usbd import USBDevice
 
+N_READ = 16
 usbd = USBDevice(idVendor=0xffff, idProduct=0xf103)
 
-err = []
-for i in range(16):
-    pc1 = time.time()
+t0 = datetime.now()
+def read_time():
     rtc = usbd.read(6)
-    pc2 = time.time()
-
+    pc = time.time()
     cnt, prl = struct.unpack('IH', rtc)
     rtc = cnt + (32767-prl)/32768
-    pc = pc2
-    print(rtc, pc)
-    err.append(rtc-pc)
+    return rtc-pc
 
-err = np.array(err)
-print(err.mean(), err.std())
+def Nread_time(n):
+    lst = []
+    for i in range(n):
+        lst.append(read_time())
+    return np.array(lst)
 
-ts = time.time()
-pc = struct.pack('I', int(ts)+1)
-time.sleep(1 - ts%1)
-usbd.write(pc)
+def send():
+    ts = time.time()
+    pc = struct.pack('I', int(ts)+1)
+    time.sleep(1 - ts%1)
+    usbd.write(pc)
+    return int(ts)+1
+
+
+arr1 = Nread_time(N_READ)
+mean1 = arr1.mean()
+std1 = arr1.std()
+mM1 = arr1.max() - arr1.min()
+
+ts_send = send()
+
+arr2 = Nread_time(N_READ)
+mean2 = arr2.mean()
+std2 = arr2.std()
+mM2 = arr2.max() - arr2.min()
+
+with open('log.csv', 'a+') as f:
+    csvf = csv.writer(f)
+    if f.tell() == 0:
+        csvf.writerow(['calib_time', 'N_READ', 'err_mean', 'err_std', 'mM', 'send_time', 'err_mean2', 'err_std2', 'mM'])
+    st0 = t0.strftime("%Y-%m-%d %H:%M:%S")
+    st1 = datetime.fromtimestamp(ts_send).strftime("%Y-%m-%d %H:%M:%S")
+    csvf.writerow([st0, N_READ, mean1, std1, mM1, st1, mean2, std2, mM2])
+
