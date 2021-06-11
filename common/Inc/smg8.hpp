@@ -22,14 +22,14 @@ private:
 	bool colon_state;  //need by PWM light
 	int index;  //modify in `TimerFunc()`
 	C_RTC* rtc;
-	C_TIM* tim;
+	C_TIMEx* etim;
 public:
 	SMG8();
 	void LightMode();
 	void DarkMode();
 	void off();
 	void connRTC(C_RTC* rtc);
-	void connTIM(C_TIM* tim);
+	void connTIM(C_TIMEx* etim);
 	void showNum(int i0, int i1, int num, int point, bool fill0);
 	void showNum(int num1, int point, int num2);
 	void showNum(int num, int point) {showNum(0, 4, num, point, false);}
