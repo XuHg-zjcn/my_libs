@@ -10,6 +10,23 @@
 #include "c_rcc.hpp"
 
 
+
+TIM_TRGO TIM_CHx2TRGO(TIM_CHx ch)
+{
+	switch(ch){
+	case TIM_Channel_1:
+		return TIM_TRGO_oc1ref;
+	case TIM_Channel_2:
+		return TIM_TRGO_oc2ref;
+	case TIM_Channel_3:
+		return TIM_TRGO_oc3ref;
+	case TIM_Channel_4:
+		return TIM_TRGO_oc4ref;
+	default:
+		return TIM_TRGO_reset;
+	}
+}
+
 /*
  * @param trig:     TIM_TS_xxx  @ref: TIM_Trigger_Selection
  * @param polar:    TIM_ETRPOLARITY_(NON)INVERTED
@@ -118,6 +135,15 @@ void C_TIM::set_ns(Type_ns ns)
 	uint64_t div = ns*PeriphAddr2Freq(this->Instance)*2/1000000000UL;
 	this->set_tdiv(div);
 }
+
+void C_TIM::set_TGRO(TIM_TRGO trgo, bool ms_enable)
+{
+	TIM_MasterConfigTypeDef cfg;
+	cfg.MasterOutputTrigger = trgo;
+	cfg.MasterSlaveMode = ms_enable?TIM_MASTERSLAVEMODE_ENABLE:TIM_MASTERSLAVEMODE_DISABLE;
+	HAL_TIMEx_MasterConfigSynchronization(this, &cfg);
+}
+
 
 void C_TIM::set_CountEnable(bool isEnable)
 {

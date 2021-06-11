@@ -74,10 +74,23 @@ typedef enum{
 	TIM_IT_all = 0xfff
 }TIM_IT;
 
+typedef enum{
+	TIM_TRGO_reset = TIM_TRGO_RESET,
+	TIM_TGRO_enable = TIM_TRGO_ENABLE,
+	TIM_TGRO_update = TIM_TRGO_UPDATE,
+	TIM_TRGO_oc1 = TIM_TRGO_OC1,
+	TIM_TRGO_oc1ref = TIM_TRGO_OC1REF,
+	TIM_TRGO_oc2ref = TIM_TRGO_OC2REF,
+	TIM_TRGO_oc3ref = TIM_TRGO_OC3REF,
+	TIM_TRGO_oc4ref = TIM_TRGO_OC4REF,
+}TIM_TRGO;
+
 #define TIM_CH2IT(x) (x==TIM_Channel_1 ? TIM_IT_cc1:\
 		             (x==TIM_Channel_2 ? TIM_IT_cc2:\
 		             (x==TIM_Channel_3 ? TIM_IT_cc3:\
 		             TIM_IT_cc4)))
+
+TIM_TRGO TIM_CHx2TRGO(TIM_CHx ch);
 
 class C_TIM : public TIM_HandleTypeDef{
 public:
@@ -101,6 +114,7 @@ public:
 	void set_Hz(Type_Hz Hz);
 	void set_ns(Type_ns ns);
 	//others
+	void set_TGRO(TIM_TRGO trgo, bool ms_enable);
 	void set_CountEnable(bool isEnable);
 	inline void set_CountMode(TIM_CountMode mode) {MODIFY_REG(this->Instance->CR1, TIM_CR1_DIR|TIM_CR1_CMS, mode);};
 	inline void reset_count(){
