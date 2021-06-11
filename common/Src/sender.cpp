@@ -9,13 +9,36 @@
 #include "buffhead.hpp"
 #include "main.h"
 
+
+/*
+ * example code, will use each below:
+ *
+ * extern USBD_HandleTypeDef hUsbDeviceFS;
+ * extern ADC_HandleTypeDef hadc1;
+ * extern TIM_HandleTypeDef htim2;
+ * C_ADCEx adc = C_ADCEx(&hadc1, &htim2);
+ * Buffer buff = Buffer(2);
+ *
+ * buff.Init();
+ * buff.remalloc(128);
+ * adc.set_SR_sps(10000);
+ * adc.conn_buff(&buff.w_head);
+ */
+
 #ifdef USE_FREERTOS
 #ifdef USE_USB
+/*
+ * send buffer data via usb
+ * example:
+ * osThreadAttr_t attr={.name="usb_sender"};
+ * SenderParam param = {.buf=buff, .pdev=&hUsbDeviceFS, 32}; //2*32=64 Byte per pack max
+ * osThreadNew(&UsbSender_TaskFunc, &param, &attr);
+ * adc.DMA_cycle(100);
+ */
 void UsbSender_TaskFunc(void *argument)
 {
 	SenderParam *param = (SenderParam*)argument;
-	BuffHeadReads *r_heads = &param->buf->r_heads;
-	BuffHeadRead head = BuffHeadRead(*r_heads, r_heads->new_head());
+	BuffHeadRead head = BuffHeadRead(*param->r_heads, param->r_heads->new_head());
 	u8* p;
 	u32 be = head.bytes_elem();
 	while(1){
@@ -37,14 +60,14 @@ void OLEDShow_N_TaskFunc(void *argument)
 {
 	ShowParam *param = (ShowParam*)argument;
 	OLEDShow_config(param);
-	uint32_t head_i = param->buf->r_heads.new_head();
+	uint32_t head_i = param->r_heads->new_head();
 	uint16_t *p;
-	uint32_t n = param->N_ms_fos;
+	uint32_t n = param->N_merge;
 	uint64_t column;
 	switch(param->type){
 	    case Show_Fixed:
 		    for(;;){
-			    p = (uint16_t*)param->buf->r_heads.get_frames(head_i, n*128);
+			    p = (uint16_t*)param->r_heads->get_frames(head_i, n*128);
 			    if(!p){
 					osThreadExit();
 			    }
@@ -69,9 +92,8 @@ void OLEDShow_N_TaskFunc(void *argument)
 	}
 }
 
-void OLEDShow_ms_TimerFunc(void *argument)
+void OLEDShow_TimerFunc(void *argument)
 {
 	ShowParam *param = (ShowParam*)argument;
-	OLEDShow_config(param);
 }
 #endif

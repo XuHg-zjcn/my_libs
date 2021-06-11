@@ -24,6 +24,7 @@ typedef enum{
 	Elem_NoPuted
 }ElemState;
 
+//TODO: read heads keep, when write head over the heads, will stop put data
 class Buffer{
 protected:
 	void *p0;

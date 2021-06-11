@@ -15,7 +15,7 @@
 
 #ifdef USE_USB
 typedef struct{
-	Buffer *buf;
+	BuffHeadReads *r_heads;
 	USBD_HandleTypeDef *pdev;
 	u32 n;
 }SenderParam;
@@ -32,10 +32,11 @@ typedef enum{
 }ShowType;
 
 typedef struct{
-	Buffer *buf;
+	BuffHeadReads *r_heads;
 	SSD1306 *oled;
 	ShowType type;
-	uint32_t N_ms_fos;
+	uint32_t ms_fos;
+	uint32_t N_merge;
 	uint8_t y0; //used for, 暂时不支持
 	uint8_t y1; //oled->commd_bytes(SET_PAGE_ADDR_2B, y0, y1);
 }ShowParam;
