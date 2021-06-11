@@ -21,6 +21,46 @@ const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define MV_MUL    10    //multiply to result, can improve accuracy, too big maybe overflow!
 #endif
 
+/*
+ * how use the driver:
+ * STM32CubeMX config ADC channel, DMA
+ *
+ * add code in global
+ *    extern ADC_HandleTypeDef hadc1;
+ *    extern TIM_HandleTypeDef htim3;
+ *    C_ADCEx adc = C_ADCEx(&hadc1);
+ *    Buffer buff = Buffer(2);
+ *
+ * add callback code
+ *     void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+ *     {
+ *         eadc.ConvCplt();
+ *     }
+ *
+ *     void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+ *     {
+ *         eadc.ConvHalfCplt();
+ *     }
+ *
+ * add init code after FreeRTOS Start scheduler
+ *     buff.Init();
+ *     buff.remalloc(128);
+ *     adc.Init();
+ *     adc.conn_buff(&buff.w_head);
+ *     adc.conn_tim(&htim3, TIM_Channel_1);
+ *     adc.set_SR_sps(10000);
+ *     adc.load_regular_one_channel(TIM_Channel_1, ADC_tSMP_28Cyc5); //optional
+ *
+ * add user code
+ *     u16* p;
+ *     int head_i = buff.r_heads.new_head();
+ *     while(1){
+ *         adc.dma_once();
+ *         p = buff.r_heads.get_frames(head_i, 128);
+ *         //add your code, data process
+ *     }
+ */
+
 typedef enum{              // |PHFCCIR,
 	ADC_stopping           = 0b0000000,
 	ADC_injected           = 0b0000011,
@@ -101,14 +141,16 @@ class C_ADCEx{
 protected:
 	C_ADC *hadc;
 	C_TIM *htim;
+	TIM_CHx chx;
 	BuffHeadWrite *w_head;
 	MyADCMode mode;
 	uint32_t timeout;
 	uint32_t NDTR;
 	uint32_t Xref; //1.2V基准电压, REF_NSAMP次采样求和
 public:
-	C_ADCEx();
-	void Init(ADC_HandleTypeDef *hadc, TIM_HandleTypeDef *htim);
+	C_ADCEx(ADC_HandleTypeDef *hadc);
+	void Init();
+	void conn_tim(TIM_HandleTypeDef *htim, TIM_CHx channel);
 	void conn_buff(BuffHeadWrite* w_head);  //TODO: auto create buffer
 	void set_SR_sps(u32 sps);
 	void set_SR_ns(u32 ns);
@@ -116,7 +158,7 @@ public:
 	void set_Regular_ExtenTrig(u32 src, u32 edge);
 	void load_regular_seq(ADC_SampSeq* sseq);
 	void load_inject_seq(ADC_SampSeq* sseq);
-	void load_regular_one_channel(ADC_CHx CHx, u32 tSAMP);
+	void load_regular_one_channel(ADC_CHx CHx, ADC_tSMP tSAMP);
 	void Injected_once(bool blocking);
 	void Regular_once(u16 *buf, bool blocking);
 	void DMA_once(u32 Nsamp, bool blocking);

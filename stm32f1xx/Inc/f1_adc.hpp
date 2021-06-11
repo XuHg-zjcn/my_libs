@@ -10,7 +10,7 @@
 
 class F1_ADCEx : public C_ADCEx{
 public:
-	void ConfigFastMode(ADC_CHx CHx, u32 tSAMP, u32 nADC);
+	void ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC);
 };
 
 #endif
