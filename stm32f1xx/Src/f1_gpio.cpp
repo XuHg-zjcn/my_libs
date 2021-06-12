@@ -2,65 +2,65 @@
 #include "bit_band.h"
 
 
-Pin8b::Pin8b(uint32_t port, uint32_t pin){
+C_Pin::C_Pin(uint32_t port, uint32_t pin){
 	PORTx = port;
 	PINx = pin;
 }
 
-Pin8b::Pin8b(std::initializer_list<uint32_t> lst)
+C_Pin::C_Pin(std::initializer_list<uint32_t> lst)
 {
 	PORTx = *lst.begin();
 	PINx = *(lst.begin()+1);
 }
 
-Pin8b::Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N){
+C_Pin::C_Pin(GPIO_TypeDef *GPIOx, uint32_t pin2N){
 	PORTx = (((uint32_t)GPIOx) - GPIOA_BASE)/0x400;
 	PINx = __builtin_ctz(pin2N);
 }
 
 
-GPIO_TypeDef* Pin8b::GPIOx()
+GPIO_TypeDef* C_Pin::GPIOx()
 {
 	return (GPIO_TypeDef *)(GPIOA_BASE + 0x400*PORTx);
 }
 
-uint32_t Pin8b::Pin2N()
+uint32_t C_Pin::Pin2N()
 {
 	return 1<<PINx;
 }
 
-uint32_t* Pin8b::ODR_bitband()
+uint32_t* C_Pin::ODR_bitband()
 {
 	return BIT_PTR(&(GPIOx()->ODR), PINx);
 }
 
-uint32_t* Pin8b::IDR_bitband()
+uint32_t* C_Pin::IDR_bitband()
 {
 	return BIT_PTR(&(GPIOx()->IDR), PINx);
 }
 
-void Pin8b::write_pin(bool x)
+void C_Pin::write_pin(bool x)
 {
 	HAL_GPIO_WritePin(GPIOx(), Pin2N(), (GPIO_PinState)x);
 }
 
-bool Pin8b::read_pin()
+bool C_Pin::read_pin()
 {
 	return HAL_GPIO_ReadPin(GPIOx(), Pin2N());
 }
 
-void Pin8b::toggle_pin()
+void C_Pin::toggle_pin()
 {
 	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
 }
 
 //blocking until read_pin() == state
-void Pin8b::wait_pin(bool state)
+void C_Pin::wait_pin(bool state)
 {
 	while(read_pin() xor state);
 }
 
-u32 Pin8b::wait_timeout(bool state, u32 timeout)
+u32 C_Pin::wait_timeout(bool state, u32 timeout)
 {
 	while((read_pin() xor state) and timeout){
 		timeout--;
@@ -69,7 +69,7 @@ u32 Pin8b::wait_timeout(bool state, u32 timeout)
 }
 
 //阻塞式测量
-u32 Pin8b::wait_count(bool state, u32 m, u32 M)
+u32 C_Pin::wait_count(bool state, u32 m, u32 M)
 {
 	u32 n=0;
 	state = !state;
@@ -79,7 +79,7 @@ u32 Pin8b::wait_count(bool state, u32 m, u32 M)
 	return n;
 }
 
-void Pin8b::loadCfg(PinCfg cfg)
+void C_Pin::loadCfg(PinCfg cfg)
 {
     if(PORTx >= TOTAL_PORTS){
         return;
@@ -102,12 +102,12 @@ void Pin8b::loadCfg(PinCfg cfg)
     }
 }
 
-void Pin8b::lockCfg()
+void C_Pin::lockCfg()
 {
     HAL_GPIO_LockPin(GPIOx(), Pin2N());
 }
 
-void Pin8b::setEXTI(EnumEXTI exti)
+void C_Pin::setEXTI(EnumEXTI exti)
 {
     uint32_t pin2N = Pin2N();
     if(exti & (EXTI_RISE_Msk | EXTI_FALL_Msk)){

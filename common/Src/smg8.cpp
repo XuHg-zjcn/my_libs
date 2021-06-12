@@ -11,11 +11,11 @@
 
 SMG8::SMG8():buf({0,0,0,0}),index(0)
 {
-	Pin8b pseg[8] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}};
+	C_Pin pseg[8] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}};
 	seg = new GPIO_Conn(pseg, 8, true, InitCfg_Disable, NoLock, GPIO_GP_OD1, GPIO_In_Up);
-	Pin8b pxb[4] = {{1, 3}, {1, 4}, {1, 5}, {1, 8}};
+	C_Pin pxb[4] = {{1, 3}, {1, 4}, {1, 5}, {1, 8}};
 	xb = new GPIO_Conn(pxb, 4, true, InitCfg_Disable, NoLock, GPIO_GP_PP0, GPIO_GP_PP0);
-	colon = new Pin8b(1, 9);
+	colon = new C_Pin(1, 9);
 }
 
 void SMG8::LightMode()

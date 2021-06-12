@@ -40,14 +40,14 @@ typedef struct{
 
 class DHT11{
 private:
-	Pin8b pin;
+	C_Pin pin;
 #ifdef USE_VAR_SPLIT
 	u32 split;
 #endif
 	DHT11_PackState read_bits(u32 *bb, u32 n);
 	u8 read_byte();
 public:
-	DHT11(Pin8b *pin);
+	DHT11(C_Pin *pin);
 	DHT11_PackState read_raw(DHT11_RAW *data);
 	void test(u32 *tH);
 #ifdef USE_VAR_SPLIT

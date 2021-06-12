@@ -17,7 +17,7 @@ class SMG8{
 private:
 	GPIO_Conn *seg;
 	GPIO_Conn *xb;
-	Pin8b *colon;
+	C_Pin *colon;
 	uint8_t buf[4];
 	bool colon_state;  //need by PWM light
 	int index;  //modify in `TimerFunc()`

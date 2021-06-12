@@ -56,13 +56,13 @@ typedef enum{
 
 //TODO: use enum PinState instead bool
 
-class Pin8b{
+class C_Pin{
 public:
     unsigned int PORTx:4;
     unsigned int PINx:4;
-    Pin8b(uint32_t port, uint32_t pin);
-    Pin8b(std::initializer_list<uint32_t> lst);
-    Pin8b(GPIO_TypeDef *GPIOx, uint32_t pin2N);
+    C_Pin(uint32_t port, uint32_t pin);
+    C_Pin(std::initializer_list<uint32_t> lst);
+    C_Pin(GPIO_TypeDef *GPIOx, uint32_t pin2N);
     GPIO_TypeDef* GPIOx();
     uint32_t Pin2N();
     uint32_t* ODR_bitband();

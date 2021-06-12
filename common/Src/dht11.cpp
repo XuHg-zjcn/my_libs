@@ -11,7 +11,7 @@
 #include "ops.hpp"
 
 
-DHT11::DHT11(Pin8b *pin):pin(*pin){};
+DHT11::DHT11(C_Pin *pin):pin(*pin){};
 
 DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 {

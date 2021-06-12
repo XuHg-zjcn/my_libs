@@ -32,10 +32,10 @@
  *     extern TIM_HandleTypeDef htim2;  //timer used for step motor
  *     PinCfg cfg = (PinCfg)(GPIO_GP_PP0&OUT_2MHZ);
  *     ManagerPin sm_pins[4] = {        //GPIO Pins connect to motor driver ULN2003
- *     {Pin8b(SM1_GPIO_Port, SM1_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
- *     {Pin8b(SM2_GPIO_Port, SM2_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
- *     {Pin8b(SM3_GPIO_Port, SM3_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
- *     {Pin8b(SM4_GPIO_Port, SM4_Pin), true, InitCfg_Disable, NoLock, cfg, cfg}};
+ *     {C_Pin(SM1_GPIO_Port, SM1_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {C_Pin(SM2_GPIO_Port, SM2_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {C_Pin(SM3_GPIO_Port, SM3_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
+ *     {C_Pin(SM4_GPIO_Port, SM4_Pin), true, InitCfg_Disable, NoLock, cfg, cfg}};
  *     GPIO_Conn sm_conn = GPIO_Conn(sm_pins, 4);
  *     StepMotor sm = StepMotor(sm_conn, (C_TIM*)&htim2);
  *

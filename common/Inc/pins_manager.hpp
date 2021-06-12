@@ -17,7 +17,7 @@ typedef enum{
 }InitCfg;
 
 typedef struct{
-	Pin8b p8b;
+	C_Pin p8b;
 	bool keep:1;    //keep use flag in disable, note: will still load CfgDisable when GPIO_Conn entry disable state.
 	InitCfg cfg0:2; //which cfg in init
 	PinLockType lock:2; //lock pin type
@@ -32,7 +32,7 @@ private:
 	uint32_t N_pin;
 public:
 	GPIO_Conn(ManagerPin* pins, uint32_t N_pin);
-	GPIO_Conn(Pin8b* p8b, uint32_t N_pin, bool keep,
+	GPIO_Conn(C_Pin* p8b, uint32_t N_pin, bool keep,
 			InitCfg cfg0, PinLockType lock,
 			PinCfg CfgEnable, PinCfg CfgDisable);
 	bool isAvailable();
@@ -43,7 +43,7 @@ public:
 	uint32_t ReadPins();
 };
 
-inline bool isPinUsed(Pin8b pin);
-inline void setPinUsed(Pin8b pin, bool used);
+inline bool isPinUsed(C_Pin pin);
+inline void setPinUsed(C_Pin pin, bool used);
 
 #endif

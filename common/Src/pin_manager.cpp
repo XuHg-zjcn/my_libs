@@ -4,7 +4,7 @@
 
 uint16_t pins_use_state[16];  //TODO: use FreeRTOS event flags, can wait
 
-inline bool isPinUsed(Pin8b pin)
+inline bool isPinUsed(C_Pin pin)
 {
     if(pins_use_state[pin.PORTx] & 1<<pin.PINx){
         return true;
@@ -13,7 +13,7 @@ inline bool isPinUsed(Pin8b pin)
     }
 }
 
-inline void setPinUsed(Pin8b pin, bool used)
+inline void setPinUsed(C_Pin pin, bool used)
 {
     if(used){
         pins_use_state[pin.PORTx] |= 1<<pin.PINx;
@@ -54,7 +54,7 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
     }
 }
 
-GPIO_Conn::GPIO_Conn(Pin8b* p8b, uint32_t N_pin, bool keep,
+GPIO_Conn::GPIO_Conn(C_Pin* p8b, uint32_t N_pin, bool keep,
 					InitCfg cfg0, PinLockType lock,
 					PinCfg CfgEnable, PinCfg CfgDisable)
 {
