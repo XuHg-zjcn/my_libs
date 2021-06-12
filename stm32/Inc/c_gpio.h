@@ -10,6 +10,8 @@
 
 #include "bit_band.h"
 
+//advice use class `C_Pin` to get IDR or ODR bitband, create object from bitband address.
+
 //checks
 #define IS_PIN_N(PIN_N)                      (0<=PIN_N<16)
 
