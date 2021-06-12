@@ -1,11 +1,11 @@
 #ifndef F1_GPIO_HPP
 #define F1_GPIO_HPP
 
+#include "mylibs_config.hpp"
 #include "stm32f1xx_hal.h"
 #include "myints.h"
 #include <map>
 
-#define TOTAL_PORTS 7 //GPIOx(x=ABCDEFG)
 
 typedef enum{
     Pin_Reset = 0,

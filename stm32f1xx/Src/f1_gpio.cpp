@@ -81,7 +81,7 @@ u32 C_Pin::wait_count(PinState state, u32 m, u32 M)
 
 void C_Pin::loadCfg(PinCfg cfg)
 {
-    if(PORTx >= TOTAL_PORTS){
+    if(PORTx >= TOTAL_GPIO_PORTS){
         return;
     }
     GPIO_TypeDef *gpiox = GPIOx();

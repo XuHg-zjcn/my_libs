@@ -5,9 +5,6 @@
 #include "stm32f1xx_hal.h"
 
 
-
-#define TOTAL_ADCs 2
-
 class F1_ADCEx : public C_ADCEx{
 public:
 	void ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC);
