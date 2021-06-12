@@ -1,5 +1,5 @@
-#ifndef PIN_MANAGER_HPP
-#define PIN_MANAGER_HPP
+#ifndef PINS_MANAGER_HPP
+#define PINS_MANAGER_HPP
 
 #include "x_base.hpp"
 #include "mylibs_config.hpp"
