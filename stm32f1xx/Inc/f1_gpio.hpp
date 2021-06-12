@@ -7,6 +7,12 @@
 
 #define TOTAL_PORTS 7 //GPIOx(x=ABCDEFG)
 
+typedef enum{
+    Pin_Reset = 0,
+    Pin_Set
+}PinState;
+
+inline PinState operator!(PinState s);
 
 //order below same to Reference manual RM0008, Table20
 //Output are 50MHz, please use0826543 '&' to set Speed, example: `GPIO_GP_PP0 & OUT_2MHZ`
@@ -68,11 +74,11 @@ public:
     uint32_t* ODR_bitband();
     uint32_t* IDR_bitband();
     void write_pin(bool x);  //TODO: remove "_pin"
-    bool read_pin();
+    PinState read_pin();
     void toggle_pin();
-    void wait_pin(bool state);
-    u32 wait_timeout(bool state, u32 timeout);
-    u32 wait_count(bool state, u32 m, u32 M);
+    void wait_pin(PinState state);
+    u32 wait_timeout(PinState state, u32 timeout);
+    u32 wait_count(PinState state, u32 m, u32 M);
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);

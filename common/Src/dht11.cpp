@@ -19,8 +19,8 @@ DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 	XDelayMs(20);
 	pin.loadCfg(GPIO_In_Up);
 	Delay_us(30);
-	WAIT(false);
-	WAIT(true);
+	WAIT(Pin_Reset);
+	WAIT(Pin_Set);
 	data->ps = read_bits(BIT_PTR(data, 0), 40);
 	if(data->ps == DHT11_OK && data->check != data->hum_H + data->hum_L + data->temp_H + data->temp_L){
 		data->ps == DHT11_CheckSum_Err;
@@ -37,12 +37,12 @@ DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 DHT11_PackState DHT11::read_bits(u32 *bb, u32 n)
 {
 	bb+=n;
-	WAIT(false);  //wait to low state
+	WAIT(Pin_Reset);  //wait to low state
 	for(u32 i=0;i<n;i++){
 		bb--;        //MSB first
-		WAIT(true);  //wait to high state
+		WAIT(Pin_Set);  //wait to high state
 #ifdef USE_VAR_SPLIT
-		u32 t = pin.wait_count(true, MIN_LOOPS, MAX_LOOPS);
+		u32 t = pin.wait_count(Pin_Set, MIN_LOOPS, MAX_LOOPS);
 		if(t>=MAX_LOOPS){
 			return DHT11_RxTimeout;
 		}
@@ -51,11 +51,11 @@ DHT11_PackState DHT11::read_bits(u32 *bb, u32 n)
 		Delay_us(SPILT01_US);
 		*bb = pin.read_pin();
 		if(*bb){//high level
-			WAIT(false);
+			WAIT(Pin_Reset);
 		}//else{already low level}
 #endif
 	}
-	WAIT(true);
+	WAIT(Pin_Set);
 	return DHT11_OK;
 }
 
@@ -63,13 +63,13 @@ u8 DHT11::read_byte()
 {
 	u8 ret=0;
 	bool tmp;
-	WAIT(false);  //wait to low state
+	WAIT(Pin_Reset);  //wait to low state
 	for(int i=7;i>=0;i--){
-		WAIT(true);  //wait to high state
+		WAIT(Pin_Set);  //wait to high state
 		Delay_us(SPILT01_US);
 		tmp = pin.read_pin();
 		if(tmp){//high level
-			WAIT(false);
+			WAIT(Pin_Reset);
 		}//else{already low level}
 		ret|=(tmp<<i);
 	}
@@ -82,12 +82,12 @@ void DHT11::test(u32 *tH)
 	XDelayMs(20);
 	pin.loadCfg(GPIO_In_Up);
 	Delay_us(30);
-	WAIT(false);
-	WAIT(true);
-	WAIT(false);
+	WAIT(Pin_Reset);
+	WAIT(Pin_Set);
+	WAIT(Pin_Reset);
 	for(int i=0;i<40;i++){
-		WAIT(true);
-		*tH = pin.wait_count(true, MIN_LOOPS, MAX_LOOPS);
+		WAIT(Pin_Set);
+		*tH = pin.wait_count(Pin_Set, MIN_LOOPS, MAX_LOOPS);
 		if(*tH >= MAX_LOOPS){
 			*tH = 0;
 		}

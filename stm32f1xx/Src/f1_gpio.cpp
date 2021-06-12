@@ -2,6 +2,11 @@
 #include "bit_band.h"
 
 
+inline PinState operator!(PinState s){
+	return (PinState)(!s);
+}
+
+
 C_Pin::C_Pin(uint32_t port, uint32_t pin){
 	PORTx = port;
 	PINx = pin;
@@ -44,9 +49,9 @@ void C_Pin::write_pin(bool x)
 	HAL_GPIO_WritePin(GPIOx(), Pin2N(), (GPIO_PinState)x);
 }
 
-bool C_Pin::read_pin()
+PinState C_Pin::read_pin()
 {
-	return HAL_GPIO_ReadPin(GPIOx(), Pin2N());
+	return (PinState)HAL_GPIO_ReadPin(GPIOx(), Pin2N());
 }
 
 void C_Pin::toggle_pin()
@@ -55,12 +60,12 @@ void C_Pin::toggle_pin()
 }
 
 //blocking until read_pin() == state
-void C_Pin::wait_pin(bool state)
+void C_Pin::wait_pin(PinState state)
 {
 	while(read_pin() xor state);
 }
 
-u32 C_Pin::wait_timeout(bool state, u32 timeout)
+u32 C_Pin::wait_timeout(PinState state, u32 timeout)
 {
 	while((read_pin() xor state) and timeout){
 		timeout--;
@@ -69,7 +74,7 @@ u32 C_Pin::wait_timeout(bool state, u32 timeout)
 }
 
 //阻塞式测量
-u32 C_Pin::wait_count(bool state, u32 m, u32 M)
+u32 C_Pin::wait_count(PinState state, u32 m, u32 M)
 {
 	u32 n=0;
 	state = !state;
