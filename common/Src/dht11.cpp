@@ -15,7 +15,7 @@ DHT11::DHT11(C_Pin *pin):pin(*pin){};
 
 DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 {
-	pin.loadCfg((PinCfg)(GPIO_GP_PP0|OUT_2MHZ));
+	pin.loadCfg(GPIO_GP_PP0 & Out_2MHz);
 	XDelayMs(20);
 	pin.loadCfg(GPIO_In_Up);
 	Delay_us(30);
@@ -78,7 +78,7 @@ u8 DHT11::read_byte()
 
 void DHT11::test(u32 *tH)
 {
-	pin.loadCfg((PinCfg)(GPIO_GP_PP0|OUT_2MHZ));
+	pin.loadCfg(GPIO_GP_PP0 & Out_2MHz);
 	XDelayMs(20);
 	pin.loadCfg(GPIO_In_Up);
 	Delay_us(30);

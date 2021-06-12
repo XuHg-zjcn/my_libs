@@ -12,7 +12,6 @@ typedef enum{
     Pin_Set
 }PinState;
 
-inline PinState operator!(PinState s);
 
 //order below same to Reference manual RM0008, Table20
 //Output are 50MHz, please use0826543 '&' to set Speed, example: `GPIO_GP_PP0 & OUT_2MHZ`
@@ -30,9 +29,20 @@ typedef enum{  //ODR 1b|CNF 2b|MODE 2b|
     GPIO_Keep_ODR0= 0b01100,
     GPIO_Keep_ODR1= 0b11100
 }PinCfg;
-#define OUT_10MHZ (~0b11 | 0b01)
-#define OUT_2MHZ  (~0b11 | 0b10)
-#define OUT_50MHZ (~0b11 | 0b11)
+
+typedef enum{
+	Out_10MHz = (~0b11 | 0b01),
+	Out_2MHz  = (~0b11 | 0b10),
+	Out_50MHz = (~0b11 | 0b11)
+}OutSpeed;
+
+inline PinState operator!(PinState s){
+	return (PinState)(!s);
+}
+
+inline PinCfg operator&(PinCfg cfg, OutSpeed spd){
+	return (PinCfg)(cfg&spd);
+}
 
 #define MODE_Msk      0b00011
 #define MODE_IN       0b00000

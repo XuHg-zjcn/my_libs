@@ -30,7 +30,7 @@
  *     #include "main.h"
  *
  *     extern TIM_HandleTypeDef htim2;  //timer used for step motor
- *     PinCfg cfg = (PinCfg)(GPIO_GP_PP0&OUT_2MHZ);
+ *     PinCfg cfg = GPIO_GP_PP0 & OUT_2MHZ;
  *     ManagerPin sm_pins[4] = {        //GPIO Pins connect to motor driver ULN2003
  *     {C_Pin(SM1_GPIO_Port, SM1_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},
  *     {C_Pin(SM2_GPIO_Port, SM2_Pin), true, InitCfg_Disable, NoLock, cfg, cfg},

@@ -2,11 +2,6 @@
 #include "bit_band.h"
 
 
-inline PinState operator!(PinState s){
-	return (PinState)(!s);
-}
-
-
 C_Pin::C_Pin(uint32_t port, uint32_t pin){
 	PORTx = port;
 	PINx = pin;
