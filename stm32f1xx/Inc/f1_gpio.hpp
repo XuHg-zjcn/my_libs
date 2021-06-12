@@ -41,7 +41,7 @@ inline PinState operator!(PinState s){
 }
 
 inline PinCfg operator&(PinCfg cfg, OutSpeed spd){
-	return (PinCfg)(cfg&spd);
+	return (PinCfg)((int)cfg&(int)spd);
 }
 
 #define MODE_Msk      0b00011
