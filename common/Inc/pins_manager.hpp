@@ -34,7 +34,7 @@ typedef struct{
 
 typedef struct{
 	PinFunc func:8;
-	PinBits bits:8;
+	PinBits bits;
 	unsigned int dev_id:4;
 	unsigned int pin_id:4;
 }PinSave;
