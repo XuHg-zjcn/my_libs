@@ -118,20 +118,20 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	u32 s1 = sum(p, NSAMP);
 	u32 max = s0 + xfact((s1-s0), 102, 100); //使用积分检测
 	char str[20];
-	oled.setVHAddr(HORZ_MODE, 0, 127, 0, 1);
+	oled.setVHAddr(Horz_Mode, 0, 127, 0, 1);
 	snprintf(str, 20, " s0:%5d", s0/409);
 	oled.text_5x7(str);
-	oled.setVHAddr(HORZ_MODE, 0, 127, 1, 2);
+	oled.setVHAddr(Horz_Mode, 0, 127, 1, 2);
 	snprintf(str, 20, " s1:%5d", s1/409);
 	oled.text_5x7(str);
-	oled.setVHAddr(HORZ_MODE, 0, 127, 2, 3);
+	oled.setVHAddr(Horz_Mode, 0, 127, 2, 3);
 	snprintf(str, 20, "max:%5d", max/409);
 	oled.text_5x7(str);
 	while(1){
 		hadc->DMA_once(NSAMP, true);
 		p = (u16*)head.get_frames(NSAMP);
 		u32 s2 = sum(p, NSAMP);
-		oled.setVHAddr(HORZ_MODE, 0, 127, 4, 5);
+		oled.setVHAddr(Horz_Mode, 0, 127, 4, 5);
 		snprintf(str, 20, " s2:%5d", s2/409);
 		oled.text_5x7(str);
 		if(s2 > max){

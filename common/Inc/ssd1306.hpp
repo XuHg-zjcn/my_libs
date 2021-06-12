@@ -47,66 +47,73 @@
 // ..._nb : n bits at last    commd_bytes(..._nb | bits);
 // ..._nB : n Bytes params    commd_bytes(..._nB, Byte1, Byte2, ..., ByteN);
 // ..._nbmB: n bits, m Bytes  commd_bytes(..._nbmB | bits, Byte1, ..., ByteM);
+typedef enum{
+	Display_Follows_RAM = 0xA4,
+	Display_Ignores_RAM = 0xA5,
 
-#define DISPLAY_FOLLOWS_RAM   0xA4
-#define DISPLAY_IGNORES_RAM   0xA5
+	Normal_Display  = 0xA6,
+	Inverse_Display = 0xA7,
 
-#define NORMAL_DISPLAY        0xA6
-#define INVERSE_DISPLAY       0xA7
+	Display_OFF = 0xAE,
+	Display_ON  = 0xAF,
 
-#define DISPLAY_OFF           0xAE
-#define DISPLAY_ON            0xAF
+	H_Scroll_1b6B     = 0x26, //advice use:
+	VH_Scroll_2b5B    = 0x28, //SSD1306::VH_scroll(...);
+	Deactivate_Scroll = 0x2E, //SSD1306::Scroll_Disable();
+	Activate_Scroll   = 0x2F,
+	V_Scorll_Area_2B  = 0xA3,
 
-#define H_SCORLL_1b6B         0x26 //advice use:
-#define VH_SCORLL_2b5B        0x28 //SSD1306::VH_scroll(...);
-#define DEACTIVATE_SCROLL     0x2E //SSD1306::Scroll_Disable();
-#define ACTIVATE_SCROLL       0x2F
-#define V_SCORLL_AREA_2B      0xA3
-
-#define ADDRESSING_MODE_1B    0x20
-#define HORZ_MODE             0x00
-#define VERT_MODE             0x01
-#define PAGE_MODE             0x02
+	Addressing_Mode_1B = 0x20,
 
 //commands in Horizontal/Vertical Mode
-#define SET_COLUMN_ADDR_2B    0x21
-#define SET_PAGE_ADDR_2B      0x22
+	Set_Column_Addr_2B = 0x21,
+	Set_Page_Addr_2B   = 0x22,
 
 //commands in Page mode
-#define LOW_COL_ADDR_4b       0x00  //low 4bit
-#define HIGH_COL_ADDR_4b      0x10  //high 4bit
-#define START_PAGE_ADDR_4b    0xB0
+	Low_Col_Addr_4b    = 0x00,  //low 4bit
+	High_Col_Addr_4b   = 0x10,  //high 4bit
+	Start_Page_Addr_4b = 0xB0,
 
+	OutScan_Norm = 0xC0,
+	OutScan_Inv  = 0xC8,
 
-#define OUTSCAN_NORM          0xC0
-#define OUTSCAN_INV           0xC8
+	Start_Line_6b = 0x40,
+	Contrast_1B   = 0x81,
 
+	Seg_Remap0 = 0xA0,
+	Seg_Remap1 = 0xA1,
 
-#define START_LINE_6b         0x40
-#define CONTRAST_1B           0x81
+	Multiplex_Ratio_1B = 0xA8,
+	Display_Offset_1B  = 0xD3,
 
-#define SEG_REMAP0            0xA0
-#define SEG_REMAP1            0xA1
+	Clock_Setting_1B    = 0xD5,
+	Prechange_Period_1B = 0xD9,
+	COM_HW_Pins_Conf_1B = 0xDA,
+	V_COMH_Deselect_1B = 0xDB,
+	Charge_Pump_Set_1B = 0x8D,
+	SSD1306_Nop = 0xE3,
+}SSD1306_Commd;
 
-#define MULTIPLEX_RATIO_1B    0xA8
-#define DISPLAY_OFFSET_1B     0xD3
+typedef enum{
+	Horz_Mode = 0x00,
+	Vert_Mode = 0x01,
+	Page_Mode = 0x02
+}SSD1306_AddrMode;
 
-#define CLOCK_SETTING_1B      0xD5
-#define PRECHARGE_PERIOD_1B   0xD9
-#define COM_HW_PINS_CONF_1B   0xDA
-#define V_COMH_DESELECT_1B    0xDB
-#define CHARGE_PUMP_SET_1B    0x8D
-#define SSD1306_NOP           0xE3
+//only for commd with suffix `_nb` or `nbmB`
+inline SSD1306_Commd operator|(SSD1306_Commd commd, int bits){
+	return (SSD1306_Commd)((int)commd|bits);
+}
 
 #define U64_TOP            (1ULL)     //use << operate
 #define U64_BOTTOM         (1ULL<<63) //use >> operate
 
 
 typedef enum{
-	Scroll_Right = H_SCORLL_1b6B | 0b0,
-	Scroll_Left  = H_SCORLL_1b6B | 0b1,
-	Scroll_VertRight = VH_SCORLL_2b5B | 0b01,
-	Scroll_VertLeft  = VH_SCORLL_2b5B | 0b10
+	Scroll_Right = (int)H_Scroll_1b6B | 0b0,
+	Scroll_Left  = (int)H_Scroll_1b6B | 0b1,
+	Scroll_VertRight = (int)VH_Scroll_2b5B | 0b01,
+	Scroll_VertLeft  = (int)VH_Scroll_2b5B | 0b10
 }ScrollType;
 
 typedef enum{
@@ -142,13 +149,13 @@ private:
 	uint8_t *imgs;
 	uint32_t n_imgs;
 	uint32_t img_i;
-	static int n_bytes(uint8_t Byte0);
+	static int n_bytes(SSD1306_Commd Byte0);
 #ifdef CMSIS_OS2_H_
 	osSemaphoreId_t lock;
 #endif
 public:
 	SSD1306(C_I2C_Dev *dev);
-	void commd_bytes(uint8_t Byte0, ...);
+	void commd_bytes(SSD1306_Commd Byte0, ...);
 	void ScrollSetup(ScrollSetupCommd* commd);
 	void OnOffScroll(bool IsActivate);
 	void Init();
@@ -159,7 +166,7 @@ public:
 	void append_column(uint64_t col);
 	void gif_show(uint8_t *imgs, uint32_t n_imgs, uint32_t ms);
 	void frame_callback();
-	void setVHAddr(uint8_t mode, uint8_t col_s, uint8_t col_e, uint8_t page_s, uint8_t page_e);
+	void setVHAddr(SSD1306_AddrMode mode, uint8_t col_s, uint8_t col_e, uint8_t page_s, uint8_t page_e);
 	void setPageAddr(uint8_t col_s, uint8_t page_s);
 	void text_3x5(char* str, uint8_t y);
 	void text_5x7(char* str);

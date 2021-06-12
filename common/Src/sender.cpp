@@ -52,8 +52,8 @@ void UsbSender_TaskFunc(void *argument)
 
 void OLEDShow_config(ShowParam *param)
 {
-	param->oled->commd_bytes(ADDRESSING_MODE_1B,  0x01);
-	param->oled->commd_bytes(V_SCORLL_AREA_2B, param->y0, param->y1);
+	param->oled->commd_bytes(Addressing_Mode_1B,  Vert_Mode);
+	param->oled->commd_bytes(V_Scorll_Area_2B, param->y0, param->y1);
 }
 
 void OLEDShow_N_TaskFunc(void *argument)
@@ -71,9 +71,9 @@ void OLEDShow_N_TaskFunc(void *argument)
 			    if(!p){
 					osThreadExit();
 			    }
-			    param->oled->commd_bytes(ADDRESSING_MODE_1B,  0x01);
-			    param->oled->commd_bytes(SET_COLUMN_ADDR_2B, 0, 127);
-			    param->oled->commd_bytes(SET_PAGE_ADDR_2B, 0, 7);
+			    param->oled->commd_bytes(Addressing_Mode_1B,  Vert_Mode);
+			    param->oled->commd_bytes(Set_Column_Addr_2B, 0, 127);
+			    param->oled->commd_bytes(Set_Page_Addr_2B, 0, 7);
 			    for(uint32_t i=0;i<128;i++){
 					column = 0;
 					for(uint32_t j=0;j<n;j++){
