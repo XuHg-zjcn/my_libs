@@ -19,7 +19,7 @@ private:
 	GPIO_Conn *xb;
 	C_Pin *colon;
 	uint8_t buf[4];
-	bool colon_state;  //need by PWM light
+	PinState colon_state;  //need by PWM light
 	int index;  //modify in `TimerFunc()`
 	C_RTC* rtc;
 	C_TIMEx* etim;
@@ -37,7 +37,7 @@ public:
 	void showNum(float num);
 	void showNum(float num, int point);
 	void showStr(char* str);
-	void showTime(int n, bool c, int m);
+	void showTime(int n, PinState c, int m);
 	void showCurrYear();
 	void showCurrDate();
 	void startTimeDymtic();

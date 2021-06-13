@@ -35,7 +35,7 @@ void SMG8::DarkMode()
 void SMG8::off()
 {
 	xb->WritePins(0);
-	colon->write_pin(false);
+	colon->write_pin(Pin_Reset);
 }
 
 void SMG8::connRTC(C_RTC* rtc)
@@ -109,7 +109,7 @@ void SMG8::showNum(float num, int point)
 	showNum(n2, point, (int)((num-n2)*mul));
 }
 
-void SMG8::showTime(int n, bool c, int m)
+void SMG8::showTime(int n, PinState c, int m)
 {
 	showNum(0, 2, n, 0, false);
 	showNum(2, 4, m, 0, true);
@@ -209,5 +209,5 @@ void SMG8::HardWareTimer(uint32_t us_on, uint32_t us_off)
 void SMG8::RTCSecondCallback()
 {
 	struct tm *tm2 = rtc->get_tm();
-	this->showTime(tm2->tm_hour, tm2->tm_sec%2==0, tm2->tm_min);
+	this->showTime(tm2->tm_hour, tm2->tm_sec%2==0?Pin_Set:Pin_Reset, tm2->tm_min);
 }
