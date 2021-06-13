@@ -10,6 +10,7 @@
 
 
 #include "mylibs_config.hpp"
+#include "c_pin.hpp"
 
 bool isPinUsed(C_Pin &pin);
 void setPinUsed(C_Pin &pin, bool used);
