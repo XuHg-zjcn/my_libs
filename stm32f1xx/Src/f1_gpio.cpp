@@ -25,7 +25,7 @@ C_Pin::C_Pin(GPIO_TypeDef *GPIOx, uint32_t pin2N){
 C_Pin::C_Pin(u32 *bitband)
 {   //TODO: check param
 	PORTx = ((BITBAND_SRCADDR(bitband)&0xfffffc00) - GPIOA_BASE)/0x400;
-	PINx = (((uint32_t)band&0x40)/4);
+	PINx = (((uint32_t)bitband&0x40)/4);
 }
 
 

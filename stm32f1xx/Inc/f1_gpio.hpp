@@ -79,6 +79,7 @@ public:
     C_Pin(uint32_t port, uint32_t pin);
     C_Pin(std::initializer_list<uint32_t> lst);
     C_Pin(GPIO_TypeDef *GPIOx, uint32_t pin2N);
+    C_Pin(u32 *bitband);
     GPIO_TypeDef* GPIOx();
     uint32_t Pin2N();
     uint32_t* ODR_bitband();

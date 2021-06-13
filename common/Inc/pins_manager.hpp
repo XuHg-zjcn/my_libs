@@ -80,7 +80,4 @@ public:
 	uint32_t ReadPins();
 };
 
-inline bool isPinUsed(C_Pin pin);
-inline void setPinUsed(C_Pin pin, bool used);
-
 #endif
