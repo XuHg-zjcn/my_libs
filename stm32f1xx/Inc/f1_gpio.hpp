@@ -1,16 +1,12 @@
 #ifndef F1_GPIO_HPP
 #define F1_GPIO_HPP
 
+#include "i_pin.hpp"
 #include "mylibs_config.hpp"
 #include "stm32f1xx_hal.h"
 #include "myints.h"
 #include <map>
 
-
-typedef enum{
-    Pin_Reset = 0,
-    Pin_Set
-}PinState;
 
 
 //order below same to Reference manual RM0008, Table20
@@ -36,9 +32,6 @@ typedef enum{
 	Out_50MHz = (~0b11 | 0b11)
 }OutSpeed;
 
-inline PinState operator!(PinState s){
-	return (PinState)(!s);
-}
 
 inline PinCfg operator&(PinCfg cfg, OutSpeed spd){
 	return (PinCfg)((int)cfg&(int)spd);
@@ -72,7 +65,7 @@ typedef enum{
 
 //TODO: use enum PinState instead bool
 
-class C_Pin{
+class C_Pin : public I_Pin{
 public:
     unsigned int PORTx:4;
     unsigned int PINx:4;
@@ -84,12 +77,9 @@ public:
     uint32_t Pin2N();
     uint32_t* ODR_bitband();
     uint32_t* IDR_bitband();
-    void write_pin(bool x);  //TODO: remove "_pin"
+    void write_pin(bool x);
     PinState read_pin();
     void toggle_pin();
-    void wait_pin(PinState state);
-    u32 wait_timeout(PinState state, u32 timeout);
-    u32 wait_count(PinState state, u32 m, u32 M);
     void loadCfg(PinCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);

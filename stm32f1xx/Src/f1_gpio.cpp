@@ -64,31 +64,6 @@ void C_Pin::toggle_pin()
 	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
 }
 
-//blocking until read_pin() == state
-void C_Pin::wait_pin(PinState state)
-{
-	while(read_pin() xor state);
-}
-
-u32 C_Pin::wait_timeout(PinState state, u32 timeout)
-{
-	while((read_pin() xor state) and timeout){
-		timeout--;
-	}
-	return timeout;
-}
-
-//阻塞式测量
-u32 C_Pin::wait_count(PinState state, u32 m, u32 M)
-{
-	u32 n=0;
-	state = !state;
-	while((read_pin() xor state) and n<M or n<m){
-		n++;
-	}
-	return n;
-}
-
 void C_Pin::loadCfg(PinCfg cfg)
 {
     if(PORTx >= TOTAL_GPIO_PORTS){
