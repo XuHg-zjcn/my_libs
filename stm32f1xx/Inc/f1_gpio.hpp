@@ -77,7 +77,7 @@ public:
     uint32_t Pin2N();
     uint32_t* ODR_bitband();
     uint32_t* IDR_bitband();
-    void write_pin(bool x);
+    void write_pin(PinState x);
     PinState read_pin();
     void toggle_pin();
     void loadCfg(PinCfg cfg);

@@ -101,7 +101,7 @@ void GPIO_Conn::WritePins(uint32_t bits)
 {
 	ManagerPin* p1 = pins;
 	for(uint32_t i=0;i<N_pin;i++){
-		p1++->p8b.write_pin((GPIO_PinState)(bits&0x1));
+		p1++->p8b.write_pin((PinState)(bits&0x1));
 		bits>>=1;
 	}
 }

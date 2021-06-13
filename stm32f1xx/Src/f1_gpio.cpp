@@ -49,7 +49,7 @@ uint32_t* C_Pin::IDR_bitband()
 	return BIT_PTR(&(GPIOx()->IDR), PINx);
 }
 
-void C_Pin::write_pin(bool x)
+void C_Pin::write_pin(PinState x)
 {
 	HAL_GPIO_WritePin(GPIOx(), Pin2N(), (GPIO_PinState)x);
 }
