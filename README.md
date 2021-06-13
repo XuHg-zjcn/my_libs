@@ -3,30 +3,38 @@
 #### 介绍
 一个MCU C++跨平台驱动库，有一些片上资源和外部设备的驱动
 
-### 目前支持列表
-STM32F103C8T6
-STM32F407ZET6
-#### 计划支持
-ESP8266
-ESP32
-CC2640
-CC2652P
-STM8S103F3P6
+### 支持列表
+目前支持: STM32F103C8T6, STM32F407ZET6,  
+计划支持: ESP8266, ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
+
 
 #### 软件架构
 软件架构说明
-大部分使用C++编写，调用了HAL库，使用了FreeRTOS
+大部分使用C++编写，STM32版调用了HAL库，使用了FreeRTOS的CMSIS OS2接口
 
 #### 功能
-- 片上ADC
-- 抽象数据Buffer
-- I2C
+##### 用户输出设备/显示
+- 3x5, 5x7 ASCII字体
 - SSD1306 128x64液晶
-- 28BYJ-48步进电机
-- 超声波模块
-- DHT11
 - 数码管
-- RTC时钟, USB连接电脑同步时间
+##### 用户输入设备
+
+##### 接口/通信
+- I2C
+- GPIO
+##### 传感器
+- 片上ADC
+- MCU内置温度传感器
+- DHT11
+- 超声波模块
+##### 执行器
+- 28BYJ-48步进电机
+- 直流电机
+##### 控制器/数据处理
+- 抽象数据Buffer
+##### 其他
+- RTC时钟
+
 
 #### 功能-计划
 - 电源(电池)管理
@@ -38,6 +46,7 @@ STM8S103F3P6
 - W25Qxx SPI Flash
 - SPI/SDIO SD卡
 - LED点阵
+- 4x4键盘
 - BMP280
 - MPU6050六轴/MPU9250九轴
 - 38kHz红外
@@ -58,6 +67,20 @@ STM8S103F3P6
 6.  右键项目 -> Properties -> C/C++ General -> Paths and Symbols -> Source Location -> 展开当前项目 -> Filter -> Edit Filter
     添加example, F1项目需添加*f4*, F4项目需添加*f1*
 7.  编辑配置文件 mcu_mylibs/common/Inc/mylibs_config.hpp
+
+
+#### 命名规则
+| 缩写 | 全称       |  说明        |
+|:----  |:----      |:---------     |
+| C_xxx | class     | C++对象        |
+| I_xxx | interface | 跨平台接口，不可直接使用 |
+
+#### 非MCU代码
+PC端工具，大多由Python编写，在ubuntu下测试过:  
+    RTC时间同步，点阵/数码管字体生成，二值图动画生成
+Android端工具（计划）  
+自动配置工具（计划）  
+
 
 #### 参与贡献
 
