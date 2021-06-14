@@ -1,5 +1,5 @@
-#ifndef F1_GPIO_HPP
-#define F1_GPIO_HPP
+#ifndef C_PIN_HPP
+#define C_PIN_HPP
 
 #include "i_pin.hpp"
 #include "mylibs_config.hpp"
