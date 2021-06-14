@@ -99,7 +99,7 @@ X_State C_RTC::EnterInitMode()
 
   tickstart = HAL_GetTick();
   /* Wait till RTC is in INIT state and if Time out is reached exit */
-  while ((this->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET){
+  while ((Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET){
     if ((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE){
       return X_Timeout;
     }
@@ -120,7 +120,7 @@ X_State C_RTC::ExitInitMode()
 
   tickstart = HAL_GetTick();
   /* Wait till RTC is in INIT state and if Time out is reached exit */
-  while ((this->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET)
+  while ((Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET)
   {
     if ((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE){
       return X_Timeout;
@@ -138,21 +138,21 @@ u32 C_RTC::get_cnt()
 {
 	u16 high1 = 0U, high2 = 0U, low = 0U;
 
-	high1 = READ_REG(this->Instance->CNTH & RTC_CNTH_RTC_CNT);
-	low   = READ_REG(this->Instance->CNTL & RTC_CNTL_RTC_CNT);
-	high2 = READ_REG(this->Instance->CNTH & RTC_CNTH_RTC_CNT);
+	high1 = READ_REG(Instance->CNTH & RTC_CNTH_RTC_CNT);
+	low   = READ_REG(Instance->CNTL & RTC_CNTL_RTC_CNT);
+	high2 = READ_REG(Instance->CNTH & RTC_CNTH_RTC_CNT);
 
 	if(high1 != high2){
-	  low = READ_REG(this->Instance->CNTL & RTC_CNTL_RTC_CNT);
+	  low = READ_REG(Instance->CNTL & RTC_CNTL_RTC_CNT);
 	}
 	return (((u32)high2 << 16U) | low);
 }
 
 X_State C_RTC::set_cnt(uint32_t TimeCounter)
 {
-	WRITE_REG(this->Instance->CNTH, (TimeCounter >> 16U));
-	WRITE_REG(this->Instance->CNTL, (TimeCounter & RTC_CNTL_RTC_CNT));
-	if(this->Instance->CRL & RTC_CRL_RTOFF){
+	WRITE_REG(Instance->CNTH, (TimeCounter >> 16U));
+	WRITE_REG(Instance->CNTL, (TimeCounter & RTC_CNTL_RTC_CNT));
+	if(Instance->CRL & RTC_CRL_RTOFF){
 		return X_OK;
 	}else{
 		return X_Error;
@@ -163,8 +163,8 @@ uint32_t C_RTC::get_alarm_cnt()
 {
 	  uint16_t high1 = 0U, low = 0U;
 
-	  high1 = READ_REG(this->Instance->ALRH & RTC_CNTH_RTC_CNT);
-	  low   = READ_REG(this->Instance->ALRL & RTC_CNTL_RTC_CNT);
+	  high1 = READ_REG(Instance->ALRH & RTC_CNTH_RTC_CNT);
+	  low   = READ_REG(Instance->ALRL & RTC_CNTL_RTC_CNT);
 
 	  return (((uint32_t) high1 << 16U) | low);
 }
@@ -175,8 +175,8 @@ X_State C_RTC::set_alarm_cnt(uint32_t AlarmCounter, bool IT)
 	if(EnterInitMode() != X_OK){
 		status = X_Error;
 	}else{
-		WRITE_REG(this->Instance->ALRH, (AlarmCounter >> 16U));
-		WRITE_REG(this->Instance->ALRL, (AlarmCounter & RTC_ALRL_RTC_ALR));
+		WRITE_REG(Instance->ALRH, (AlarmCounter >> 16U));
+		WRITE_REG(Instance->ALRL, (AlarmCounter & RTC_ALRL_RTC_ALR));
 
 		/* Wait for synchro */
 		if (ExitInitMode() != X_OK){
@@ -203,7 +203,7 @@ X_State C_RTC::set_alarm_sec(u32 sec, bool IT)
 //subsecons of timestamp = (32767-divl)/32768
 uint16_t C_RTC::get_divl()
 {
-	return READ_REG(this->Instance->DIVL);
+	return READ_REG(Instance->DIVL);
 }
 
 time_t C_RTC::get_ts1970()
@@ -241,7 +241,7 @@ X_State C_RTC::set_tm(struct tm *tm2)
 
 void C_RTC::set_clock(u32 prescale, u8 calib)
 {
-	this->Init.AsynchPrediv = prescale;
+	Init.AsynchPrediv = prescale;
 	HAL_RTC_Init(this);
 	HAL_RTCEx_SetSmoothCalib(this, 0, 0, calib);
 }
@@ -259,10 +259,10 @@ u8 C_RTC::get_calib()
 u32 C_RTC::get_prescale()
 {
 	u32 psc;
-	while(this->Instance->DIVL || this->Instance->DIVH); //wait to all are 0
+	while(Instance->DIVL || Instance->DIVH); //wait to all are 0
 	while(!psc){
-		psc  = this->Instance->DIVH << 16;
-		psc |= this->Instance->DIVL;
+		psc  = Instance->DIVH << 16;
+		psc |= Instance->DIVL;
 	}
 	return psc;
 }

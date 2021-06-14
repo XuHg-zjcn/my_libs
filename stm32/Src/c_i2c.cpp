@@ -9,7 +9,7 @@
 
 X_State C_I2C::set_Clock(uint32_t Hz)
 {
-	this->Init.ClockSpeed = Hz;
+	Init.ClockSpeed = Hz;
 	return (X_State)HAL_I2C_Init(this);
 }
 
@@ -21,18 +21,18 @@ X_State C_I2C::set_Clock(uint32_t Hz)
 C_I2C_Dev::C_I2C_Dev(C_I2C *hi2c, uint16_t addr, uint16_t mem_size):
 		hi2c(hi2c),DevAddr(addr),MemAdd_size(mem_size)
 {
-	this->ClockHz = 0;
-	this->Timeout = 1000;
+	ClockHz = 0;
+	Timeout = 1000;
 }
 
 void C_I2C_Dev::set_Clock(uint32_t Hz)
 {
-	this->ClockHz = Hz;
+	ClockHz = Hz;
 }
 
 void C_I2C_Dev::set_Timeout(uint32_t ms)
 {
-	this->Timeout = ms;
+	Timeout = ms;
 }
 
 void C_I2C_Dev::set_TransMode(TransTypeStru trans)

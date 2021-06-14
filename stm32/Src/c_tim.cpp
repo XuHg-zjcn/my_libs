@@ -79,7 +79,7 @@ Type_Hz C_TIM::get_Hz(TIM_ClockLevel level)
 	if(level >= TIM_ClkLv_Mult2){
 		Hz *= 2.0;
 	}
-	return Hz/this->get_div(level);
+	return Hz/get_div(level);
 }
 
 Type_ns C_TIM::get_ns(TIM_ClockLevel level)
@@ -88,7 +88,7 @@ Type_ns C_TIM::get_ns(TIM_ClockLevel level)
 	if(level >= TIM_ClkLv_Mult2){
 		Hz *= 2;
 	}
-	return this->get_div(level)*1000000000UL/Hz;
+	return get_div(level)*1000000000UL/Hz;
 }
 
 /* set total div
@@ -132,14 +132,14 @@ TypeDiv C_TIM::set_tdiv(TypeDiv div)
 void C_TIM::set_Hz(Type_Hz Hz)
 {
 	uint64_t div = int(PeriphAddr2Freq(htim->Instance)*2.0/Hz);
-	this->set_tdiv(div);
+	set_tdiv(div);
 }
 
 //set ns of clock `TIM_ClkLv_AutoLoad` to closest value
 void C_TIM::set_ns(Type_ns ns)
 {
 	uint64_t div = ns*PeriphAddr2Freq(htim->Instance)*2/1000000000UL;
-	this->set_tdiv(div);
+	set_tdiv(div);
 }
 
 void C_TIM::set_TGRO(TIM_TRGO trgo, bool ms_enable)
@@ -217,7 +217,7 @@ void C_TIM::pluse_clk(TIM_CHx Channel, u32 delay_clk, u32 pluse_clk, bool blocki
 void C_TIM::pluse_ns(TIM_CHx Channel, u32 delay_ns, u32 pluse_ns, bool blocking)
 {
 	uint32_t psc_ns = get_ns(TIM_ClkLv_PSC16b);
-	this->pluse_clk(Channel, delay_ns/psc_ns, pluse_ns/psc_ns, blocking);
+	pluse_clk(Channel, delay_ns/psc_ns, pluse_ns/psc_ns, blocking);
 }
 
 //force output active state.

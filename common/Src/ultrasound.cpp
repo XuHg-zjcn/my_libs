@@ -24,26 +24,26 @@ void UltSnd::Init(US_Connect &conn, US_Timer12 &timer)
 {
 	this->conn = conn;
 	this->timer = timer;
-	this->timer.freq = this->timer.ctim->get_Hz(TIM_ClkLv_PSC16b);
-	this->timer.tmax = this->timer.freq/10;        // 触发周期100ms
-	this->timer.tTrig = this->timer.freq/10000;    // 触发高电平100us
+	this->timer.freq = timer.ctim->get_Hz(TIM_ClkLv_PSC16b);
+	this->timer.tmax = timer.freq/10;        // 触发周期100ms
+	this->timer.tTrig = timer.freq/10000;    // 触发高电平100us
 }
 
 void UltSnd::Measure_While1()
 {
-	*(this->conn.Trig_ODR_bit) = 1;
+	*(conn.Trig_ODR_bit) = 1;
 	Delay_us(100);
-	*(this->conn.Trig_ODR_bit) = 0;
+	*(conn.Trig_ODR_bit) = 0;
 
-	this->timer.t1 = 0;
-	this->timer.t2 = 0;
-	while(!*(this->conn.Echo_IDR_bit)){
+	timer.t1 = 0;
+	timer.t2 = 0;
+	while(!*(conn.Echo_IDR_bit)){
 		this->timer.t1++;
 	}
-	while(!*(this->conn.Echo_IDR_bit)){
+	while(!*(conn.Echo_IDR_bit)){
 		this->timer.t2++;
 	}
-	this->timer.t2 += this->timer.t1;
+	timer.t2 += timer.t1;
 }
 
 void UltSnd::Measure_TIM(_Bool blocking)
@@ -71,7 +71,7 @@ void UltSnd::Measure_TIM(_Bool blocking)
 	TIM_CCxChannelCmd(htim->Instance, timer.Echo_Channel_Falling, TIM_CCx_ENABLE);
 	__HAL_TIM_ENABLE(htim);
 	if(blocking){
-		while(!this->timer.t2);
+		while(!timer.t2);
 	}
 }
 
@@ -86,52 +86,52 @@ float UltSnd::CorrectSpeed()
 	//M = M_w*p_w/press + M_dry*(press-p_w)/press = p_w/press*(M_w-M_dry) + M_dry
 	M = (0.01802-0.02896)*p_w / this->corr.press + 0.02896;
     //v = sqrt(γ*p/ρ) = sqrt(γ*R*T/M)
-    T = this->corr.temp + 273.15;
-    this->corr.speed = sqrt(1.40*8.314*T/M);
-	return this->corr.speed;
+    T = corr.temp + 273.15;
+    corr.speed = sqrt(1.40*8.314*T/M);
+	return corr.speed;
 }
 
 float UltSnd::meter()
 {
-	uint32_t count = this->timer.t2 - this->timer.t1;
-	float sec = (float)count / this->timer.freq;
-	return this->corr.speed/2*sec;
+	uint32_t count = timer.t2 - timer.t1;
+	float sec = (float)count / timer.freq;
+	return corr.speed/2*sec;
 }
 
 float UltSnd::Measure_calc()
 {
-	switch(this->mode){
+	switch(mode){
 	case US_Mode_While1:
-		this->Measure_While1();
+		Measure_While1();
 		break;
 	case US_Mode_EXTI:
 		break;
 	case US_Mode_TIM:
-		this->Measure_TIM(true);
+		Measure_TIM(true);
 		break;
 	case US_Mode_Analog:
-		HAL_ADC_Start_DMA(this->adc.hadc, this->adc.pData, this->adc.Length);
-		this->Measure_TIM(false);
+		HAL_ADC_Start_DMA(adc.hadc, adc.pData, adc.Length);
+		Measure_TIM(false);
 	}
 	return this->meter();
 }
 
 void UltSnd::TIM_CaptureCallback(TIM_CHx Channel)
 {
-	if(Channel == this->timer.Echo_Channel_Rising){
-		this->timer.ctim->DisableIT(TIM_CH2IT(Channel));
-		this->timer.t1 = this->timer.ctim->ReadCapturedValue(Channel);
+	if(Channel == timer.Echo_Channel_Rising){
+		timer.ctim->DisableIT(TIM_CH2IT(Channel));
+		timer.t1 = timer.ctim->ReadCapturedValue(Channel);
 	}
-	else if(Channel == this->timer.Echo_Channel_Falling){
-		this->timer.ctim->DisableIT(TIM_CH2IT(Channel));
-		this->timer.t2 = this->timer.ctim->ReadCapturedValue(Channel);
+	else if(Channel == timer.Echo_Channel_Falling){
+		timer.ctim->DisableIT(TIM_CH2IT(Channel));
+		timer.t2 = timer.ctim->ReadCapturedValue(Channel);
 	}
 }
 
 void UltSnd::TIM_PeriodElapsedCallback()
 {
-	if(this->timer.ctim->htim->Instance->CR1 & TIM_CR1_OPM){
-		this->timer.ctim->set_OCMode(this->timer.Trig_Channel, TIM_OCMode_Forced_InActive);
-		this->timer.ctim->htim->Instance->CR1 &= (~TIM_CR1_OPM);
+	if(timer.ctim->htim->Instance->CR1 & TIM_CR1_OPM){
+		timer.ctim->set_OCMode(timer.Trig_Channel, TIM_OCMode_Forced_InActive);
+		timer.ctim->htim->Instance->CR1 &= (~TIM_CR1_OPM);
 	}
 }
