@@ -136,7 +136,7 @@ public:
 class C_ADCEx{
 protected:
 	C_ADC *hadc;
-	C_TIM *htim;
+	C_TIM *ctim;
 	TIM_CHx chx;
 	BuffHeadWrite *w_head;
 	MyADCMode mode;
@@ -146,7 +146,7 @@ protected:
 public:
 	C_ADCEx(ADC_HandleTypeDef *hadc);
 	void Init();
-	void conn_tim(TIM_HandleTypeDef *htim, TIM_CHx channel);
+	void conn_tim(C_TIM *ctim, TIM_CHx channel);
 	void conn_buff(BuffHeadWrite* w_head);  //TODO: auto create buffer
 	void set_SR_sps(u32 sps);
 	void set_SR_ns(u32 ns);

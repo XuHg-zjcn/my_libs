@@ -37,7 +37,7 @@ private:
 	void (*func)(void*);
 #ifdef USE_FREERTOS
 	osSemaphoreId_t lock;  //lock for putting data
-	union {osTimerId_t os2; C_TIMEx* etim;}put_timer;
+	union {osTimerId_t os2; C_TIM* ctim;}put_timer;
 	enum {t_null=0,t_os2,t_etim}put_type;
 #else
 	bool lock;  //true: locking
@@ -57,7 +57,7 @@ public:
 	u32 put_dma_finish();
 	//bound put
 	void put_bound();
-	void put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIMEx* etim);
+	void put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIM* etim);
 #ifdef USE_FREERTOS
 	void put_freertos_timer(void (*func)(void*), u32 n, u32 ms);
 #endif

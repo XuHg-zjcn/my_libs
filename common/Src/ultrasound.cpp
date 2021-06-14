@@ -24,7 +24,7 @@ void UltSnd::Init(US_Connect &conn, US_Timer12 &timer)
 {
 	this->conn = conn;
 	this->timer = timer;
-	this->timer.freq = this->timer.htimx->get_Hz(TIM_ClkLv_PSC16b);
+	this->timer.freq = this->timer.ctim->get_Hz(TIM_ClkLv_PSC16b);
 	this->timer.tmax = this->timer.freq/10;        // 触发周期100ms
 	this->timer.tTrig = this->timer.freq/10000;    // 触发高电平100us
 }
@@ -50,24 +50,26 @@ void UltSnd::Measure_TIM(_Bool blocking)
 {
 	timer.t1 = 0;
 	timer.t2 = 0;
-	__HAL_TIM_DISABLE(this->timer.htimx);
+	TIM_HandleTypeDef *htim = timer.ctim->htim;
+	__HAL_TIM_DISABLE(htim);
 
-	timer.htimx->Instance->CR1 |= TIM_CR1_OPM;
+	//TODO: use one pulse mode in C_TIM
+	htim->Instance->CR1 |= TIM_CR1_OPM;
 	//OPM, CNT will 0 after UPDATE, so use PWM2
-	timer.htimx->set_OCMode(timer.Trig_Channel, TIM_OCMode_PWM2);
+	timer.ctim->set_OCMode(timer.Trig_Channel, TIM_OCMode_PWM2);
 
-	__HAL_TIM_SET_COUNTER(timer.htimx, 0);
-	__HAL_TIM_SET_AUTORELOAD(timer.htimx, timer.tmax);
-	__HAL_TIM_SET_COMPARE(timer.htimx, timer.Trig_Channel, timer.tmax-timer.tTrig);
+	__HAL_TIM_SET_COUNTER(htim, 0);
+	__HAL_TIM_SET_AUTORELOAD(htim, timer.tmax);
+	__HAL_TIM_SET_COMPARE(htim, timer.Trig_Channel, timer.tmax-timer.tTrig);
 
-	__HAL_TIM_ENABLE_IT(timer.htimx, TIM_IT_UPDATE);
-	__HAL_TIM_ENABLE_IT(timer.htimx, timer.Echo_Channel_Rising);
-	__HAL_TIM_ENABLE_IT(timer.htimx, timer.Echo_Channel_Falling);
+	__HAL_TIM_ENABLE_IT(htim, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(htim, timer.Echo_Channel_Rising);
+	__HAL_TIM_ENABLE_IT(htim, timer.Echo_Channel_Falling);
 
-	TIM_CCxChannelCmd(timer.htimx->Instance, timer.Trig_Channel, TIM_CCx_ENABLE);
-	TIM_CCxChannelCmd(timer.htimx->Instance, timer.Echo_Channel_Rising, TIM_CCx_ENABLE);
-	TIM_CCxChannelCmd(timer.htimx->Instance, timer.Echo_Channel_Falling, TIM_CCx_ENABLE);
-	__HAL_TIM_ENABLE(timer.htimx);
+	TIM_CCxChannelCmd(htim->Instance, timer.Trig_Channel, TIM_CCx_ENABLE);
+	TIM_CCxChannelCmd(htim->Instance, timer.Echo_Channel_Rising, TIM_CCx_ENABLE);
+	TIM_CCxChannelCmd(htim->Instance, timer.Echo_Channel_Falling, TIM_CCx_ENABLE);
+	__HAL_TIM_ENABLE(htim);
 	if(blocking){
 		while(!this->timer.t2);
 	}
@@ -114,22 +116,22 @@ float UltSnd::Measure_calc()
 	return this->meter();
 }
 
-void UltSnd::TIM_CaptureCallback(uint32_t Channel)
+void UltSnd::TIM_CaptureCallback(TIM_CHx Channel)
 {
 	if(Channel == this->timer.Echo_Channel_Rising){
-		__HAL_TIM_DISABLE_IT(this->timer.htimx, Channel);
-		this->timer.t1 = HAL_TIM_ReadCapturedValue(this->timer.htimx, Channel);
+		this->timer.ctim->DisableIT(TIM_CH2IT(Channel));
+		this->timer.t1 = this->timer.ctim->ReadCapturedValue(Channel);
 	}
 	else if(Channel == this->timer.Echo_Channel_Falling){
-		__HAL_TIM_DISABLE_IT(this->timer.htimx, Channel);
-		this->timer.t2 = HAL_TIM_ReadCapturedValue(this->timer.htimx, Channel);
+		this->timer.ctim->DisableIT(TIM_CH2IT(Channel));
+		this->timer.t2 = this->timer.ctim->ReadCapturedValue(Channel);
 	}
 }
 
 void UltSnd::TIM_PeriodElapsedCallback()
 {
-	if(this->timer.htimx->Instance->CR1 & TIM_CR1_OPM){
-		this->timer.htimx->set_OCMode(this->timer.Trig_Channel, TIM_OCMode_Forced_InActive);
-		this->timer.htimx->Instance->CR1 &= (~TIM_CR1_OPM);
+	if(this->timer.ctim->htim->Instance->CR1 & TIM_CR1_OPM){
+		this->timer.ctim->set_OCMode(this->timer.Trig_Channel, TIM_OCMode_Forced_InActive);
+		this->timer.ctim->htim->Instance->CR1 &= (~TIM_CR1_OPM);
 	}
 }

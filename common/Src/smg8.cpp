@@ -43,9 +43,9 @@ void SMG8::connRTC(C_RTC* rtc)
 	this->rtc = rtc;
 }
 
-void SMG8::connTIM(C_TIMEx* etim)
+void SMG8::connTIM(C_TIM* ctim)
 {
-	this->etim = etim;
+	this->ctim = ctim;
 }
 
 /*
@@ -191,14 +191,14 @@ void SMG8::FreeRTOSTimer(uint32_t ms_on, uint32_t ms_off)
  */
 void SMG8::HardWareTimer(uint32_t us_on, uint32_t us_off)
 {
-	etim->ctim->set_ns((us_on+us_off)*1000);
-	etim->ctim->Base_Start_IT();
-	etim->clear_callback(TIM_IT_all);
-	etim->set_callback(TIM_IT_update, &CTimerFunc, this);
+	ctim->set_ns((us_on+us_off)*1000);
+	ctim->Base_Start_IT();
+	ctim->clear_callback(TIM_IT_all);
+	ctim->set_callback(TIM_IT_update, &CTimerFunc, this);
 	if(us_off != 0){
-		etim->ctim->set_duty(TIM_Channel_1, (float)us_on/(us_on+us_off));
-		etim->ctim->PWM_Start_IT(TIM_Channel_1);
-		etim->set_callback(TIM_IT_cc1, &Coff, this);
+		ctim->set_duty(TIM_Channel_1, (float)us_on/(us_on+us_off));
+		ctim->PWM_Start_IT(TIM_Channel_1);
+		ctim->set_callback(TIM_IT_cc1, &Coff, this);
 	}
 }
 

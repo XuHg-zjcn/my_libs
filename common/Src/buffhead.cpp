@@ -35,7 +35,7 @@ u32 BuffHead::bytes_elem()
 BuffHeadWrite::BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid)
 {
 	func = nullptr;
-	put_timer.etim = nullptr;
+	put_timer.ctim = nullptr;
 #ifdef USE_FREERTOS
 	put_type = t_null;
 #endif
@@ -168,7 +168,7 @@ void BuffHeadWrite::put_bound()
 	func((*buff)[fid++]);
 }
 
-void BuffHeadWrite::put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIMEx* etim)
+void BuffHeadWrite::put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIM* ctim)
 {
 	if(!lock_p()){
 		return;
@@ -178,13 +178,13 @@ void BuffHeadWrite::put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIM
 	if(put_type == t_os2){
 		osTimerDelete(put_timer.os2);
 	}
-	put_timer.etim = etim;
+	put_timer.ctim = ctim;
 #else
 	put_timer = etim;
 #endif
-	etim->ctim->set_ns(us*1000);
-	etim->ctim->EnableIT(TIM_IT_update);
-	etim->set_callback(TIM_IT_update, hwtim_callback, this);
+	ctim->set_ns(us*1000);
+	ctim->EnableIT(TIM_IT_update);
+	ctim->set_callback(TIM_IT_update, hwtim_callback, this);
 }
 
 #ifdef USE_FREERTOS
@@ -206,7 +206,7 @@ void BuffHeadWrite::put_timer_stop()
 		osTimerStop(put_timer.os2);
 		break;
 	case t_etim:
-		put_timer.etim->ctim->DisableIT(TIM_IT_update);
+		put_timer.ctim->DisableIT(TIM_IT_update);
 		break;
 	case t_null:
 		return;

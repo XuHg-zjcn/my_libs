@@ -30,7 +30,7 @@ const uint32_t seqs_len[3] = {4, 4, 8};
  * load default value to StepMotor_Handle.
  * hsm->conn need assign by user
  */
-StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *htimx)
+StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *ctim)
 {
 	seq = seq_8;
 	seq_len = 8;
@@ -39,7 +39,7 @@ StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *htimx)
 	rot = 0;
 	FinishCallback = DefaultFinishCallback;
 	timeout = 1000;
-	this->htimx = htimx;
+	this->ctim = ctim;
 	conn.Enable();
 	for(int i=0;i<4;i++){
 		odr_bitband[i] = conn[i]->p8b.ODR_bitband();
@@ -54,7 +54,7 @@ StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *htimx)
 void StepMotor::Init()
 {
 	//stop TIM
-	HAL_TIM_Base_Stop_IT(htimx);
+	ctim->Base_Stop_IT();
 
 	//init GPIO Pins
 #ifdef USE_FREERTOS
@@ -91,7 +91,7 @@ void StepMotor::Stop()
 	rot = 0;
 	seq_i = 0;
 	remain_step = 0;
-	HAL_TIM_Base_Stop_IT(htimx);
+	ctim->Base_Stop_IT();
 	setState(stop);
 #ifdef USE_FREERTOS
 	osSemaphoreRelease(sem);
@@ -122,8 +122,8 @@ void StepMotor::run_us(uint32_t us, int32_t steps, bool blocking)
 	}
 	rot = steps>0?1:-1;
 	remain_step = abs(steps);
-	htimx->set_ns((uint64_t)us*1000UL);
-	HAL_TIM_Base_Start_IT(htimx);
+	ctim->set_ns((uint64_t)us*1000UL);
+	ctim->Base_Start_IT();
 	if(blocking){
 		wait();
 	}
@@ -149,8 +149,8 @@ void StepMotor::run_speed(float deg_sec, float total_deg, bool blocking)
 	}else{
 		remain_step = -1;
 	}
-	htimx->set_Hz(step_sec);
-	HAL_TIM_Base_Start_IT(htimx);
+	ctim->set_Hz(step_sec);
+	ctim->Base_Start_IT();
 	if(blocking){
 		wait();
 	}

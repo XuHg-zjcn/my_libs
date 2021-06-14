@@ -21,7 +21,7 @@
 C_ADCEx::C_ADCEx(ADC_HandleTypeDef *hadc)
 {
 	this->hadc = (C_ADC*)hadc;
-	this->htim = nullptr;
+	this->ctim = nullptr;
 	this->w_head = nullptr;
 	this->mode.Enum = ADC_stopping;
 	this->timeout = 1000;
@@ -33,11 +33,10 @@ void C_ADCEx::Init()
     update_ref();
 }
 
-void C_ADCEx::conn_tim(TIM_HandleTypeDef *htim, TIM_CHx channel)
+void C_ADCEx::conn_tim(C_TIM *ctim, TIM_CHx channel)
 {
-	this->htim = (C_TIM*)htim;
 	u32 trig;
-	if(htim->Instance == TIM1){
+	if(ctim->htim->Instance == TIM1){
 		switch(channel){
 		case TIM_Channel_1:
 			trig = ADC_EXTERNALTRIGCONV_T1_CC1;
@@ -51,15 +50,15 @@ void C_ADCEx::conn_tim(TIM_HandleTypeDef *htim, TIM_CHx channel)
 		default:
 			return;
 		}
-	}else if(htim->Instance == TIM2 || channel == TIM_Channel_2){
+	}else if(ctim->htim->Instance == TIM2 && channel == TIM_Channel_2){
 		trig = ADC_EXTERNALTRIGCONV_T2_CC2;
-	}else if(htim->Instance == TIM3){
+	}else if(ctim->htim->Instance == TIM3){
 		trig = ADC_EXTERNALTRIGCONV_T3_TRGO;
-		((C_TIM*)htim)->set_TGRO(TIM_CHx2TRGO(channel), false);
-	}else if(htim->Instance == TIM4 || channel == TIM_Channel_4){
+		ctim->set_TGRO(TIM_CHx2TRGO(channel), false);
+	}else if(ctim->htim->Instance == TIM4 || channel == TIM_Channel_4){
 		trig = ADC_EXTERNALTRIGCONV_T4_CC4;
 	}
-	this->htim = (C_TIM*)htim;
+	this->ctim = ctim;
 	this->chx = channel;
 	set_Regular_ExtenTrig(trig, ADC_EXTERNALTRIGCONVEDGE_RISING);
 }
@@ -72,12 +71,12 @@ void C_ADCEx::conn_buff(BuffHeadWrite* w_head)
 
 void C_ADCEx::set_SR_sps(u32 sps)
 {
-       htim->set_Hz(sps);
+	ctim->set_Hz(sps);
 }
 
 void C_ADCEx::set_SR_ns(u32 ns)
 {
-       htim->set_ns(ns);
+	ctim->set_ns(ns);
 }
 
 /*
@@ -190,8 +189,8 @@ void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
 	if(!p){  //get pointer failed
 		return;
 	}
-	htim->set_duty(TIM_Channel_1, 0.5f);
-	HAL_TIM_PWM_Start(htim, chx);
+	ctim->set_duty(TIM_Channel_1, 0.5f);
+	ctim->PWM_Start(chx);
 	NDTR = Nsamp;
 	hadc->DMA_Handle->Init.Mode = DMA_NORMAL;
 	HAL_DMA_Init(hadc->DMA_Handle);
@@ -216,7 +215,7 @@ void C_ADCEx::DMA_cycle(u32 cycle)
 	if(!p){  //get pointer failed
 		return;
 	}
-	HAL_TIM_PWM_Start(htim, chx);
+	ctim->PWM_Start(chx);
 	NDTR = w_head->get_capacity();
 	hadc->DMA_Handle->Init.Mode = DMA_CIRCULAR;
 	HAL_DMA_Init(hadc->DMA_Handle);
@@ -238,7 +237,7 @@ void C_ADCEx::ConvCplt()
 		w_head->put_dma_notify(mode.Stru.sem_half ? NDTR/2 : NDTR);
 	}if(mode.Stru.contin != 3){
 		mode.Enum = ADC_stopping;
-		HAL_TIM_PWM_Stop(htim, TIM_CHANNEL_1);
+		ctim->PWM_Stop(chx);
 	}
 }
 

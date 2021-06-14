@@ -31,7 +31,7 @@ typedef struct{
 }US_ADCDMA;
 
 typedef struct{
-	C_TIM *htimx;  // Trig and Echo must in same TIM.
+	C_TIM *ctim;  // Trig and Echo must in same TIM.
 	TIM_CHx Trig_Channel;
 	TIM_CHx Echo_Channel_Rising;
 	TIM_CHx Echo_Channel_Falling;
@@ -67,7 +67,7 @@ public:
 	float CorrectSpeed();
 	float meter();
 	float Measure_calc();
-	void TIM_CaptureCallback(uint32_t Channel);
+	void TIM_CaptureCallback(TIM_CHx Channel);
 	void TIM_PeriodElapsedCallback();
 };
 

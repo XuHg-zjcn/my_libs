@@ -93,7 +93,7 @@ typedef struct{
 class StepMotor{
 private:
 	uint32_t* odr_bitband[4];
-	C_TIM *htimx;
+	C_TIM *ctim;
 	const StepMotor_State *seq;
 	int32_t seq_len;
 	int32_t seq_i;        // 0 <= seq_i < seq_len
@@ -108,7 +108,7 @@ private:
 	void setState(StepMotor_State State);
 public:
 	void (*FinishCallback)(void*);  // callback of `stop`
-	StepMotor(GPIO_Conn &conn, C_TIM *htimx);
+	StepMotor(GPIO_Conn &conn, C_TIM *ctim);
 	void Init();
 	void setMode(StepMotor_Mode mode);
 	void Stop();
