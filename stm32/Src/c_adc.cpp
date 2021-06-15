@@ -18,9 +18,9 @@
 #define ADC_CR2_JEXTEN ADC_CR2_JEXTTRIG
 
 
-C_ADCEx::C_ADCEx(ADC_HandleTypeDef *hadc)
+C_ADC::C_ADC(ADC_HandleTypeDef *hadc)
 {
-	this->hadc = (C_ADC*)hadc;
+	this->hadc = hadc;
 	this->ctim = nullptr;
 	this->w_head = nullptr;
 	this->mode.Enum = ADC_stopping;
@@ -28,12 +28,12 @@ C_ADCEx::C_ADCEx(ADC_HandleTypeDef *hadc)
 	this->NDTR = 0;
 }
 
-void C_ADCEx::Init()
+void C_ADC::Init()
 {
     update_ref();
 }
 
-void C_ADCEx::conn_tim(C_TIM *ctim, TIM_CHx channel)
+void C_ADC::conn_tim(C_TIM *ctim, TIM_CHx channel)
 {
 	u32 trig;
 	if(ctim->htim->Instance == TIM1){
@@ -64,17 +64,17 @@ void C_ADCEx::conn_tim(C_TIM *ctim, TIM_CHx channel)
 }
 
 //TODO: change to Buffer ptr
-void C_ADCEx::conn_buff(BuffHeadWrite* w_head)
+void C_ADC::conn_buff(BuffHeadWrite* w_head)
 {
        this->w_head = w_head;
 }
 
-void C_ADCEx::set_SR_sps(u32 sps)
+void C_ADC::set_SR_sps(u32 sps)
 {
 	ctim->set_Hz(sps);
 }
 
-void C_ADCEx::set_SR_ns(u32 ns)
+void C_ADC::set_SR_ns(u32 ns)
 {
 	ctim->set_ns(ns);
 }
@@ -83,7 +83,7 @@ void C_ADCEx::set_SR_ns(u32 ns)
  * @param src: ADC_CR2_JEXTSEL  @ref ADCEx_External_trigger_Source_Injected
  * @param edge: ADC_CR2_JEXTEN  @ref ADCEx_External_trigger_edge_Injected
  */
-void C_ADCEx::set_Inject_ExtenTrig(u32 src, u32 edge)
+void C_ADC::set_Inject_ExtenTrig(u32 src, u32 edge)
 {
 	MODIFY_REG(hadc->Instance->CR2, ADC_CR2_JEXTSEL, src);
 	MODIFY_REG(hadc->Instance->CR2, ADC_CR2_JEXTEN, edge);
@@ -93,13 +93,13 @@ void C_ADCEx::set_Inject_ExtenTrig(u32 src, u32 edge)
  * @param src: ADC_CR2_EXTSEL  @ref ADC_External_trigger_Source_Regular
  * @param edge: ADC_CR2_EXTEN  @ref ADC_External_trigger_edge_Regular
  */
-void C_ADCEx::set_Regular_ExtenTrig(u32 src, u32 edge)
+void C_ADC::set_Regular_ExtenTrig(u32 src, u32 edge)
 {
 	MODIFY_REG(hadc->Instance->CR2, ADC_CR2_EXTSEL, src);
 	MODIFY_REG(hadc->Instance->CR2, ADC_CR2_EXTEN, edge);
 }
 
-void C_ADCEx::load_regular_seq(ADC_SampSeq* sseq)
+void C_ADC::load_regular_seq(ADC_SampSeq* sseq)
 {
 	ADC_aSamp *seq = sseq->seq;
 	int len2 = value_upper(sseq->len, 15);
@@ -115,7 +115,7 @@ void C_ADCEx::load_regular_seq(ADC_SampSeq* sseq)
 	}
 }
 
-void C_ADCEx::load_inject_seq(ADC_SampSeq* sseq)
+void C_ADC::load_inject_seq(ADC_SampSeq* sseq)
 {
 	ADC_aSamp *seq = sseq->seq;
 	int len2 = value_upper(sseq->len, 3);
@@ -131,7 +131,7 @@ void C_ADCEx::load_inject_seq(ADC_SampSeq* sseq)
 	}
 }
 
-void C_ADCEx::load_regular_one_channel(ADC_CHx CHx, ADC_tSMP tSAMP)
+void C_ADC::load_regular_one_channel(ADC_CHx CHx, ADC_tSMP tSAMP)
 {
 	CLEAR_BIT(hadc->Instance->SQR1, ADC_SQR1_L);  //length=1
 	ADC_ChannelConfTypeDef sConfig = {0};
@@ -144,7 +144,7 @@ void C_ADCEx::load_regular_one_channel(ADC_CHx CHx, ADC_tSMP tSAMP)
 /*
  * convert injected sequence once
  */
-void C_ADCEx::Injected_once(bool blocking)
+void C_ADC::Injected_once(bool blocking)
 {
 	mode.Enum = ADC_injected;
 	SET_BIT(hadc->Instance->CR1, ADC_CR1_SCAN);
@@ -158,7 +158,7 @@ void C_ADCEx::Injected_once(bool blocking)
 /*
  * convert regular sequence once
  */
-void C_ADCEx::Regular_once(u16 *buf, bool blocking)
+void C_ADC::Regular_once(u16 *buf, bool blocking)
 {
 	mode.Enum = ADC_regular_scan;
 	SET_BIT(hadc->Instance->CR1, ADC_CR1_SCAN);
@@ -176,7 +176,7 @@ void C_ADCEx::Regular_once(u16 *buf, bool blocking)
  *               advice times by sample sequence length.
  * @param blocking: 1:blocking until finish.
  */
-void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
+void C_ADC::DMA_once(u32 Nsamp, bool blocking)
 {
 	if(!w_head){
 		return;
@@ -201,7 +201,7 @@ void C_ADCEx::DMA_once(u32 Nsamp, bool blocking)
 }
 
 //TODO: number of cycle
-void C_ADCEx::DMA_cycle(u32 cycle)
+void C_ADC::DMA_cycle(u32 cycle)
 {
 	if(!w_head){
 		return;
@@ -223,7 +223,7 @@ void C_ADCEx::DMA_cycle(u32 cycle)
 }
 
 //please call in `HAL_ADC_ConvHalfCpltCallback`
-void C_ADCEx::ConvHalfCplt()
+void C_ADC::ConvHalfCplt()
 {
 	if(mode.Stru.sem_half){
 		w_head->put_dma_notify(NDTR/2);
@@ -231,7 +231,7 @@ void C_ADCEx::ConvHalfCplt()
 }
 
 //please call in `HAL_ADC_ConvCpltCallback`
-void C_ADCEx::ConvCplt()
+void C_ADC::ConvCplt()
 {
 	if(mode.Stru.sem_full){
 		w_head->put_dma_notify(mode.Stru.sem_half ? NDTR/2 : NDTR);
@@ -242,7 +242,7 @@ void C_ADCEx::ConvCplt()
 }
 
 //please call in `HAL_TIM_PeriodElapsedCallback` of sample count timer
-void C_ADCEx::ConvPack()
+void C_ADC::ConvPack()
 {
 	if(mode.Stru.sem_pack){
 		//TODO: set buff.curr
@@ -253,7 +253,7 @@ void C_ADCEx::ConvPack()
 /*
  * use injected length=1 sequence. blocking to wait finish.
  */
-uint32_t C_ADCEx::read_channel_sum(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+uint32_t C_ADC::read_channel_sum(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
 	if(n==0){
 		return 0;
@@ -276,31 +276,31 @@ uint32_t C_ADCEx::read_channel_sum(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 	return ret;
 }
 
-uint16_t C_ADCEx::update_ref()
+uint16_t C_ADC::update_ref()
 {
 	Xref = read_channel_sum(ADC_CH17, ADC_tSMP_239Cyc5, REF_NSAMP);
 	return Xref;
 }
 #ifdef USE_FLOAT
-float C_ADCEx::read_Volt(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+float C_ADC::read_Volt(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
 	uint32_t x=read_channel_sum(channel, sample_time, n);
 	return (x*REF_NSAMP)*1.2f/(Xref*n);
 }
 
-float C_ADCEx::Vdd_Volt()
+float C_ADC::Vdd_Volt()
 {
 	float x=update_ref();//1.2V
 	return 4096*REF_NSAMP*1.2f/x;
 }
 #else
-uint16_t C_ADCEx::read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
+uint16_t C_ADC::read_mV(ADC_CHx channel, ADC_tSMP sample_time, u32 n)
 {
 	uint32_t x=read_channel_sum(channel, sample_time, n);
 	return x*REF_NSAMP*1200*MV_MUL/(Xref*n);
 }
 
-uint16_t C_ADCEx::Vdd_mV()
+uint16_t C_ADC::Vdd_mV()
 {
 	uint32_t x=update_ref();//1.2V
 	return 4096*REF_NSAMP*MV_MUL*1200/x;

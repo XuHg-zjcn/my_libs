@@ -15,16 +15,16 @@ const TempSenParam tsp={1340*MV_MUL, 233, ADC_tSMP_239Cyc5, 9, 0};
 #endif
 
 
-MCUTempSen::MCUTempSen(C_ADCEx *adc)
+MCUTempSen::MCUTempSen(C_ADC *cadc)
 {
-	this->adc = adc;
+	this->cadc = cadc;
 }
 
 #ifdef USE_FLOAT
 float MCUTempSen::read_Volt()
 {
-	adc->update_ref();
-	return adc->read_Volt(ADC_CH16, tsp.t_smp, tsp.N);
+	cadc->update_ref();
+	return cadc->read_Volt(ADC_CH16, tsp.t_smp, tsp.N);
 }
 
 float MCUTempSen::calib_V25(float temp)
@@ -44,8 +44,8 @@ float MCUTempSen::get_temp()
 #else
 u16 MCUTempSen::read_mV()
 {
-	adc->update_ref();
-	return adc->read_mV(ADC_CH16, tsp.t_smp, tsp.N);
+	cadc->update_ref();
+	return cadc->read_mV(ADC_CH16, tsp.t_smp, tsp.N);
 }
 
 u16 MCUTempSen::calib_mV25(i32 temp100)

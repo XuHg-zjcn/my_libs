@@ -7,7 +7,7 @@
   7.5<=tSAMP<=13.5 : ADC_DUALMODE_INTERLSLOW
   tSAMP >= 28.5    : entry Error_Handler()
 */
-void F1_ADCEx::ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC)
+void F1_ADC::ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC)
 {
 	ADC_MultiModeTypeDef multimode;
 	uint32_t samp_clks = T_SAMP2CLKS(tSAMP) + 13;

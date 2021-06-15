@@ -51,11 +51,11 @@ private:
 	TIM_CH tim_spd;      //测速输入
 	uint32_t count;      //总脉冲计数
 
-	C_ADCEx *hadc;       //ADC
+	C_ADC *cadc;       //ADC
 	ADC_CHx CH_Current;  //电流测量
 	ADC_CHx CH_Voltage;  //电压测量
 public:
-	DC_Motor(TIM_CH &tim_pwm, C_ADCEx *hadc, ADC_CHx CH_Current);
+	DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current);
 	void setDuty(float duty);
 	void stop();
 	void run_pwm();

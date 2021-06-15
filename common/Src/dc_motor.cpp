@@ -12,11 +12,11 @@
 extern u32* led;
 
 
-DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADCEx *hadc, ADC_CHx CH_Current):
+DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current):
 	tim_pwm(tim_pwm), tim_spd(tim_pwm)
 {
 	this->count = 0;
-	this->hadc = hadc;
+	this->cadc = cadc;
 	this->CH_Current = CH_Current;
 	this->CH_Voltage = CH_Current;
 }
@@ -67,7 +67,7 @@ void DC_Motor::run_pwm()
 u32 DC_Motor::t_value(BuffHeadRead head)
 {
 	u32 Sxx = ((NZIP*NZIP-1)/12)*NZIP;
-	hadc->DMA_once(NSAMP, true);
+	cadc->DMA_once(NSAMP, true);
 	u16 *p = (u16*)head.get_frames(NSAMP);
 	filter(p, NSAMP, 300);
 	mean_zip(p, NSAMP/NZIP, NZIP, 5);
@@ -99,10 +99,10 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	buff.Init();
 	buff.remalloc(NSAMP);
 	BuffHeadRead head = BuffHeadRead(buff.r_heads, buff.r_heads.new_head());
-	hadc->load_regular_seq(&sseq);
-	hadc->conn_buff(&buff.w_head);
-	hadc->set_SR_sps(128000);
-	hadc->DMA_once(NSAMP, true);
+	cadc->load_regular_seq(&sseq);
+	cadc->conn_buff(&buff.w_head);
+	cadc->set_SR_sps(128000);
+	cadc->DMA_once(NSAMP, true);
 	p = (u16*)head.get_frames(NSAMP);
 	u32 s0 = sum(p, NSAMP);
 	tim_pwm.CCxChannelCmd(TIM_CCx_Enable);
@@ -113,7 +113,7 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	}
 	XDelayMs(500);
 	*led = 0;
-	hadc->DMA_once(NSAMP, true);
+	cadc->DMA_once(NSAMP, true);
 	p = (u16*)head.get_frames(NSAMP);
 	u32 s1 = sum(p, NSAMP);
 	u32 max = s0 + xfact((s1-s0), 102, 100); //使用积分检测
@@ -128,7 +128,7 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	snprintf(str, 20, "max:%5d", max/409);
 	oled.text_5x7(str);
 	while(1){
-		hadc->DMA_once(NSAMP, true);
+		cadc->DMA_once(NSAMP, true);
 		p = (u16*)head.get_frames(NSAMP);
 		u32 s2 = sum(p, NSAMP);
 		oled.setVHAddr(Horz_Mode, 0, 127, 4, 5);
@@ -185,16 +185,16 @@ void TestSave::TestStart()
 	buff.Init();
 	buff.remalloc(NSAMP);
 	BuffHeadRead head = BuffHeadRead(buff.r_heads, buff.r_heads.new_head());
-	motor->hadc->conn_buff(&buff.w_head);
+	motor->cadc->conn_buff(&buff.w_head);
 	XDelayMs(100);
-	motor->hadc->DMA_once(NSAMP, true);
+	motor->cadc->DMA_once(NSAMP, true);
 	p = (u16*)head.get_frames(NSAMP);
 	ADCv_I0 = (float)sum(p, NSAMP)/NSAMP;
 	for(u32 i=0;i<n;i++){
 		float duty = (maxduty/n)*i;
 		motor->setDuty(duty);
 		XDelayMs(ms);
-		motor->hadc->DMA_once(NSAMP, true);
+		motor->cadc->DMA_once(NSAMP, true);
 		p = (u16*)head.get_frames(NSAMP);
 		TestRes tr;
 		tr.curr = value_clip(sum(p, NSAMP)>>12, 0, MEAN_Msk);

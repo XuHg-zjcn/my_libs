@@ -28,9 +28,9 @@ typedef struct{
 
 class MCUTempSen{
 private:
-	C_ADCEx *adc;
+	C_ADC *cadc;
 public:
-	MCUTempSen(C_ADCEx *adc);
+	MCUTempSen(C_ADC *cadc);
 #ifdef USE_FLOAT
 	float read_Volt();
 	float calib_V25(float temp);

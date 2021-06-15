@@ -4,8 +4,8 @@
 #include "c_adc.hpp"
 #include "stm32f1xx_hal.h"
 
-
-class F1_ADCEx : public C_ADCEx{
+//TODO: rename F1_ADC->C_ADC, C_ADC->STM32_ADC
+class F1_ADC : public C_ADC{
 public:
 	void ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC);
 };

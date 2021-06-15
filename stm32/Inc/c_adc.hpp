@@ -129,13 +129,10 @@ typedef union{
 	MyADCModeEnum Enum;
 }MyADCMode;
 
-class C_ADC : public ADC_HandleTypeDef{
-public:
-};
 
-class C_ADCEx{
+class C_ADC{
 protected:
-	C_ADC *hadc;
+	ADC_HandleTypeDef *hadc;
 	C_TIM *ctim;
 	TIM_CHx chx;
 	BuffHeadWrite *w_head;
@@ -144,7 +141,7 @@ protected:
 	uint32_t NDTR;
 	uint32_t Xref; //1.2V基准电压, REF_NSAMP次采样求和
 public:
-	C_ADCEx(ADC_HandleTypeDef *hadc);
+	C_ADC(ADC_HandleTypeDef *hadc);
 	void Init();
 	void conn_tim(C_TIM *ctim, TIM_CHx channel);
 	void conn_buff(BuffHeadWrite* w_head);  //TODO: auto create buffer
