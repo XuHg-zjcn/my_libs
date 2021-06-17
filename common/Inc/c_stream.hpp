@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "x_base.hpp"
+#include "myints.h"
 
 typedef enum{
 TransBlocking = 0,

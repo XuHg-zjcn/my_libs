@@ -9,9 +9,8 @@
 #define COMMON_INC_DC_MOTOR_HPP_
 
 #include "mylibs_config.hpp"
-#include "c_tim.hpp"
-#include "c_adc.hpp"
 #include "ssd1306.hpp"
+#include "c_pwm.hpp"
 
 
 //请参考电路
@@ -47,20 +46,27 @@ typedef struct{
 //TODO: 缓启动
 class DC_Motor{
 private:
-	TIM_CH tim_pwm;      //PWM输出
-	TIM_CH tim_spd;      //测速输入
-	uint32_t count;      //总脉冲计数
-
+	C_PWM_CH *pwm;      //PWM输出
+	//TIM_CH tim_spd;   //测速输入
+	uint32_t count;     //总脉冲计数
+#ifdef USE_ADC
 	C_ADC *cadc;       //ADC
 	ADC_CHx CH_Current;  //电流测量
 	ADC_CHx CH_Voltage;  //电压测量
+#endif
 public:
+#ifdef USE_ADC
 	DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current);
+#else
+	DC_Motor(C_PWM_CH *pwm);
+#endif
 	void setDuty(float duty);
 	void stop();
 	void run_pwm();
+#ifdef USE_ADC
 	u32 t_value(BuffHeadRead head);
 	void run_monitor(ControlConfig &cfg, SSD1306 &oled);
+#endif
 	friend class TestSave;
 };
 
@@ -78,7 +84,7 @@ typedef struct{
 #define GET_MEAN(x) ((x&MEAN_Msk)>>MEAN_Sft)
 #define GET_STD(x)  ((x&STD_Msk)>>STD_Sft)
 
-class TestSave{
+/*class TestSave{
 private:
 	DC_Motor *motor;
 	TestRes *addr;
@@ -103,7 +109,7 @@ public:
 	void TestStart();
 	void Eraser();
 	TestRes get(float duty);
-};
+};*/
 
 
 #endif /* COMMON_INC_DC_MOTOR_HPP_ */

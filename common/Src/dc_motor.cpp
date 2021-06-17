@@ -20,6 +20,11 @@ DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current):
 	this->CH_Current = CH_Current;
 	this->CH_Voltage = CH_Current;
 }
+#else
+DC_Motor::DC_Motor(C_PWM_CH *pwm){
+	this->pwm = pwm;
+}
+#endif
 
 /*
  * tL, tH <= MIN_NS
@@ -30,7 +35,7 @@ DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current):
 void DC_Motor::setDuty(float duty)
 {
 	if(duty<DUTY_MIN){
-		tim_pwm.set_OCMode(TIM_OCMode_Forced_InActive);
+		pwm->stop();
 		return;
 	}if(duty>DUTY_MAX){
 		duty = DUTY_MAX;
@@ -49,21 +54,21 @@ void DC_Motor::setDuty(float duty)
 		t = tL/(1.0-duty);
 	}
 	Hz = 1000000000/t;
-	tim_pwm.set_Hz(Hz);
-	tim_pwm.set_duty(duty);
+	pwm->set_Hz(Hz);
+	pwm->set_duty(duty);
 }
 
 void DC_Motor::stop()
 {
-	tim_pwm.set_OCMode(TIM_OCMode_Forced_InActive);
+	pwm->stop();
 }
 
 void DC_Motor::run_pwm()
 {
-	tim_pwm.set_OCMode(TIM_OCMode_PWM1);
-	tim_pwm.CCxChannelCmd(TIM_CCx_Enable);
+	pwm->start();
 }
 
+#ifdef USE_ADC
 u32 DC_Motor::t_value(BuffHeadRead head)
 {
 	u32 Sxx = ((NZIP*NZIP-1)/12)*NZIP;
@@ -140,66 +145,4 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 		}
 	}
 }
-
-
-
-//@param addr: page addr of Flash, 0x080***00
-TestSave::TestSave(DC_Motor *motor, TestRes *addr)
-{
-	this->motor = motor;
-	this->addr = addr;
-}
-
-TestSave::TestSave(DC_Motor *motor, TestRes *addr, u32 n, u32 ms, float maxduty)
-{
-	this->motor = motor;
-	this->addr = addr;
-	this->n = n;
-	this->ms = ms;
-	this->maxduty = maxduty;
-}
-
-void TestSave::Eraser()
-{
-	HAL_FLASH_Unlock();
-	FLASH_EraseInitTypeDef pEraseInit;
-	pEraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
-	pEraseInit.Banks = FLASH_BANK_1;
-	pEraseInit.PageAddress = (u32)this->addr;
-	pEraseInit.NbPages = 1;
-	u32 err;
-	HAL_FLASHEx_Erase(&pEraseInit, &err);
-	HAL_FLASH_Lock();
-	if(err != 0xFFFFFFFF){
-		X_ErrorLog(__FILE__, __LINE__);
-	}
-}
-
-void TestSave::TestStart()
-{
-	Eraser();
-	u16 *p;
-	TestRes *addr2 = addr;
-	motor->tim_pwm.CCxChannelCmd(TIM_CCx_Disable);
-	Buffer buff=Buffer(2);
-	buff.Init();
-	buff.remalloc(NSAMP);
-	BuffHeadRead head = BuffHeadRead(buff.r_heads, buff.r_heads.new_head());
-	motor->cadc->conn_buff(&buff.w_head);
-	XDelayMs(100);
-	motor->cadc->DMA_once(NSAMP, true);
-	p = (u16*)head.get_frames(NSAMP);
-	ADCv_I0 = (float)sum(p, NSAMP)/NSAMP;
-	for(u32 i=0;i<n;i++){
-		float duty = (maxduty/n)*i;
-		motor->setDuty(duty);
-		XDelayMs(ms);
-		motor->cadc->DMA_once(NSAMP, true);
-		p = (u16*)head.get_frames(NSAMP);
-		TestRes tr;
-		tr.curr = value_clip(sum(p, NSAMP)>>12, 0, MEAN_Msk);
-		tr.curr |= value_clip(istd(p, NSAMP), 0, STD_Msk)<<STD_Sft;
-		tr.spd = 0;
-		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (u32)addr2++, *(u32*)(&tr));
-	}
-}
+#endif

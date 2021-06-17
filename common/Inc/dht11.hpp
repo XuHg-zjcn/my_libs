@@ -22,18 +22,18 @@
 #define SPILT01_US 47  //not need in `USE_VAR_SPLIT` mode
 
 typedef enum{
-	DHT11_OK,
-	DHT11_RxTimeout,
-	DHT11_CheckSum_Err
+	DHT11_OK = 0,
+	DHT11_RxTimeout = -1,
+	DHT11_CheckSum_Err = -2
 }DHT11_PackState;
 
 #pragma pack(1)
 typedef struct{
-	u8 check;
-	u8 temp_L;
-	u8 temp_H;
-	u8 hum_L;
 	u8 hum_H;
+	u8 hum_L;
+	u8 temp_H;
+	u8 temp_L;
+	u8 check;
 	DHT11_PackState ps;
 }DHT11_RAW;
 #pragma pack()
@@ -44,8 +44,7 @@ private:
 #ifdef USE_VAR_SPLIT
 	u32 split;
 #endif
-	DHT11_PackState read_bits(u32 *bb, u32 n);
-	u8 read_byte();
+	i32 read_byte();
 public:
 	DHT11(C_Pin *pin);
 	DHT11_PackState read_raw(DHT11_RAW *data);

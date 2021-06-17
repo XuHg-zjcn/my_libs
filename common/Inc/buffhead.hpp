@@ -10,7 +10,6 @@
 
 #include "myints.h"
 #include "mylibs_config.hpp"
-#include "c_tim.hpp"
 #include <vector>
 
 using namespace std;
@@ -41,7 +40,7 @@ private:
 	enum {t_null=0,t_os2,t_etim}put_type;
 #else
 	bool lock;  //true: locking
-	C_TIMEx* put_timer;
+	C_TIM* put_timer;
 #endif
 public:
 	BuffHeadWrite(Buffer *buff, u32 fid);

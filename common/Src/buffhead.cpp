@@ -35,9 +35,11 @@ u32 BuffHead::bytes_elem()
 BuffHeadWrite::BuffHeadWrite(Buffer *buff, u32 fid):BuffHead(buff, fid)
 {
 	func = nullptr;
-	put_timer.ctim = nullptr;
 #ifdef USE_FREERTOS
 	put_type = t_null;
+	put_timer.ctim = nullptr;
+#else
+	put_timer = nullptr;
 #endif
 }
 
@@ -180,11 +182,11 @@ void BuffHeadWrite::put_hardware_timer(void (*func)(void*), u32 n, u32 us, C_TIM
 	}
 	put_timer.ctim = ctim;
 #else
-	put_timer = etim;
+	put_timer = ctim;
 #endif
-	ctim->set_ns(us*1000);
-	ctim->EnableIT(TIM_IT_update);
-	ctim->set_callback(TIM_IT_update, hwtim_callback, this);
+	ctim->set_us(us);
+	//ctim->EnableIT(TIM_IT_update);
+	//ctim->set_callback(TIM_IT_update, hwtim_callback, this);
 }
 
 #ifdef USE_FREERTOS
@@ -213,10 +215,10 @@ void BuffHeadWrite::put_timer_stop()
 	}
 	unlock();
 #else
-	if(put_type){
-		put_timer->ctim->DisableIT(TIM_IT_update);
+	//if(put_timer->ctim){
+		//put_timer->ctim->DisableIT(TIM_IT_update);
 		unlock();
-	}
+	//}
 #endif
 }
 

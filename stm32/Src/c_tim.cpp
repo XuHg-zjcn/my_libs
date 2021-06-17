@@ -142,6 +142,11 @@ void C_TIM::set_ns(Type_ns ns)
 	set_tdiv(div);
 }
 
+void C_TIM::set_us(u32 us)
+{
+	set_ns(us*1000);
+}
+
 void C_TIM::set_TGRO(TIM_TRGO trgo, bool ms_enable)
 {
 	TIM_MasterConfigTypeDef cfg;

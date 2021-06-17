@@ -118,6 +118,7 @@ public:
 	TypeDiv set_tdiv(TypeDiv div);
 	void set_Hz(Type_Hz Hz);
 	void set_ns(Type_ns ns);
+	void set_us(u32 us);
 	//others
 	void set_TGRO(TIM_TRGO trgo, bool ms_enable);
 	void set_CountEnable(bool isEnable);
@@ -258,6 +259,9 @@ public:
 
 	void EnableIT()           {htim->EnableIT(TIM_CH2IT(Channel));}
 	void DisableIT()          {htim->DisableIT(TIM_CH2IT(Channel));}
+
+	void start()	{CCxChannelCmd(TIM_CCx_Enable);}
+	void stop()		{CCxChannelCmd(TIM_CCx_Disable);}
 };
 
 extern "C"{

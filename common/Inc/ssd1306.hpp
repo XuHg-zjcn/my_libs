@@ -1,5 +1,5 @@
 /*
- * ssd1306.hpp
+ * ssd1306.cpp
  *
  *  Created on: May 12, 2021
  *      Author: xrj
@@ -8,8 +8,8 @@
 #ifndef INC_SSD1306_HPP_
 #define INC_SSD1306_HPP_
 
+#include "../Inc/ssd1306.hpp"
 #include "mylibs_config.hpp"
-#include "c_i2c.hpp"
 
 /* I2C slave address of SSD1306
  *   MSB  .   .   .   .   .   .  LSB
@@ -145,11 +145,7 @@ private:
 	C_I2C_Dev* dev;
 	uint32_t timeout;
 	uint8_t col_i;
-	TIM_HandleTypeDef* TIM_frame;
-	uint8_t *imgs;
-	uint32_t n_imgs;
-	uint32_t img_i;
-	static int n_bytes(SSD1306_Commd Byte0);
+	int n_bytes(SSD1306_Commd Byte0);
 #ifdef CMSIS_OS2_H_
 	osSemaphoreId_t lock;
 #endif
