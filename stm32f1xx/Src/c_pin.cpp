@@ -64,7 +64,40 @@ void C_Pin::toggle_pin()
 	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
 }
 
+PinXSpd C_Pin::MHz2Spd(u8 MHz)
+{
+	const PinXSpd xSpd[3] = {Out_2MHz, Out_10MHz, Out_50MHz};
+	const uint8_t xMHz[3] = {2, 10, 50};
+	int i=0;
+	while(xMHz[i]<MHz && i<3){
+		i++;
+	}
+	return xSpd[i];
+}
+
+void C_Pin::loadCfg(PinCfg cfg, u8 MHz)
+{
+	const PinXCfg xcfgs[] = {
+		GPIO_GP_PP0,
+		GPIO_GP_PP1,
+		GPIO_GP_OD0,
+		GPIO_GP_OD1,
+		GPIO_In_Up,
+		GPIO_In_Float,
+		GPIO_In_Down};
+	PinXCfg xcfg = xcfgs[cfg];
+	if(PIN_IS_OUT(cfg)){
+		xcfg &= MHz2Spd(MHz);
+	}
+	loadXCfg(xcfg);
+}
+
 void C_Pin::loadCfg(PinCfg cfg)
+{
+	loadCfg(cfg, 255);
+}
+
+void C_Pin::loadXCfg(PinXCfg cfg)
 {
     if(PORTx >= TOTAL_GPIO_PORTS){
         return;

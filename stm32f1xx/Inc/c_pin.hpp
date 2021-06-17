@@ -24,17 +24,22 @@ typedef enum{  //ODR 1b|CNF 2b|MODE 2b|
     GPIO_In_Up    = 0b11000,
     GPIO_Keep_ODR0= 0b01100,
     GPIO_Keep_ODR1= 0b11100
-}PinCfg;
+}PinXCfg;  //专用于STM32的配置
 
 typedef enum{
-	Out_10MHz = (~0b11 | 0b01),
-	Out_2MHz  = (~0b11 | 0b10),
-	Out_50MHz = (~0b11 | 0b11)
-}OutSpeed;
+	Out_10MHz = 0b01,
+	Out_2MHz  = 0b10,
+	Out_50MHz = 0b11
+}PinXSpd;
 
 
-inline PinCfg operator&(PinCfg cfg, OutSpeed spd){
-	return (PinCfg)((int)cfg&(int)spd);
+inline PinXCfg operator&(PinXCfg cfg, PinXSpd spd){
+	return (PinXCfg)((int)cfg & ((int)spd | ~0b11));
+}
+
+inline PinXCfg& operator&=(PinXCfg &cfg, PinXSpd spd){
+	cfg = cfg & spd;
+	return cfg;
 }
 
 #define MODE_Msk      0b00011
@@ -66,6 +71,8 @@ typedef enum{
 //TODO: use enum PinState instead bool
 
 class C_Pin : public I_Pin{
+private:
+	PinXSpd MHz2Spd(u8 MHz);
 public:
     unsigned int PORTx:4;
     unsigned int PINx:4;
@@ -80,7 +87,9 @@ public:
     void write_pin(PinState x);
     PinState read_pin();
     void toggle_pin();
+    void loadCfg(PinCfg cfg, u8 MHz);
     void loadCfg(PinCfg cfg);
+    void loadXCfg(PinXCfg cfg);
     void lockCfg();
     void setEXTI(EnumEXTI exti);
 };

@@ -5,11 +5,11 @@
  *      Author: xrj
  */
 
-#include "buffhead.hpp"
-#include <cstring>
-#include "buffer.hpp"
-#include <algorithm>
+#include "../Inc/buffhead.hpp"
+#include "../Inc/buffer.hpp"
 #include "mylibs_config.hpp"
+#include <cstring>
+#include <algorithm>
 
 //Methods of BufferHead
 BuffHead::BuffHead(Buffer *buff, u32 fid)

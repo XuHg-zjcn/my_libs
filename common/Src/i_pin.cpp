@@ -5,7 +5,7 @@
  *      Author: xrj
  */
 
-#include "i_pin.hpp"
+#include "../Inc/i_pin.hpp"
 
 
 void I_Pin::toggle_pin()

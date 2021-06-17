@@ -5,13 +5,14 @@
  *      Author: xrj
  */
 
-#include <ops.hpp>
-#include "dc_motor.hpp"
-#include "x_logs.hpp"
+#include "../Inc/dc_motor.hpp"
+#include "../Inc/ops.hpp"
+#include "../Inc/x_logs.hpp"
 
 extern u32* led;
 
 
+#ifdef USE_ADC
 DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current):
 	tim_pwm(tim_pwm), tim_spd(tim_pwm)
 {

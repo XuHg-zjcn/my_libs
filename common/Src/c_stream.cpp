@@ -1,5 +1,7 @@
-#include "c_stream.hpp"
+#include "../Inc/c_stream.hpp"
+#include "../Inc/myints.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 void StrStream::printf(const char *fmt, ...)
 {

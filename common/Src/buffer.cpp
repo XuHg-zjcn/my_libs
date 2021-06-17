@@ -5,12 +5,10 @@
  *      Author: xrj
  */
 
-#include "buffer.hpp"
+#include "../Inc/buffer.hpp"
 #include <cstdlib>
-#include "myints.h"
-#ifdef USE_FREERTOS
-#include "FreeRTOS.h"
-#endif
+#include "../Inc/myints.h"
+#include "mylibs_config.hpp"
 
 
 Buffer::Buffer(u32 byte_elem):be(byte_elem), w_head(this, 0), r_heads(this)

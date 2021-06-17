@@ -12,9 +12,9 @@
 SMG8::SMG8():buf({0,0,0,0}),index(0)
 {
 	C_Pin pseg[8] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}};
-	seg = new GPIO_Conn(pseg, 8, true, InitCfg_Disable, NoLock, GPIO_GP_OD1, GPIO_In_Up);
+	seg = new GPIO_Conn(pseg, 8, true, InitCfg_Disable, NoLock, Pin_OD0, Pin_InUp);
 	C_Pin pxb[4] = {{1, 3}, {1, 4}, {1, 5}, {1, 8}};
-	xb = new GPIO_Conn(pxb, 4, true, InitCfg_Disable, NoLock, GPIO_GP_PP0, GPIO_GP_PP0);
+	xb = new GPIO_Conn(pxb, 4, true, InitCfg_Disable, NoLock, Pin_PP0, Pin_PP0);
 	colon = new C_Pin(1, 9);
 }
 
@@ -22,14 +22,14 @@ void SMG8::LightMode()
 {
 	seg->Enable();
 	xb->Enable();
-	colon->loadCfg(GPIO_GP_PP0);
+	colon->loadCfg(Pin_PP0);
 }
 
 void SMG8::DarkMode()
 {
 	seg->Disable();
 	xb->Disable();
-	colon->loadCfg(GPIO_In_Down);
+	colon->loadCfg(Pin_PP0);
 }
 
 void SMG8::off()
