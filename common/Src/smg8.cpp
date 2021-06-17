@@ -176,7 +176,7 @@ void SMG8::FreeRTOSTimer(uint32_t ms_on, uint32_t ms_off)
 	if(ms_off != 0){
 		osTimerAttr_t attr = { .name = "smg8_tim2" };
 		osTimerId_t tid2 = osTimerNew(&Coff, osTimerPeriodic, this, &attr);
-		osDelay(ms_on);
+		XDelayMs(ms_on);
 		osTimerStart(tid2, ms_on+ms_off);
 	}
 }

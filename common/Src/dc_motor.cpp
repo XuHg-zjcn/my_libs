@@ -93,7 +93,7 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	u16 *p;
 	tim_pwm.CCxChannelCmd(TIM_CCx_Disable);
 	*led = 1;
-	HAL_Delay(100);
+	XDelayMs(100);
 	ADC_aSamp samp[2];
 	ADC_SampSeq sseq={0, samp};
 	if(CH_Current){

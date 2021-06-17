@@ -111,7 +111,7 @@ void SSD1306::OnOffScroll(bool IsActivate)
 
 void SSD1306::Init()
 {
-	  HAL_Delay(500);
+	  XDelayMs(500);
 	  commd_bytes(Display_OFF);
 	  commd_bytes(Low_Col_Addr_4b  | 0b0000);
 	  commd_bytes(High_Col_Addr_4b | 0b0000);
@@ -212,7 +212,7 @@ void SSD1306::gif_show(uint8_t *imgs, uint32_t n_img, uint32_t ms)
 	commd_bytes(Set_Page_Addr_2B, 0, 7);
 	for(uint32_t i=0;i<n_img;i++){
 		dev->Mem_write(ConByte_Data, imgs+i*1024, 1024);
-		HAL_Delay(ms);
+		XDelayMs(ms);
 	}
 }
 
