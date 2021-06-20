@@ -4,8 +4,8 @@
 一个MCU C++跨平台驱动库，有一些片上资源和外部设备的驱动
 
 ### 支持列表
-目前支持: STM32F103C8T6, STM32F407ZET6,  
-计划支持: ESP8266, ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
+目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266
+计划支持: ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
 
 
 #### 软件架构
