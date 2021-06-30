@@ -129,6 +129,8 @@ public:
 	}
 	u32 maxcount();
 
+	//TODO: set comp ns
+	//TODO: add DMA support
 	//operate single channel
 	inline u32   get_comp(TIM_CHx Channel)    {return __HAL_TIM_GET_COMPARE(htim, Channel);}
 	inline float get_duty(TIM_CHx Channel)    {return (float)__HAL_TIM_GET_COMPARE(htim, Channel)/__HAL_TIM_GET_AUTORELOAD(htim);}
