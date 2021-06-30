@@ -4,8 +4,8 @@
 一个MCU C++跨平台驱动库，有一些片上资源和外部设备的驱动
 
 ### 支持列表
-目前支持: STM32F103C8T6, STM32F407ZET6,  
-计划支持: ESP8266, ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
+目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266
+计划支持: ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
 
 
 #### 软件架构
@@ -80,10 +80,41 @@
 
 
 #### 命名规则
-| 缩写 | 全称       |  说明        |
-|:----  |:----      |:---------     |
-| C_xxx | class     | C++对象        |
+| 类名  | 全称      |  说明           |
+| :---- | :----     | :-----------    |
+| C_xxx | chip      | 片上设备        |
+| E_xxx | extern    | 片外设备        |
+| S_xxx | software  | 软件模拟        |
 | I_xxx | interface | 跨平台接口，不可直接使用 |
+
+#### 目录规范(暂未执行)
+|--example-| 样例代码
+|
+|--interface-| 跨平台接口
+|            |--GPIO
+|            |--ADC
+|            |...
+|
+|--mcus-| MCU片上设备驱动
+|       |--stm32f1
+|       |--ESP8266
+|       |...
+|
+|--exts-| 外设驱动
+|       |--StepMotor
+|       |--DHT11
+|       |...
+|
+|--dsp-| 数据处理库
+|      |--fft
+|      |--pid
+|      |...
+|
+|--others-| 其他
+          |--fonts 字体
+          |--images 样例图片
+          |...
+
 
 #### 非MCU代码
 PC端工具，大多由Python编写，在ubuntu下测试过:  
