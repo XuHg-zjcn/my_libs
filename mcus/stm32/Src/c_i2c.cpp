@@ -13,6 +13,16 @@ X_State C_I2C::set_Clock(uint32_t Hz)
 	return (X_State)HAL_I2C_Init(this);
 }
 
+X_State C_I2C::send(uint16_t DevAddress, uint8_t* pData, uint32_t Size)
+{
+	HAL_I2C_Master_Transmit(this, DevAddress, pData, Size, 1000);
+}
+
+X_State C_I2C::recv(uint16_t DevAddress, uint8_t* pData, uint32_t Size)
+{
+	HAL_I2C_Master_Receive(this, DevAddress, pData, Size, 1000);
+}
+
 /*
  * @param hi2c: C_I2C object pointer
  * @param addr: I2C device addr

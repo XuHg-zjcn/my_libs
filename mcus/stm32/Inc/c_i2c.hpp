@@ -15,6 +15,8 @@
 class C_I2C : public I2C_HandleTypeDef{
 public:
 	X_State set_Clock(uint32_t Hz);
+    X_State send(uint16_t DevAddress, uint8_t* pData, uint32_t Size);
+    X_State recv(uint16_t DevAddress, uint8_t* pData, uint32_t Size);
 };
 
 
