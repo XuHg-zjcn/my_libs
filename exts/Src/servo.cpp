@@ -16,7 +16,7 @@ Servo::Servo(C_PWM_CH *ch)
 void Servo::Init()
 {
 	ch->set_ns(20000000);
-	ch->PWM_Start();
+	ch->start();
 }
 
 void Servo::set_deg(float deg)
