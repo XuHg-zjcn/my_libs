@@ -11,7 +11,12 @@
 #include "smg8.hpp"
 #include "s_i2c.hpp"
 
-#define TM_I2C S_I2C
+#define TM_I2C S_I2C //I2C类型选择 建议使用软件I2C
+
+/*
+ * 注意: TM1650只能驱动7段或8段的共阴数码屏，最多只能驱动4个，
+ *      时间数码管的冒号可单独引出或连接DP，详细见数据手册。
+ */
 
 #pragma pack(1)
 typedef struct sCommands{
