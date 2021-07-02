@@ -64,12 +64,39 @@ void C_Pin::toggle_pin()
 	HAL_GPIO_TogglePin(GPIOx(), Pin2N());
 }
 
+#ifndef USE_VIRTUAL
+//blocking until read_pin() == state
+void C_Pin::wait_pin(PinState state)
+{
+	while(read_pin() xor state);
+}
+
+u32 C_Pin::wait_timeout(PinState state, u32 timeout)
+{
+	while((read_pin() xor state) and timeout){
+		timeout--;
+	}
+	return timeout;
+}
+
+//阻塞式测量
+u32 C_Pin::wait_count(PinState state, u32 m, u32 M)
+{
+	u32 n=0;
+	state = !state;
+	while((read_pin() xor state) and n<M or n<m){
+		n++;
+	}
+	return n;
+}
+#endif
+
 PinXSpd C_Pin::MHz2Spd(u8 MHz)
 {
 	const PinXSpd xSpd[3] = {Out_2MHz, Out_10MHz, Out_50MHz};
 	const uint8_t xMHz[3] = {2, 10, 50};
 	int i=0;
-	while(xMHz[i]<MHz && i<3){
+	while(xMHz[i]<MHz && i<2){
 		i++;
 	}
 	return xSpd[i];

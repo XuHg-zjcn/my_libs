@@ -9,9 +9,9 @@
 #include "font_smg8.h"
 
 
-TM1650::TM1650(I2C_HandleTypeDef *i2c):SMG8(4)
+TM1650::TM1650(TM_I2C *i2c):SMG8(4)
 {
-	this->i2c = (C_I2C*)i2c;
+	this->i2c = i2c;
 }
 
 void TM1650::setDig(u32 i, u8 data)
@@ -19,7 +19,10 @@ void TM1650::setDig(u32 i, u8 data)
 	if(i>4){
 		return;
 	}
-	i2c->send(0x68+i*2, &data, 1);
+	i2c->Start();
+	i2c->send_byte(0x68+i*2);
+	i2c->send_byte(data);
+	i2c->Stop();
 }
 
 u8 TM1650::readKey(u32 abc, u32 dig)
@@ -28,13 +31,19 @@ u8 TM1650::readKey(u32 abc, u32 dig)
 	if(abc > 6 || dig > 3){
 		return 0;
 	}
-	i2c->recv(0x44+0x8*abc+dig, &ret, 1);
+	i2c->Start();
+	i2c->send_byte(0x44+0x8*abc+dig);
+	ret = i2c->recv_byte();
+	i2c->Stop();
 	return ret;
 }
 
 void TM1650::send_commad(TM1650_Commands cmd)
 {
-	i2c->send(0x48, (u8*)&cmd, 1);
+	i2c->Start();
+	i2c->send_byte(0x48);
+	i2c->send_byte(*(u8*)&cmd);
+	i2c->Stop();
 }
 
 void TM1650::off()

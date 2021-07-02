@@ -68,9 +68,13 @@ typedef enum{
 #define EXTI_FALL_Msk 0b10
 #define EXTI_EVT_Msk 0b100
 
-//TODO: use enum PinState instead bool
+//TODO: auto open clock of GPIOx, when disable.
 
+#ifdef USE_VIRTUAL
 class C_Pin : public I_Pin{
+#else
+class C_Pin{
+#endif
 private:
 	PinXSpd MHz2Spd(u8 MHz);
 public:
@@ -86,7 +90,14 @@ public:
     uint32_t* IDR_bitband();
     void write_pin(PinState x);
     PinState read_pin();
+
     void toggle_pin();
+#ifndef USE_VIRTUAL
+    void wait_pin(PinState state);
+    u32 wait_timeout(PinState state, u32 timeout);
+    u32 wait_count(PinState state, u32 m, u32 M);
+#endif
+
     void loadCfg(PinCfg cfg, u8 MHz);
     void loadCfg(PinCfg cfg);
     void loadXCfg(PinXCfg cfg);

@@ -9,6 +9,9 @@
 #define EXTS_INC_TM1650_HPP_
 
 #include "smg8.hpp"
+#include "s_i2c.hpp"
+
+#define TM_I2C S_I2C
 
 #pragma pack(1)
 typedef struct sCommands{
@@ -28,9 +31,9 @@ typedef struct sCommands{
  */
 class TM1650 : public SMG8{
 private:
-	C_I2C *i2c;
+	TM_I2C *i2c;
 public:
-	TM1650(I2C_HandleTypeDef *i2c);
+	TM1650(TM_I2C *i2c);
 	void setDig(u32 i, u8 data);            //0x6(8/A/C/E)
 	u8 readKey(u32 abc, u32 dig);
 	void send_commad(TM1650_Commands cmd); //0x48 cmd
