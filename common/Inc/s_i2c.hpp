@@ -11,6 +11,8 @@
 #include "myints.h"
 #include "c_pin.hpp"
 
+#define SCL_TIMEOUT 10000
+
 class S_I2C_Dev;
 
 class S_I2C{

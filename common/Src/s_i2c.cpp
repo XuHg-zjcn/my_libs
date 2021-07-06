@@ -82,6 +82,9 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 
 X_State S_I2C::send_byte(u8 byte)
 {
+	if(scl.wait_timeout(Pin_Set, SCL_TIMEOUT)==0){
+		return X_Timeout;
+	}
 	for(int i=0;i<8;i++){
 		byte&0x80?HIGH(sda):LOW(sda);
 		byte<<=1;
@@ -98,6 +101,9 @@ X_State S_I2C::send_byte(u8 byte)
 u8 S_I2C::recv_byte()
 {
 	u8 ret;
+	if(scl.wait_timeout(Pin_Set, SCL_TIMEOUT)==0){
+		return X_Timeout;
+	}
 	for(int i=0;i<8;i++){
 		HIGH(scl);
 		Delay_loopN(loops);
