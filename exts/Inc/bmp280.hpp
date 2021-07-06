@@ -11,7 +11,9 @@
 //the driver is test failed
 
 #include "myints.h"
-#include "c_i2c.hpp"
+#include "s_i2c.hpp"
+
+#define BMP_I2C_Dev S_I2C_Dev
 
 typedef enum{
 	BMP280_SleepMode = 0,
@@ -77,11 +79,11 @@ i32 Bigend_20b(u8* data);
 
 class BMP280{
 private:
-	C_I2C_Dev *i2c;
+	BMP_I2C_Dev *i2c;
 	BMP280_Calib calib;
 public:
 	u8 data[6];
-	BMP280(C_I2C_Dev *i2c);
+	BMP280(BMP_I2C_Dev *i2c);
 	void Init();
 	void reset();
 	void set_config(BMP280_Config *cfg);

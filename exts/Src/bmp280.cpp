@@ -102,7 +102,7 @@ BMP280_U32_t BMP280_Calib::press(BMP280_S32_t adc_P)
 }
 #endif
 
-BMP280::BMP280(C_I2C_Dev *i2c):calib()
+BMP280::BMP280(BMP_I2C_Dev *i2c):calib()
 {
 	this->i2c = i2c;
 }
