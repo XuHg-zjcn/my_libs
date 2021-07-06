@@ -60,6 +60,8 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 {
 	addr<<=1;
 	addr|=RW;
+	LOW(scl);
+	Delay_loopN(loops);
 	for(int i=0;i<8;i++){
 		addr&0x80?HIGH(sda):LOW(sda);
 		addr<<=1;
@@ -76,15 +78,16 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 		Delay_loopN(loops);
 	}
 	HIGH(sda);
-	Delay_loopN(1);
-	return sda.wait_timeout(Pin_Reset, loops/2)==0?X_Timeout:X_OK;
+	Delay_loopN(loops);
+	HIGH(scl);
+	Delay_loopN(loops);
+	return READ(sda)?X_Error:X_OK;
 }
 
 X_State S_I2C::send_byte(u8 byte)
 {
-	if(scl.wait_timeout(Pin_Set, SCL_TIMEOUT)==0){
-		return X_Timeout;
-	}
+	LOW(scl);
+	Delay_loopN(loops);
 	for(int i=0;i<8;i++){
 		byte&0x80?HIGH(sda):LOW(sda);
 		byte<<=1;
@@ -95,15 +98,17 @@ X_State S_I2C::send_byte(u8 byte)
 		Delay_loopN(loops);
 	}
 	HIGH(sda);
-	return sda.wait_timeout(Pin_Reset, loops/2)==0?X_Timeout:X_OK;
+	Delay_loopN(loops);
+	HIGH(scl);
+	Delay_loopN(loops);
+	return READ(sda)?X_Error:X_OK;
 }
 
 u8 S_I2C::recv_byte()
 {
 	u8 ret;
-	if(scl.wait_timeout(Pin_Set, SCL_TIMEOUT)==0){
-		return X_Timeout;
-	}
+	LOW(scl);
+	Delay_loopN(loops);
 	for(int i=0;i<8;i++){
 		HIGH(scl);
 		Delay_loopN(loops);
@@ -115,6 +120,9 @@ u8 S_I2C::recv_byte()
 	}
 	LOW(sda);
 	Delay_loopN(loops);
+	HIGH(scl);
+	Delay_loopN(loops);
+	HIGH(sda);
 	return ret;
 }
 
