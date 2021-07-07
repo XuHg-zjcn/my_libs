@@ -33,6 +33,8 @@ void S_I2C::set_clock(u32 Hz)
 
 X_State S_I2C::Start()
 {
+	HIGH(sda);
+	HIGH(scl);
 	if(READ(sda) == Pin_Reset){
 		return X_Busy;
 	}
