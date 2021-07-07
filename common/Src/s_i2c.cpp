@@ -60,6 +60,7 @@ X_State S_I2C::recv_ack()
 	HIGH(scl);
 	Delay_loopN(loops);
 	X_State ret = sda.read_pin()?X_Error:X_OK;
+	Delay_loopN(loops);
 	LOW(scl);
 	Delay_loopN(loops);
 	return ret;
@@ -70,7 +71,7 @@ void S_I2C::send_ack(bool nack)
 	nack?HIGH(sda):LOW(sda);
 	Delay_loopN(loops);
 	HIGH(scl);
-	Delay_loopN(loops);
+	Delay_loopN(loops*2);
 	LOW(scl);
 	Delay_loopN(loops);
 	HIGH(sda);
@@ -110,7 +111,7 @@ X_State S_I2C::send_byte(u8 byte)
 		byte<<=1;
 		Delay_loopN(loops);
 		HIGH(scl);
-		Delay_loopN(loops);
+		Delay_loopN(loops*2);
 		LOW(scl);
 		Delay_loopN(loops);
 	}
@@ -123,6 +124,7 @@ u8 S_I2C::recv_byte(bool nack)
     HIGH(sda);
 	for(int i=0;i<8;i++){
 		ret<<=1;
+		Delay_loopN(loops);
 		HIGH(scl);
 		Delay_loopN(loops);
 		ret|=READ(sda);
