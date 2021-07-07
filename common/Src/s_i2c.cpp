@@ -151,8 +151,8 @@ void S_I2C::recv(u8 addr, u8* data, u32 len)
 {
 	Start();
 	send_addr(addr, I2C_READ);
-	for(u32 i=0;i<len;i++){
-		*data++ = recv_byte();
+	for(;len>0;len--){
+		*data++ = recv_byte(len!=0);
 	}
 	Stop();
 }
@@ -191,8 +191,8 @@ void S_I2C_Dev::Mem_read(u8 mem, u8* data, u32 len)
 	if(i2c->send_byte(mem)!=X_OK){goto stop;}
 	i2c->Start();
 	if(i2c->send_addr(DevAddr, I2C_READ)!=X_OK){goto stop;}
-	for(u32 i=0;i<len;i++){
-		*data++ = i2c->recv_byte();
+	for(;len>0;len--){
+		*data++ = i2c->recv_byte(len==1);
 	}
 	stop:i2c->Stop();
 }
