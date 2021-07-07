@@ -110,12 +110,12 @@ BMP280::BMP280(BMP_I2C_Dev *i2c):calib()
 void BMP280::Init()
 {
 	i2c->Mem_read(0x88, calib.get_ptr(), 24);
+	XDelayMs(20);
 	reset();
-	XDelayMs(100);
-	BMP280_Config cfg={BMP280_TSB_0P5MS, 5, 0, false};
-	BMP280_CtrlMeas cm={5, 5, BMP280_NormalMode};
-	set_config(&cfg);
-	set_ctrl_meas(&cm);
+	XDelayMs(200);
+	set_config(BMP280_Config(BMP280_TSB_0P5MS, 5, false));
+	XDelayMs(20);
+	set_ctrl_meas(BMP280_CtrlMeas(5, 5, BMP280_NormalMode));
 }
 
 void BMP280::reset()
@@ -124,14 +124,14 @@ void BMP280::reset()
 	i2c->Mem_write(0xe0, &byte, 1);
 }
 
-void BMP280::set_config(BMP280_Config *cfg)
+void BMP280::set_config(BMP280_Config cfg)
 {
-	i2c->Mem_write(0xF5, (u8*)cfg, 1);
+	i2c->Mem_write(0xF5, (u8*)&cfg, 1);
 }
 
-void BMP280::set_ctrl_meas(BMP280_CtrlMeas *cm)
+void BMP280::set_ctrl_meas(BMP280_CtrlMeas cm)
 {
-	i2c->Mem_write(0xF6, (u8*)cm, 1);
+	i2c->Mem_write(0xF6, (u8*)&cm, 1);
 }
 
 void BMP280::read_data()

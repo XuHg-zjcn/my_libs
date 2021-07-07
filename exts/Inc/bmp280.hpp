@@ -33,17 +33,19 @@ typedef enum{
 }BMP280_TSB;
 
 //#pragma pack(1)
-typedef struct{
-	BMP280_TSB t_sb:3;
-	unsigned int filter:3;
-	unsigned int pad:1;
+typedef struct bmp_cfg{
 	bool spi3w_en:1;
+	unsigned int pad:1;
+	unsigned int filter:3;
+	BMP280_TSB t_sb:3;
+	bmp_cfg(BMP280_TSB t_sb, u8 filter, bool spi3w_en):t_sb(t_sb),filter(filter),pad(0),spi3w_en(spi3w_en){};
 }BMP280_Config;
 
-typedef struct{
-	unsigned int osrs_t:3;
-	unsigned int osrs_p:3;
+typedef struct bmp_ctrlmeas{
 	BMP280_Mode mode:2;
+	unsigned int osrs_p:3;
+	unsigned int osrs_t:3;
+	bmp_ctrlmeas(u8 osrs_t, u8 osrs_p, BMP280_Mode mode):osrs_t(osrs_t),osrs_p(osrs_p),mode(mode){};
 }BMP280_CtrlMeas;
 
 class BMP280_Calib{
@@ -86,8 +88,8 @@ public:
 	BMP280(BMP_I2C_Dev *i2c);
 	void Init();
 	void reset();
-	void set_config(BMP280_Config *cfg);
-	void set_ctrl_meas(BMP280_CtrlMeas *cm);
+	void set_config(BMP280_Config cfg);
+	void set_ctrl_meas(BMP280_CtrlMeas cm);
 	void read_data();
 	i32 calc_temp();
 	u32 calc_press();
