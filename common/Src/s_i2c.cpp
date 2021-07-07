@@ -25,7 +25,7 @@ S_I2C::S_I2C(C_Pin scl, C_Pin sda):scl(scl),sda(sda)
 void S_I2C::set_clock(u32 Hz)
 {
 	u32 sys = HAL_RCC_GetSysClockFreq();
-	u32 div = (sys*2)/(Hz*3*clk_loop);
+	u32 div = sys/(Hz*clk_loop*4);
 	if(div!=0){
 		loops=div;
 	}
