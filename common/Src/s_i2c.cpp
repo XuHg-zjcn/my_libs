@@ -51,6 +51,29 @@ void S_I2C::Stop()
 	Delay_loopN(loops);
 }
 
+X_State S_I2C::recv_ack()
+{
+	HIGH(sda);
+	Delay_loopN(loops);
+	HIGH(scl);
+	Delay_loopN(loops);
+	X_State ret = sda.read_pin()?X_Error:X_OK;
+	LOW(scl);
+	Delay_loopN(loops);
+	return ret;
+}
+
+void S_I2C::send_ack(bool nack)
+{
+	nack?HIGH(sda):LOW(sda);
+	Delay_loopN(loops);
+	HIGH(scl);
+	Delay_loopN(loops);
+	LOW(scl);
+	Delay_loopN(loops);
+	HIGH(sda);
+}
+
 /*
  * 总线仲裁
  * @param RW: 0写 1度
@@ -60,8 +83,6 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 {
 	addr<<=1;
 	addr|=RW;
-	LOW(scl);
-	Delay_loopN(loops);
 	for(int i=0;i<8;i++){
 		addr&0x80?HIGH(sda):LOW(sda);
 		addr<<=1;
@@ -77,17 +98,11 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 		LOW(scl);
 		Delay_loopN(loops);
 	}
-	HIGH(sda);
-	Delay_loopN(loops);
-	HIGH(scl);
-	Delay_loopN(loops);
-	return READ(sda)?X_Error:X_OK;
+	return recv_ack();
 }
 
 X_State S_I2C::send_byte(u8 byte)
 {
-	LOW(scl);
-	Delay_loopN(loops);
 	for(int i=0;i<8;i++){
 		byte&0x80?HIGH(sda):LOW(sda);
 		byte<<=1;
@@ -97,32 +112,26 @@ X_State S_I2C::send_byte(u8 byte)
 		LOW(scl);
 		Delay_loopN(loops);
 	}
-	HIGH(sda);
-	Delay_loopN(loops);
-	HIGH(scl);
-	Delay_loopN(loops);
-	return READ(sda)?X_Error:X_OK;
+	return recv_ack();
 }
 
-u8 S_I2C::recv_byte()
+u8 S_I2C::recv_byte(bool nack)
 {
 	u8 ret;
-	LOW(scl);
-	Delay_loopN(loops);
+    HIGH(sda);
 	for(int i=0;i<8;i++){
+		ret<<=1;
 		HIGH(scl);
 		Delay_loopN(loops);
 		ret|=READ(sda);
 		Delay_loopN(loops);
 		LOW(scl);
 		Delay_loopN(loops);
-		ret<<=1;
 	}
-	LOW(sda);
-	Delay_loopN(loops);
-	HIGH(scl);
+	send_ack(nack);
 	Delay_loopN(loops);
 	HIGH(sda);
+	Delay_loopN(loops);
 	return ret;
 }
 

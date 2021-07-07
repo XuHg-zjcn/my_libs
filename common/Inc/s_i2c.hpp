@@ -24,9 +24,11 @@ private:
 public:
 	X_State Start();
 	void Stop();
+	X_State recv_ack();
+	void send_ack(bool nack);
 	X_State send_addr(u8 addr, bool RW);
 	X_State send_byte(u8 byte);
-	u8 recv_byte();
+	u8 recv_byte(bool nack);
 	S_I2C(C_Pin scl, C_Pin sda);
 	void set_clock(u32 Hz);
 	void send(u8 addr, u8* data, u32 len);

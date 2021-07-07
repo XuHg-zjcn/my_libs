@@ -33,7 +33,7 @@ u8 TM1650::readKey(u32 abc, u32 dig)
 	}
 	i2c->Start();
 	i2c->send_byte(0x44+0x8*abc+dig);
-	ret = i2c->recv_byte();
+	ret = i2c->recv_byte(true);
 	i2c->Stop();
 	return ret;
 }
