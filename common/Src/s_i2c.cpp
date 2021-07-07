@@ -175,7 +175,7 @@ void S_I2C_Dev::recv(u8* data, u32 len)
 
 void S_I2C_Dev::Mem_write(u8 mem, u8* data, u32 len)
 {
-	i2c->Start();
+	if(i2c->Start()!=X_OK){goto stop;};
 	if(i2c->send_addr(DevAddr, I2C_WRITE)!=X_OK){goto stop;}
 	if(i2c->send_byte(mem)!=X_OK){goto stop;};
 	for(u32 i=0;i<len;i++){
@@ -186,10 +186,10 @@ void S_I2C_Dev::Mem_write(u8 mem, u8* data, u32 len)
 
 void S_I2C_Dev::Mem_read(u8 mem, u8* data, u32 len)
 {
-	i2c->Start();
+	if(i2c->Start()!=X_OK){goto stop;};
 	if(i2c->send_addr(DevAddr, I2C_WRITE)!=X_OK){goto stop;}
 	if(i2c->send_byte(mem)!=X_OK){goto stop;}
-	i2c->Start();
+	if(i2c->Start()!=X_OK){goto stop;}
 	if(i2c->send_addr(DevAddr, I2C_READ)!=X_OK){goto stop;}
 	for(;len>0;len--){
 		*data++ = i2c->recv_byte(len==1);
