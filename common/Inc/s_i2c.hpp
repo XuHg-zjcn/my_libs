@@ -10,6 +10,7 @@
 
 #include "myints.h"
 #include "c_pin.hpp"
+#include "x_base.hpp"
 
 #define SCL_TIMEOUT 10000
 
