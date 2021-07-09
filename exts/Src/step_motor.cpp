@@ -38,13 +38,16 @@ StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *ctim)
 	remain_step = -1;
 	rot = 0;
 	FinishCallback = DefaultFinishCallback;
-	timeout = 1000;
+	timeout = 60000;
 	this->ctim = ctim;
-	conn.Enable();
 	for(int i=0;i<4;i++){
 		odr_bitband[i] = conn[i]->p8b.ODR_bitband();
 	}
-	rot_state = (int16_t)HAL_RTCEx_BKUPRead(&hrtc, ROT_STATE_BKPREG_NUM);
+}
+
+void run_step2(void *sm)
+{
+	((StepMotor*)sm)->run_step();
 }
 
 /*
@@ -53,8 +56,10 @@ StepMotor::StepMotor(GPIO_Conn &conn, C_TIM *ctim)
  */
 void StepMotor::Init()
 {
+	rot_state = (int16_t)HAL_RTCEx_BKUPRead(&hrtc, ROT_STATE_BKPREG_NUM);
 	//stop TIM
 	ctim->Base_Stop_IT();
+	ctim->set_callback(TIM_IT_update, run_step2, this);
 
 	//init GPIO Pins
 #ifdef USE_FREERTOS
@@ -63,15 +68,12 @@ void StepMotor::Init()
 #endif
 }
 
-void StepMotor::setState(StepMotor_State State)
+void StepMotor::setState(const StepMotor_State State)
 {
-	uint32_t **odr = odr_bitband;
-	uint32_t *bx = BIT_PTR(&State, 0);
-	for(int i=0;i<4;i++){
-		**odr = *bx;
-		odr++;
-		bx++;
-	}
+	*odr_bitband[0] = State.b1;
+	*odr_bitband[1] = State.b2;
+	*odr_bitband[2] = State.b3;
+	*odr_bitband[3] = State.b4;
 }
 
 void StepMotor::setMode(StepMotor_Mode mode)

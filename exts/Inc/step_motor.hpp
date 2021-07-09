@@ -62,13 +62,14 @@
 
 #define ROT_STATE_BKPREG_NUM 1
 
-
+#pragma pack(1)
 typedef struct{
 	unsigned int b1:1;
 	unsigned int b2:1;
 	unsigned int b3:1;
 	unsigned int b4:1;
 }StepMotor_State;
+#pragma pack()
 
 typedef enum{
 	StepMotor_Single4 = 0,
@@ -105,7 +106,7 @@ private:
 #endif
 	uint32_t timeout;
 	int16_t rot_state;   // save to RTC backup register, rot in 8step mode
-	void setState(StepMotor_State State);
+	void setState(const StepMotor_State State);
 public:
 	void (*FinishCallback)(void*);  // callback of `stop`
 	StepMotor(GPIO_Conn &conn, C_TIM *ctim);
