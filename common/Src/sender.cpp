@@ -44,7 +44,7 @@ void UsbSender_TaskFunc(void *argument)
 	while(1){
 		p = (u8*)head.get_frames(param->n);
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-		USBD_CUSTOM_HID_SendReport(param->pdev, p, param->n*be);
+		while(USBD_CUSTOM_HID_SendReport(param->pdev, p, param->n*be)!=USBD_OK);
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 	}
 }

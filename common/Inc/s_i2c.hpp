@@ -35,7 +35,7 @@ public:
 	void send(u8 addr, u8* data, u32 len);
 	void recv(u8 addr, u8* data, u32 len);
 	//void scan(u8 begin, u8 end);
-	//void scan();
+	//u32 listen(...);
 };
 
 class S_I2C_Dev{
