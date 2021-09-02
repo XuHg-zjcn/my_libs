@@ -8,7 +8,7 @@
 #ifndef INC_BUFFER_HPP_
 #define INC_BUFFER_HPP_
 
-#include "myints.h"
+#include "../../others/Inc/myints.h"
 #include "mylibs_config.hpp"
 #include "buffhead.hpp"
 

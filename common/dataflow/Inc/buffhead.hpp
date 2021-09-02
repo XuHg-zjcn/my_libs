@@ -11,6 +11,7 @@
 #include "myints.h"
 #include "mylibs_config.hpp"
 #include <vector>
+#include "c_tim.hpp"
 
 using namespace std;
 
