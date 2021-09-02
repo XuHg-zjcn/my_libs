@@ -8,24 +8,24 @@
 #include "s_i2c.hpp"
 #include "delay.hpp"
 
-#define LOW(x)  x.loadXCfg(GPIO_GP_OD0 & Out_2MHz)
-#define HIGH(x) x.loadXCfg(GPIO_In_Up)
+#define LOW(x)  x.loadCfg(Pin_OD0)
+#define HIGH(x) x.loadCfg(Pin_InUp)
 #define READ(x) x.read_pin()
+#define SI2C_DELAY(x) XDelayUs(x)
 
 #define I2C_WRITE false
 #define I2C_READ  true
 
 S_I2C::S_I2C(C_Pin scl, C_Pin sda):scl(scl),sda(sda)
 {
-	scl.loadXCfg(GPIO_In_Up);
-	sda.loadXCfg(GPIO_In_Up);
+	HIGH(scl);
+	HIGH(sda);
 	set_clock(50000);
 }
 
 void S_I2C::set_clock(u32 Hz)
 {
-	u32 sys = HAL_RCC_GetSysClockFreq();
-	u32 div = sys/(Hz*clk_loop*4);
+	u32 div = 1000000/Hz;
 	if(div!=0){
 		loops=div;
 	}
@@ -39,41 +39,41 @@ X_State S_I2C::Start()
 		return X_Busy;
 	}
 	LOW(sda);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	LOW(scl);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	return X_OK;
 }
 
 void S_I2C::Stop()
 {
 	HIGH(scl);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	HIGH(sda);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 }
 
 X_State S_I2C::recv_ack()
 {
 	HIGH(sda);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	HIGH(scl);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	X_State ret = sda.read_pin()?X_Error:X_OK;
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	LOW(scl);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	return ret;
 }
 
 void S_I2C::send_ack(bool nack)
 {
 	nack?HIGH(sda):LOW(sda);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	HIGH(scl);
-	Delay_loopN(loops*2);
+	SI2C_DELAY(loops*2);
 	LOW(scl);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	HIGH(sda);
 }
 
@@ -89,17 +89,17 @@ X_State S_I2C::send_addr(u8 addr, bool RW)
 	for(int i=0;i<8;i++){
 		addr&0x80?HIGH(sda):LOW(sda);
 		addr<<=1;
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 		HIGH(scl);
 		/*if(addr&0x80){
 			if(sda.wait_timeout(Pin_Reset, loops/5)!=0){
 				return X_Busy;
 			}
 		}else{*/
-			Delay_loopN(loops);
+			SI2C_DELAY(loops);
 		//}
 		LOW(scl);
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 	}
 	return recv_ack();
 }
@@ -109,33 +109,33 @@ X_State S_I2C::send_byte(u8 byte)
 	for(int i=0;i<8;i++){
 		byte&0x80?HIGH(sda):LOW(sda);
 		byte<<=1;
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 		HIGH(scl);
-		Delay_loopN(loops*2);
+		SI2C_DELAY(loops*2);
 		LOW(scl);
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 	}
 	return recv_ack();
 }
 
 u8 S_I2C::recv_byte(bool nack)
 {
-	u8 ret;
+	u8 ret=0;
     HIGH(sda);
 	for(int i=0;i<8;i++){
 		ret<<=1;
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 		HIGH(scl);
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 		ret|=READ(sda);
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 		LOW(scl);
-		Delay_loopN(loops);
+		SI2C_DELAY(loops);
 	}
 	send_ack(nack);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	HIGH(sda);
-	Delay_loopN(loops);
+	SI2C_DELAY(loops);
 	return ret;
 }
 

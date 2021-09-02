@@ -73,8 +73,8 @@ public:
 			InitCfg cfg0, PinLockType lock,
 			PinCfg CfgEnable, PinCfg CfgDisable);
 	bool isAvailable();
-	X_State Enable();
-	X_State Disable();
+	void Enable();
+	void Disable();
 	ManagerPin* operator[](int i);
 	void WritePins(uint32_t bits);
 	uint32_t ReadPins();

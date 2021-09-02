@@ -10,7 +10,6 @@
 
 #include "mylibs_config.hpp"
 #include "c_tim.hpp"
-#include "c_rtc.hpp"
 #include "pins_manager.hpp"
 
 //abstract class

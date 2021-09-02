@@ -6,6 +6,7 @@
  */
 
 #include "bmp280.hpp"
+#include "delay.hpp"
 
 #define BMP280_S32_t int32_t
 #define BMP280_S64_t int64_t

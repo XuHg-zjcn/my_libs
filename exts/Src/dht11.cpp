@@ -5,8 +5,8 @@
  *      Author: xrj
  */
 
-#include "../Inc/dht11.hpp"
-#include "../Inc/ops.hpp"
+#include "dht11.hpp"
+#include "ops.hpp"
 #include "delay.hpp"
 
 
@@ -17,7 +17,7 @@ DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 	pin.loadCfg(Pin_PP0);
 	XDelayMs(20);
 	pin.loadCfg(Pin_InUp);
-	Delay_us(30);
+	XDelayUs(30);
 	WAIT(Pin_Reset);
 	WAIT(Pin_Set);
 	u8* p = (u8*)data;
@@ -29,12 +29,10 @@ DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 			*p++ = tmp;
 		}
 	}
-	u8 s = sum((u8*)data, 5);
     if(data->check != data->hum_H + data->hum_L + data->temp_H + data->temp_L){
-        data->ps == DHT11_CheckSum_Err;
-	}else{
-		return data->ps;
-	}	
+        data->ps = DHT11_CheckSum_Err;
+    }
+    return data->ps;
 }
 
 i32 DHT11::read_byte()
@@ -51,7 +49,7 @@ i32 DHT11::read_byte()
 		}
 		tmp = (t>split);
 #else
-		Delay_us(SPILT01_US);
+		XDelayUs(SPILT01_US);
 		tmp = pin.read_pin();
 		if(tmp){//high level
 			WAIT(Pin_Reset);
@@ -64,10 +62,10 @@ i32 DHT11::read_byte()
 
 void DHT11::test(u32 *tH)
 {
-	pin.loadCfg(Pin_PP0, 1);
+	pin.loadCfg(Pin_PP0);
 	XDelayMs(20);
 	pin.loadCfg(Pin_InUp);
-	Delay_us(30);
+	XDelayUs(30);
 	WAIT(Pin_Reset);
 	WAIT(Pin_Set);
 	WAIT(Pin_Reset);

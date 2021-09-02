@@ -12,13 +12,13 @@ typedef enum{
 
 class HX711{
 private:
-	C_Pin sck;
-	C_Pin dout;
 	u32 loops;
 	i32 val_at0;
 	float kg_LSB;
 	HX711_Conv mode;
 public:
+	C_Pin sck;
+	C_Pin dout;
 	HX711(C_Pin sck, C_Pin dout);
 	void Init(HX711_Conv mode);
 	void wait();

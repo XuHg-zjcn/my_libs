@@ -8,13 +8,14 @@
 #include "delay.hpp"
 #include "hx711.hpp"
 
+
+#define HX711_US 5
 HX711::HX711(C_Pin sck, C_Pin dout):sck(sck),dout(dout){};
 
 void HX711::Init(HX711_Conv mode)
 {
 	this->mode = mode;
-	this->loops = HAL_RCC_GetSysClockFreq()*2/(1000000*clk_loop);
-	sck.loadCfg(Pin_PP0, 2);
+	sck.loadCfg(Pin_PP0);
 	dout.loadCfg(Pin_InFlt);
 	i32 sum=0;
 	for(int i=0;i<8;i++){
@@ -28,20 +29,20 @@ void HX711::Init(HX711_Conv mode)
 
 i32 HX711::read_raw(HX711_Conv next)
 {
-	i32 ret;
+	i32 ret=0;
 	for(int i=0;i<24;i++){
 		ret<<=1;
 		sck.write_pin(Pin_Set);
-		Delay_loopN(loops);
+		XDelayUs(HX711_US);
 		ret|=dout.read_pin();
 		sck.write_pin(Pin_Reset);
-		Delay_loopN(loops);
+		XDelayUs(HX711_US);
 	}
 	for(int i=0;i<next;i++){
 		sck.write_pin(Pin_Set);
-		Delay_loopN(loops);
+		XDelayUs(HX711_US);
 		sck.write_pin(Pin_Reset);
-		Delay_loopN(loops);
+		XDelayUs(HX711_US);
 	}
 	if(ret&(1<<23)){
 		ret|=0xff<<24;
@@ -52,7 +53,7 @@ i32 HX711::read_raw(HX711_Conv next)
 void HX711::wait()
 {
 	dout.wait_pin(Pin_Reset);
-	Delay_loopN(loops);
+	XDelayUs(HX711_US);
 }
 
 i32 HX711::block_raw()

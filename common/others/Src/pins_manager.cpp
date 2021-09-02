@@ -1,6 +1,7 @@
 #include "pins_manager.hpp"
 #include "pins_manager2.hpp"
 #include "x_logs.hpp"
+#include "x_base.hpp"
 
 
 
@@ -28,9 +29,6 @@ GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
                 break;
             default:
                 break;
-        }
-        if(p1->lock == LockAtInitConn){
-            p1->p8b.lockCfg();
         }
         p1++;
     }
@@ -65,12 +63,9 @@ bool GPIO_Conn::isAvailable()
     return true;
 }
 
-X_State GPIO_Conn::Enable()
+void GPIO_Conn::Enable()
 {
     ManagerPin* p1 = pins;
-    if(!isAvailable()){
-        return X_Busy;
-    }
     for(uint32_t i=0;i<N_pin;i++){
         p1->p8b.loadCfg(p1->CfgEnable);
         if(!p1->keep){
@@ -78,17 +73,15 @@ X_State GPIO_Conn::Enable()
         }
         p1++;
     }
-    return X_OK;
 }
 
-X_State GPIO_Conn::Disable()
+void GPIO_Conn::Disable()
 {
     ManagerPin* p1 = pins;
     for(uint32_t i=0;i<N_pin;i++){
         p1->p8b.loadCfg(p1->CfgDisable);
         p1++;
     }
-    return X_OK;
 }
 
 ManagerPin* GPIO_Conn::operator[](int i)

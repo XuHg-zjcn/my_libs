@@ -32,7 +32,7 @@ u32 I_Pin::wait_count(PinState state, u32 m, u32 M)
 {
 	u32 n=0;
 	state = !state;
-	while((read_pin() xor state) and n<M or n<m){
+	while(((read_pin() xor state) and n<M) or n<m){
 		n++;
 	}
 	return n;

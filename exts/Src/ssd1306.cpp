@@ -12,6 +12,7 @@
 #include "font_3x5.h"
 #include "font_5x7.h"
 #include "ops.hpp"
+#include "delay.hpp"
 
 /*
  * coding rules:
@@ -46,7 +47,7 @@ int SSD1306::n_bytes(SSD1306_Commd Byte0)
 	   H4 == 0xB0){   //Set Page Start Address for Page Addressing Mode
 		return 1;
 	}
-	if((Byte0&0xF8) == 0xA4){  //Entire display ON, Set Normal/Inverse Display
+	if((Byte0&0xFC) == 0xA4){  //Entire display ON, Set Normal/Inverse Display
 		return 1;
 	}
 	//find Byte0 in list
@@ -57,7 +58,7 @@ int SSD1306::n_bytes(SSD1306_Commd Byte0)
 	}if(isIn(Byte0, b3, 3)){
 		return 3;
 	}
-	switch(Byte0){
+	switch((u8)Byte0){
 	case 0x26: case 0x27:
 		return 7;
 	case 0x29: case 0x2A:
@@ -243,7 +244,7 @@ void SSD1306::text_3x5(char* str, uint8_t y)
 	uint16_t c16 = 0;
 	uint8_t c8[4] = {0,0,0,0};
 	while(*str){
-		c16 = font3x5[*str++];
+		c16 = font3x5[(u8)(*str++)];
 		for(int i=0;i<3;i++){
 			c8[i] = (c16&0x1f) << y;
 			c16 >>= 5;

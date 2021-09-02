@@ -7,7 +7,6 @@
 
 #include "sender.hpp"
 #include "buffhead.hpp"
-#include "main.h"
 
 
 /*

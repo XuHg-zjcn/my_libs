@@ -8,6 +8,7 @@
 #include "smg8.hpp"
 #include "font_smg8.h"
 #include "myints.h"
+#include <stdlib.h>
 
 
 SMG8::SMG8(int n_digs)
