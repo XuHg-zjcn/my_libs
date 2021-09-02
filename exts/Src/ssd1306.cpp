@@ -5,13 +5,13 @@
  *      Author: xrj
  */
 
-#include "../Inc/ssd1306.hpp"
+#include "ssd1306.hpp"
 #include <cstdarg>
 #include <cstring>
-#include "../Inc/myints.h"
-#include "../fonts/font_3x5.h"
-#include "../fonts/font_5x7.h"
-#include "../Inc/ops.hpp"
+#include "myints.h"
+#include "font_3x5.h"
+#include "font_5x7.h"
+#include "ops.hpp"
 
 /*
  * coding rules:

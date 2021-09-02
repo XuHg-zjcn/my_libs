@@ -10,6 +10,7 @@
 
 #include "../Inc/ssd1306.hpp"
 #include "mylibs_config.hpp"
+#include "c_i2c.hpp"
 
 /* I2C slave address of SSD1306
  *   MSB  .   .   .   .   .   .  LSB
