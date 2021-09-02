@@ -25,6 +25,7 @@ typedef enum{
 
 #define NEAREST_PINSPEEDD(x) Pin_SpdDefa
 
+//TODO: 改为Pin_Low, Pin_High
 typedef enum{
     Pin_Reset = 0,
     Pin_Set
@@ -33,6 +34,29 @@ typedef enum{
 inline PinState operator!(PinState s){
 	return (PinState)(!s);
 }
+
+//TODO: 应用16位引脚配置结构体
+typedef struct{
+//上下拉MOS管
+    bool upMOS:1;
+    bool dnMOS:1;
+//上下拉电阻
+    bool upRes:1;
+    bool dnRes:1;
+//中断
+    bool RiseInt:1; //上升沿/高电平中断
+    bool FallInt:1; //下降沿/低电平中断
+    bool LevelInt:1;//电平中断模式
+//其他1bit设置
+    bool DigIn:1;    //STC单片机开启数字输入，STM8/32切换模拟模式和输入模式
+    bool Schmitt:1;  //施密特触发器，STC单片机可设置
+    bool AFIO:1;     //功能复用，STM8/32有效
+    PinState InitLevel:1;//初始化输出电平
+//多bit设置
+    u8   DrMos:2;  //MOS管驱动能力
+    u8   DrRes:1;  //电阻驱动能力
+    u8   Speed:2;  //输出速度
+}PinCfg16b;
 
 class I_Pin{
 public:

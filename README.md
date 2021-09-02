@@ -5,19 +5,22 @@
 
 ### 支持列表
 目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266
-计划支持: ESP32, CC2640, CC2652P, STM8S103F3P6, Arduino, 树莓派
+计划支持: ESP32, CH57/8x(蓝牙), CH54/5x(USB), CH32V103, STC8G1K08A(8脚), STM8S003F3P6, Arduino, 树莓派
 
 
 #### 软件架构
 软件架构说明
 大部分使用C++编写，STM32版调用了HAL库，使用了FreeRTOS的CMSIS OS2接口
+ESP8266使用了ESP-IDF框架
 
 #### 功能
 ##### 用户输出设备/显示
+- printf_xxx库
 - 3x5, 5x7 ASCII字体
 - SSD1306 128x64液晶
 - 数码管
 ##### 用户输入设备
+- 按钮
 
 ##### 接口/通信
 - I2C
