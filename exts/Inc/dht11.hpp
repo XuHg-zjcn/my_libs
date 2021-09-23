@@ -48,8 +48,8 @@ private:
 public:
 	DHT11(C_Pin *pin);
 	DHT11_PackState read_raw(DHT11_RAW *data);
-	void test(u32 *tH);
 #ifdef USE_VAR_SPLIT
+	void test(u32 *tH);
 	u32 carlib_split();
 #endif
 	static float hum(DHT11_RAW *data);
