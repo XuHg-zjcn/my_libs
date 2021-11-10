@@ -38,10 +38,12 @@ void SMG8_Pins::off()
 	colon->write_pin(Pin_Reset);
 }
 
+#ifdef INC_STM32_TIM_HPP_
 void SMG8_Pins::connTIM(C_TIM* ctim)
 {
 	this->ctim = ctim;
 }
+#endif
 
 void SMG8_Pins::TimerFunc()
 {
@@ -91,6 +93,7 @@ void SMG8_Pins::FreeRTOSTimer(uint32_t ms_on, uint32_t ms_off)
  * call TimerFunc() in HAL_TIM_PWM_PulseFinishedCallback
  * call off() HAL_TIM_PWM_PulseFinishedCallback
  */
+#ifdef INC_STM32_TIM_HPP_
 void SMG8_Pins::HardWareTimer(uint32_t us_on, uint32_t us_off)
 {
 	ctim->set_ns((us_on+us_off)*1000);
@@ -103,3 +106,4 @@ void SMG8_Pins::HardWareTimer(uint32_t us_on, uint32_t us_off)
 		ctim->set_callback(TIM_IT_cc1, &Coff, this);
 	}
 }
+#endif

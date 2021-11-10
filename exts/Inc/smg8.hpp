@@ -9,7 +9,6 @@
 #define COMMON_INC_SMG8_HPP_
 
 #include "mylibs_config.hpp"
-#include "c_tim.hpp"
 #include "pins_manager.hpp"
 
 //abstract class
