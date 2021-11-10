@@ -50,7 +50,7 @@ typedef struct{
 //其他1bit设置
     bool DigIn:1;    //STC单片机开启数字输入，STM8/32切换模拟模式和输入模式
     bool Schmitt:1;  //施密特触发器，STC单片机可设置
-    bool AFIO:1;     //功能复用，STM8/32有效
+    bool afio:1;     //功能复用，STM8/32有效
     PinState InitLevel:1;//初始化输出电平
 //多bit设置
     u8   DrMos:2;  //MOS管驱动能力
