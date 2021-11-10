@@ -8,12 +8,11 @@
 #ifndef EXTS_INC_BMP280_HPP_
 #define EXTS_INC_BMP280_HPP_
 
-//the driver is test failed
 
 #include "myints.h"
-#include "s_i2c.hpp"
+#include "c_i2c.hpp"
 
-#define BMP_I2C_Dev S_I2C_Dev
+#define BMP_I2C_Dev C_I2C_Dev
 
 typedef enum{
 	BMP280_SleepMode = 0,
@@ -54,14 +53,14 @@ private:
 	i16 dig_T2;
 	i16 dig_T3;
 	u16 dig_P1;
-	u16 dig_P2;
-	u16 dig_P3;
-	u16 dig_P4;
-	u16 dig_P5;
-	u16 dig_P6;
-	u16 dig_P7;
-	u16 dig_P8;
-	u16 dig_P9;
+	i16 dig_P2;
+	i16 dig_P3;
+	i16 dig_P4;
+	i16 dig_P5;
+	i16 dig_P6;
+	i16 dig_P7;
+	i16 dig_P8;
+	i16 dig_P9;
 	i32 t_fine;
 public:
 	BMP280_Calib();
