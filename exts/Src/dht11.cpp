@@ -10,7 +10,7 @@
 #include "delay.hpp"
 
 
-DHT11::DHT11(C_Pin *pin):pin(*pin)
+DHT11::DHT11(C_Pin pin):pin(pin)
 {
     pin.loadCfg(Pin_OD1);
 }

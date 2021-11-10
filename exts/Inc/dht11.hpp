@@ -46,7 +46,7 @@ private:
 #endif
 	i32 read_byte();
 public:
-	DHT11(C_Pin *pin);
+	DHT11(C_Pin pin);
 	DHT11_PackState read_raw(DHT11_RAW *data);
 #ifdef USE_VAR_SPLIT
 	void test(u32 *tH);
