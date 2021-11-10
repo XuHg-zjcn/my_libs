@@ -8,21 +8,23 @@
 #ifndef INC_SSD1306_HPP_
 #define INC_SSD1306_HPP_
 
-#include "../Inc/ssd1306.hpp"
 #include "mylibs_config.hpp"
+
 #include "c_i2c.hpp"
+#ifdef STM32_INC_C_I2C_HPP_
+#define SSD1306_I2C_Dev C_I2C_Dev
+#else
+#include "s_i2c.hpp"
+#define SSD1306_I2C_Dev S_I2C_Dev
+#endif
 
 /* I2C slave address of SSD1306
  *   MSB  .   .   .   .   .   .  LSB
  * bit7   6   5   4   3   2   1   0
  *  | 0 | 1 | 1 | 1 | 1 | 0 |SA0|R/W|
  */
-#define Addr_OLED   0x78  // 0b01111000
 #define SA0         0     // State of D/C Pin
-#define Write       0
-#define Read        1
-#define Addr_Write  (Addr_OLED | SA0 | Write)
-#define Addr_Read   (Addr_OLED | SA0 | Read)
+#define Addr_OLED  (0x3C | SA0)
 
 /* control byte, in HAL as mem_addr.
  *   MSB  .   .   .   .   .   .  LSB
@@ -143,7 +145,7 @@ typedef struct{
 
 class SSD1306{
 private:
-	C_I2C_Dev* dev;
+	SSD1306_I2C_Dev* dev;
 	uint32_t timeout;
 	uint8_t col_i;
 	int n_bytes(SSD1306_Commd Byte0);
@@ -151,7 +153,7 @@ private:
 	osSemaphoreId_t lock;
 #endif
 public:
-	SSD1306(C_I2C_Dev *dev);
+	SSD1306(SSD1306_I2C_Dev *dev);
 	void commd_bytes(SSD1306_Commd Byte0, ...);
 	void ScrollSetup(ScrollSetupCommd* commd);
 	void OnOffScroll(bool IsActivate);

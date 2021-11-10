@@ -20,7 +20,7 @@
  */
 
 
-SSD1306::SSD1306(C_I2C_Dev *dev)
+SSD1306::SSD1306(SSD1306_I2C_Dev *dev)
 {
 	this->dev = dev;
 	col_i = 0xff;
