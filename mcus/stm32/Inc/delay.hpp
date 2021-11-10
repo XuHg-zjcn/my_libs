@@ -15,7 +15,7 @@
 #define clk_call 4
 #define clk_getFreq 50
 #endif
-#ifdef __STM32F4xx HAL_H
+#ifdef __STM32F4xx_HAL_H
 #define clk_loop 7
 #define clk_call 3
 #define clk_getFreq 37
