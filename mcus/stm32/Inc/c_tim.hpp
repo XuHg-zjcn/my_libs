@@ -5,7 +5,7 @@
  *      Author: xrj
  */
 
-#ifndef INC_STM32_TIM_HPP_
+#if !defined(INC_STM32_TIM_HPP_) && defined(HAL_TIM_MODULE_ENABLED)
 #define INC_STM32_TIM_HPP_
 
 #include "myints.h"

@@ -5,13 +5,13 @@
  *      Author: xrj
  */
 
-#ifndef DATAFLOW_INC_BUFFHEAD_HPP_
+#include "c_tim.hpp"
+#if !defined(DATAFLOW_INC_BUFFHEAD_HPP_) && defined(INC_STM32_TIM_HPP_)
 #define DATAFLOW_INC_BUFFHEAD_HPP_
 
 #include "myints.h"
 #include "mylibs_config.hpp"
 #include <vector>
-#include "c_tim.hpp"
 
 using namespace std;
 

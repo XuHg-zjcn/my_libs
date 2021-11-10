@@ -6,6 +6,7 @@
  */
 
 #include "sender.hpp"
+#ifdef DATAFLOW_INC_SENDER_HPP_
 #include "buffhead.hpp"
 
 
@@ -95,4 +96,5 @@ void OLEDShow_TimerFunc(void *argument)
 {
 	ShowParam *param = (ShowParam*)argument;
 }
+#endif
 #endif

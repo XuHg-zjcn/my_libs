@@ -5,12 +5,13 @@
  *      Author: xrj
  */
 
-#ifndef INC_BUFFER_HPP_
+#include "mylibs_config.hpp"
+#include "buffhead.hpp"
+
+#if !defined(INC_BUFFER_HPP_) && defined(DATAFLOW_INC_BUFFHEAD_HPP_)
 #define INC_BUFFER_HPP_
 
 #include "../../others/Inc/myints.h"
-#include "mylibs_config.hpp"
-#include "buffhead.hpp"
 
 typedef enum{
 	Buff_OK = 0,

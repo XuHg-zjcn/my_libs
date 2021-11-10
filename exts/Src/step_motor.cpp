@@ -6,7 +6,7 @@
  */
 
 #include "step_motor.hpp"
-
+#ifdef INC_STEP_MOTOR_HPP_
 #include <math.h>
 #include <stdlib.h>
 #include "mylibs_config.hpp"
@@ -186,3 +186,4 @@ int16_t StepMotor::get_rot_state()
 {
 	return rot_state;
 }
+#endif

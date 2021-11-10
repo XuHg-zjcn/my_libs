@@ -5,14 +5,13 @@
  *      Author: xrj
  */
 
-#ifndef STM32_INC_MCU_TEMP_HPP_
-#define STM32_INC_MCU_TEMP_HPP_
-
 #include "mylibs_config.hpp"
 #include "c_adc.hpp"
+
+#if !defined(STM32_INC_MCU_TEMP_HPP_) && defined(INC_C_ADC_HPP_)
+#define STM32_INC_MCU_TEMP_HPP_
+
 #include "myints.h"
-
-
 typedef struct{
 #ifdef USE_FLOAT
 	float V_25;
@@ -42,7 +41,5 @@ public:
 #endif
 	void save(TempSenParam *param);
 };
-
-
 
 #endif /* STM32_INC_MCU_TEMP_HPP_ */

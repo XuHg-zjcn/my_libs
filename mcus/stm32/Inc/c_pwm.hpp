@@ -5,14 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef STM32_INC_C_PWM_HPP_
+#include "c_tim.hpp"
+#if !defined(STM32_INC_C_PWM_HPP_) && defined(INC_STM32_TIM_HPP_)
 #define STM32_INC_C_PWM_HPP_
 
 #include "i_pwm.hpp"
-#include "c_tim.hpp"
 
 typedef TIM_CH C_PWM_CH;
-
-
 
 #endif /* STM32_INC_C_PWM_HPP_ */

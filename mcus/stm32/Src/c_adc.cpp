@@ -6,6 +6,7 @@
  */
 
 #include "c_adc.hpp"
+#ifdef INC_C_ADC_HPP_
 #include "c_tim.hpp"
 
 #include <stdlib.h>
@@ -305,4 +306,5 @@ uint16_t C_ADC::Vdd_mV()
 	uint32_t x=update_ref();//1.2V
 	return 4096*REF_NSAMP*MV_MUL*1200/x;
 }
+#endif
 #endif

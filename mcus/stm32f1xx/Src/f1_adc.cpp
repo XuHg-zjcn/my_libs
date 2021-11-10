@@ -1,6 +1,6 @@
 #include "x_logs.hpp"
 #include "f1_adc.hpp"
-
+#ifdef F1_ADC_HPP_
 
 /*
   tSAMP = 1.5      : ADC_DUALMODE_INTERLFAST
@@ -28,3 +28,5 @@ void F1_ADC::ConfigFastMode(ADC_CHx CHx, ADC_tSMP tSAMP, u32 nADC)
 		HAL_ADCEx_MultiModeConfigChannel(hadc, &multimode);
 	}
 }
+
+#endif

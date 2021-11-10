@@ -5,7 +5,7 @@
  *      Author: xrj
  */
 #include "c_tim.hpp"
-
+#ifdef INC_STM32_TIM_HPP_
 #include <stdlib.h>
 #include "c_rcc.hpp"
 
@@ -325,3 +325,5 @@ void TIM_CH::CCxChannelCmd(TIM_CCxE ChannelState)
 {
 	htim->CCxChannelCmd(Channel, ChannelState);
 }
+
+#endif

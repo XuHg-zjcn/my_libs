@@ -5,7 +5,7 @@
  *      Author: xrj
  */
 
-#ifndef INC_C_ADC_HPP_
+#if !defined(INC_C_ADC_HPP_) && defined(HAL_ADC_MODULE_ENABLED)
 #define INC_C_ADC_HPP_
 
 #include "c_adc.hpp"

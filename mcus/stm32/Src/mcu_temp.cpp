@@ -6,7 +6,7 @@
  */
 
 #include "mcu_temp.hpp"
-
+#ifdef STM32_INC_MCU_TEMP_HPP_
 
 #ifdef USE_FLOAT
 const TempSenParam tsp={1.34, 232.5, ADC_tSMP_239Cyc5, 9, 0};
@@ -69,3 +69,4 @@ void MCUTempSen::save(TempSenParam *param)
 	//TODO: flash write
 }
 
+#endif

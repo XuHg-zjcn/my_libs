@@ -6,6 +6,7 @@
  */
 
 #include "../Inc/buffhead.hpp"
+#ifdef DATAFLOW_INC_BUFFHEAD_HPP_
 #include "../Inc/buffer.hpp"
 #include "mylibs_config.hpp"
 #include <cstring>
@@ -293,3 +294,4 @@ u32 BuffHeadRead::bytes_elem()
 {
 	return heads.buff->be;
 }
+#endif

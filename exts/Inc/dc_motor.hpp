@@ -5,12 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef COMMON_INC_DC_MOTOR_HPP_
+#include "c_pwm.hpp"
+#if !defined(COMMON_INC_DC_MOTOR_HPP_) && defined(STM32_INC_C_PWM_HPP_)
 #define COMMON_INC_DC_MOTOR_HPP_
 
 #include "mylibs_config.hpp"
 #include "ssd1306.hpp"
-#include "c_pwm.hpp"
 
 
 //请参考电路

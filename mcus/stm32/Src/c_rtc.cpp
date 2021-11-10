@@ -7,7 +7,7 @@
 
 
 #include "c_rtc.hpp"
-
+#ifdef STM32_INC_C_RTC_HPP_
 #define TIMESTAMP1970_BIAS 946684800  //2000.1.1
 uint32_t tz_bias = 8*3600;            //UTC+8 Beijing time
 //                       1   2   3   4   5   6   7   8   9  10  11  12
@@ -334,4 +334,5 @@ int8_t usb_callback(u8 event_idx, u8 state)
 		break;
 	}
 }
+#endif
 #endif

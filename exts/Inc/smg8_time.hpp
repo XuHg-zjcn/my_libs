@@ -5,10 +5,14 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_SMG8_TIME_HPP_
+#include "smg8.hpp"
+#include "c_rtc.hpp"
+
+#if !defined(EXTS_INC_SMG8_TIME_HPP_) &&\
+	defined(STM32_INC_C_RTC_HPP_) &&\
+	defined(STM32_INC_C_RTC_HPP_)
 #define EXTS_INC_SMG8_TIME_HPP_
 
-#include "smg8.hpp"
 
 class SMG_Time : public SMG8{
 private:

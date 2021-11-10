@@ -5,10 +5,10 @@
  *      Author: xrj
  */
 
-#ifndef DATAFLOW_INC_SENDER_HPP_
+#include "buffer.hpp"
+#if !defined(DATAFLOW_INC_SENDER_HPP_) && defined(INC_BUFFER_HPP_)
 #define DATAFLOW_INC_SENDER_HPP_
 
-#include "buffer.hpp"
 #include "mylibs_config.hpp"
 #include "ssd1306.hpp"
 

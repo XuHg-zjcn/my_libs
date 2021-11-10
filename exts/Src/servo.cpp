@@ -6,7 +6,7 @@
  */
 
 #include "servo.hpp"
-
+#ifdef EXTS_INC_SERVO_HPP_
 Servo::Servo(C_PWM_CH *ch)
 {
 	this->ch = ch;
@@ -37,3 +37,4 @@ void Servo::slow_run(float deg, float deg_sec)
 		XDelayMs(20);
 	}
 }
+#endif

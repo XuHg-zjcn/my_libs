@@ -4,12 +4,11 @@
  *  Created on: Jun 1, 2021
  *      Author: xrj
  */
-
-#ifndef STM32_INC_C_RTC_HPP_
+#include "mylibs_config.hpp"
+#if !defined(STM32_INC_C_RTC_HPP_) && defined(HAL_RTC_MODULE_ENABLED)
 #define STM32_INC_C_RTC_HPP_
 
 #include <ctime>
-#include "mylibs_config.hpp"
 #include "myints.h"
 #include "x_base.hpp"
 

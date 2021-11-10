@@ -5,12 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef INC_ULTRASOUND_H_
+#include "c_tim.hpp"
+#if !defined(INC_ULTRASOUND_H_) && defined(INC_STM32_TIM_HPP_)
 #define INC_ULTRASOUND_H_
 
 #include <stdbool.h>
 #include "mylibs_config.hpp"
-#include "c_tim.hpp"
 
 typedef struct{
 	uint32_t *Trig_ODR_bit;

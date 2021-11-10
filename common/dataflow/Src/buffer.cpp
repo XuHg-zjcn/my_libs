@@ -6,6 +6,7 @@
  */
 
 #include "../Inc/buffer.hpp"
+#ifdef INC_BUFFER_HPP_
 #include <cstdlib>
 #include "../Inc/myints.h"
 #include "mylibs_config.hpp"
@@ -78,3 +79,4 @@ void Buffer::reset()
 {
 	w_head.fid = 0;
 }
+#endif

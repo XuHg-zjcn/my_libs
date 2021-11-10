@@ -5,11 +5,11 @@
  *      Author: xrj
  */
 
-#ifndef INC_STEP_MOTOR_HPP_
+#include "c_tim.hpp"
+#if !defined(INC_STEP_MOTOR_HPP_) && defined(INC_STM32_TIM_HPP_)
 #define INC_STEP_MOTOR_HPP_
 
 #include "main.h"
-#include "c_tim.hpp"
 #include "mylibs_config.hpp"
 #include "pins_manager.hpp"
 

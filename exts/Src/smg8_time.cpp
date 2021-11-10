@@ -7,6 +7,7 @@
 
 #include "smg8_time.hpp"
 
+#ifdef EXTS_INC_SMG8_TIME_HPP_
 void SMG_Time::connRTC(C_RTC* rtc)
 {
 	this->rtc = rtc;
@@ -53,3 +54,4 @@ void SMG_Time::RTCSecondCallback()
 	struct tm *tm2 = rtc->get_tm();
 	this->showTime(tm2->tm_hour, tm2->tm_sec%2==0?Pin_Set:Pin_Reset, tm2->tm_min);
 }
+#endif

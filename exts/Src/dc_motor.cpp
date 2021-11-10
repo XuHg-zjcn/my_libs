@@ -6,6 +6,7 @@
  */
 
 #include "../Inc/dc_motor.hpp"
+#ifdef COMMON_INC_DC_MOTOR_HPP_
 #include "../Inc/ops.hpp"
 #include "../Inc/x_logs.hpp"
 
@@ -146,4 +147,5 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 		}
 	}
 }
+#endif
 #endif

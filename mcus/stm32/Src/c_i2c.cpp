@@ -6,7 +6,7 @@
  */
 
 #include "c_i2c.hpp"
-
+#ifdef STM32_INC_C_I2C_HPP_
 X_State C_I2C::set_Clock(uint32_t Hz)
 {
 	Init.ClockSpeed = Hz;
@@ -97,3 +97,4 @@ X_State C_I2C_Dev::Mem_read(uint16_t mem_addr, uint8_t *pData, uint16_t Size)
 	}
 	return X_OK;
 }
+#endif

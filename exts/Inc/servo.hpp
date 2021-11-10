@@ -5,10 +5,10 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_SERVO_HPP_
+#include "c_pwm.hpp"
+#if !defined(EXTS_INC_SERVO_HPP_) && defined(STM32_INC_C_PWM_HPP_)
 #define EXTS_INC_SERVO_HPP_
 
-#include "c_pwm.hpp"
 
 class Servo{
 private:
