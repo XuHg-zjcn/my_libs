@@ -1,5 +1,5 @@
-#ifndef INC_STEP_MOTOR_H_
-#define INC_STEP_MOTOR_H_
+#ifndef INC_MYINTS_H_
+#define INC_MYINTS_H_
 
 #include <stdint.h>
 
