@@ -16,11 +16,13 @@ X_State C_I2C::set_Clock(uint32_t Hz)
 X_State C_I2C::send(uint16_t DevAddress, uint8_t* pData, uint32_t Size)
 {
 	HAL_I2C_Master_Transmit(this, DevAddress, pData, Size, 1000);
+	return X_OK;
 }
 
 X_State C_I2C::recv(uint16_t DevAddress, uint8_t* pData, uint32_t Size)
 {
 	HAL_I2C_Master_Receive(this, DevAddress, pData, Size, 1000);
+	return X_OK;
 }
 
 /*
@@ -29,7 +31,7 @@ X_State C_I2C::recv(uint16_t DevAddress, uint8_t* pData, uint32_t Size)
  * @param mem_size: I2C_MEMADD_SIZE_8(16)BIT
  */
 C_I2C_Dev::C_I2C_Dev(C_I2C *hi2c, uint16_t addr, uint16_t mem_size):
-		hi2c(hi2c),DevAddr(addr),MemAdd_size(mem_size)
+		hi2c(hi2c),DevAddr(addr<<1),MemAdd_size(mem_size)
 {
 	ClockHz = 0;
 	Timeout = 1000;
