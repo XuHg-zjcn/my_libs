@@ -103,18 +103,29 @@ BMP280_U32_t BMP280_Calib::press(BMP280_S32_t adc_P)
 }
 #endif
 
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
 BMP280::BMP280(BMP_I2C_Dev *i2c):calib()
+#else
+BMP280::BMP280(BMP_I2C_Dev *i2c)
+#endif
 {
 	this->i2c = i2c;
 }
 
 void BMP280::Init()
 {
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
 	i2c->Mem_read(0x88, calib.get_ptr(), 24);
+#endif
 	reset();
 	XDelayMs(20);
 	set_config(BMP280_Config(BMP280_TSB_0P5MS, 5, false));
 	set_ctrl_meas(BMP280_CtrlMeas(5, 5, BMP280_NormalMode));
+}
+
+X_State BMP280::read_calib(u8* calib)
+{
+	return i2c->Mem_read(0x88, calib, 24);
 }
 
 void BMP280::reset()
@@ -133,9 +144,16 @@ void BMP280::set_ctrl_meas(BMP280_CtrlMeas cm)
 	i2c->Mem_write(0xF4, (u8*)&cm, 1);
 }
 
-void BMP280::read_data()
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
+X_State BMP280::read_data()
 {
-	i2c->Mem_read(0xF7, data, 6);
+	return i2c->Mem_read(0xF7, data, 6);
+}
+#endif
+
+X_State BMP280::read_data(u8* data)
+{
+	return i2c->Mem_read(0xF7, data, 6);
 }
 
 i32 Bigend_20b(u8* p)
@@ -147,6 +165,7 @@ i32 Bigend_20b(u8* p)
 	return ret;
 }
 
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
 i32 BMP280::calc_temp()
 {
 	i32 adc_T = Bigend_20b(data+3);
@@ -158,3 +177,4 @@ u32 BMP280::calc_press()
 	i32 adc_P = Bigend_20b(data);
 	return calib.press(adc_P);
 }
+#endif

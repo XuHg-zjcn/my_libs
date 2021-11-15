@@ -13,6 +13,7 @@
 #include "c_i2c.hpp"
 
 #define BMP_I2C_Dev C_I2C_Dev
+#define USE_INTERGER
 
 typedef enum{
 	BMP280_SleepMode = 0,
@@ -69,7 +70,8 @@ public:
 #ifdef USE_FLOAT
 	float temp(i32 adc_T);
 	float press(i32 adc_P);
-#else
+#endif
+#ifdef USE_INTERGER
 	i32 temp(i32 adc_T);
 	u32 press(i32 adc_P);
 #endif
@@ -81,17 +83,25 @@ i32 Bigend_20b(u8* data);
 class BMP280{
 private:
 	BMP_I2C_Dev *i2c;
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
 	BMP280_Calib calib;
+#endif
 public:
+#if defined(USE_FLOAT) || defined(USE_INTERGER)
 	u8 data[6];
+	X_State read_data();
+#endif
 	BMP280(BMP_I2C_Dev *i2c);
 	void Init();
+	X_State read_calib(u8* calib);
 	void reset();
 	void set_config(BMP280_Config cfg);
 	void set_ctrl_meas(BMP280_CtrlMeas cm);
-	void read_data();
+	X_State read_data(u8* data);
+#ifdef USE_INTERGER
 	i32 calc_temp();
 	u32 calc_press();
+#endif
 };
 
 
