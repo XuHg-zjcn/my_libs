@@ -44,6 +44,7 @@ void AHT2x::trig()
 
 AHT_Stat AHT2x::read()
 {
+	//TODO: 不读取全部，通过第一个字节判断是否忙，立即停止
 	i2c->recv(data, 7);
 	if(data[0]&0x80){
 		return AHT_Busy;
