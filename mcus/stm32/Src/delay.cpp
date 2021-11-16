@@ -21,7 +21,6 @@ void Delay_clocks(uint32_t n)
 
 void Delay_us(uint32_t us)
 {
-	uint32_t n = ((uint64_t)HAL_RCC_GetSysClockFreq())\
-			     *us/1000000/clk_loop - clk_getFreq - clk_call;
+	uint32_t n = 72*us/clk_loop - clk_getFreq - clk_call;
 	while(n--);
 }

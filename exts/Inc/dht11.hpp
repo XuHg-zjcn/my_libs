@@ -10,7 +10,7 @@
 
 #include "mylibs_config.hpp"
 
-#define USE_VAR_SPLIT  //measure time of high level by loop
+//#define USE_VAR_SPLIT  //measure time of high level by loop
 //TODO: measure time of high level by hardware timer, is no affect of interrupt.
 
 #define MIN_LOOPS    5
@@ -20,6 +20,9 @@
 
 #define LOW_MS 20
 #define SPILT01_US 47  //not need in `USE_VAR_SPLIT` mode
+
+#define DHT_INTEGER
+//#define DHT_FLOAT
 
 typedef enum{
 	DHT11_OK = 0,
@@ -41,19 +44,26 @@ typedef struct{
 class DHT11{
 private:
 	C_Pin pin;
+	DHT11_RAW raw;
 #ifdef USE_VAR_SPLIT
 	u32 split;
 #endif
 	i32 read_byte();
 public:
 	DHT11(C_Pin pin);
-	DHT11_PackState read_raw(DHT11_RAW *data);
+	DHT11_PackState read_raw();
 #ifdef USE_VAR_SPLIT
 	void test(u32 *tH);
 	u32 carlib_split();
 #endif
-	static float hum(DHT11_RAW *data);
-	static float temp(DHT11_RAW *data);
+#ifdef DHT_INTEGER
+	u16 hum_0p1();
+	i16 temp_0p1();
+#endif
+#ifdef DHT_FLOAT
+	float hum();
+	float temp();
+#endif
 };
 
 

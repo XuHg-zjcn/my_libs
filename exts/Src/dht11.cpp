@@ -12,10 +12,10 @@
 
 DHT11::DHT11(C_Pin pin):pin(pin)
 {
-    pin.loadCfg(Pin_OD1);
+    //pin.loadXCfg(GPIO_GP_OD1);
 }
 
-DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
+DHT11_PackState DHT11::read_raw()
 {
 	pin.write_pin(Pin_Reset);
 	XDelayMs(20);  //拉低>18ms
@@ -24,18 +24,19 @@ DHT11_PackState DHT11::read_raw(DHT11_RAW *data)
 	//响应信号
 	WAIT(Pin_Set);
 	WAIT(Pin_Reset);
+	WAIT(Pin_Set);
 	
-	data->hum_H = read_byte();
-	data->hum_L = read_byte();
-	data->temp_H = read_byte();
-	data->temp_L = read_byte();
-	data->check = read_byte();
-    if(data->check != data->hum_H + data->hum_L + data->temp_H + data->temp_L){
-        data->ps = DHT11_CheckSum_Err;
+	raw.hum_H = read_byte();
+	raw.hum_L = read_byte();
+	raw.temp_H = read_byte();
+	raw.temp_L = read_byte();
+	raw.check = read_byte();
+    if(raw.check != raw.hum_H + raw.hum_L + raw.temp_H + raw.temp_L){
+        raw.ps = DHT11_CheckSum_Err;
     }else{
-        data->ps = DHT11_OK;
+        raw.ps = DHT11_OK;
     }
-    return data->ps;
+    return raw.ps;
 }
 
 i32 DHT11::read_byte()
@@ -132,17 +133,35 @@ u32 DHT11::carlib_split()
 }
 #endif
 
-float DHT11::hum(DHT11_RAW *data)
+#ifdef DHT_INTEGER
+u16 DHT11::hum_0p1()
 {
-	float ret=data->hum_H + data->hum_L/10.0f;
+	return raw.hum_H*10 + raw.hum_L;
+}
+
+i16 DHT11::temp_0p1()
+{
+	i16 tmp = ((i16)raw.temp_H)*10 + (raw.temp_L&0x7f);
+	if(raw.temp_L&0x80){
+		tmp *= -1;
+	}
+	return tmp;
+}
+#endif
+
+#ifdef DHT_FLOAT
+float DHT11::hum()
+{
+	float ret=raw.hum_H + raw.hum_L/10.0f;
 	return ret;
 }
 
-float DHT11::temp(DHT11_RAW *data)
+float DHT11::temp()
 {
-	float ret=data->temp_H + data->temp_L/10.0f;
-	if(data->temp_L & 0x80){
+	float ret=raw.temp_H + raw.temp_L/10.0f;
+	if(raw.temp_L & 0x80){
 		ret*=-1;
 	}
 	return ret;
 }
+#endif
