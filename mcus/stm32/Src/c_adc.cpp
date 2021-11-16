@@ -22,8 +22,12 @@
 C_ADC::C_ADC(ADC_HandleTypeDef *hadc)
 {
 	this->hadc = hadc;
+#ifdef INC_STM32_TIM_HPP_
 	this->ctim = nullptr;
+#endif
+#ifdef USE_BUFFER
 	this->w_head = nullptr;
+#endif
 	this->mode.Enum = ADC_stopping;
 	this->timeout = 1000;
 	this->NDTR = 0;
@@ -34,6 +38,7 @@ void C_ADC::Init()
     update_ref();
 }
 
+#ifdef INC_STM32_TIM_HPP_
 void C_ADC::conn_tim(C_TIM *ctim, TIM_CHx channel)
 {
 	u32 trig;
@@ -63,13 +68,17 @@ void C_ADC::conn_tim(C_TIM *ctim, TIM_CHx channel)
 	this->chx = channel;
 	set_Regular_ExtenTrig(trig, ADC_EXTERNALTRIGCONVEDGE_RISING);
 }
+#endif
 
+#ifdef USE_BUFFER
 //TODO: change to Buffer ptr
 void C_ADC::conn_buff(BuffHeadWrite* w_head)
 {
        this->w_head = w_head;
 }
+#endif
 
+#ifdef INC_STM32_TIM_HPP_
 void C_ADC::set_SR_sps(u32 sps)
 {
 	ctim->set_Hz(sps);
@@ -79,6 +88,7 @@ void C_ADC::set_SR_ns(u32 ns)
 {
 	ctim->set_ns(ns);
 }
+#endif
 
 /*
  * @param src: ADC_CR2_JEXTSEL  @ref ADCEx_External_trigger_Source_Injected
@@ -166,9 +176,6 @@ void C_ADC::Regular_once(u16 *buf, bool blocking)
 	CLEAR_BIT(hadc->Instance->CR1, ADC_CR1_DISCEN);
 	uint32_t length = READ_BIT(hadc->Instance->SQR1, ADC_SQR1_L) >> ADC_SQR1_L_Pos;
 	HAL_ADC_Start_DMA(hadc, (uint32_t*)buf, length);
-	if(blocking){
-		w_head->wait_lock();
-	}
 }
 
 /*
@@ -177,78 +184,107 @@ void C_ADC::Regular_once(u16 *buf, bool blocking)
  *               advice times by sample sequence length.
  * @param blocking: 1:blocking until finish.
  */
+#ifdef USE_BUFF
 void C_ADC::DMA_once(u32 Nsamp, bool blocking)
+#else
+void C_ADC::DMA_once(u32 Nsamp, u16 *p)
+#endif
 {
-	if(!w_head){
-		return;
-	}
-	mode.Enum = blocking ? ADC_dma_once_Blocking : ADC_dma_once_NoBlock;
 #ifdef ADC_CR2_DDS
 	CLEAR_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
 #endif
+#ifdef USE_BUFF
+	mode.Enum = blocking ? ADC_dma_once_Blocking : ADC_dma_once_NoBlock;
+	if(!w_head){
+		return;
+	}
 	u16 *p = (u16*)w_head->put_dma_once(Nsamp);
 	if(!p){  //get pointer failed
 		return;
 	}
+#endif
+#ifdef INC_STM32_TIM_HPP_
 	ctim->set_duty(TIM_Channel_1, 0.5f);
 	ctim->PWM_Start(chx);
+#endif
 	NDTR = Nsamp;
 	hadc->DMA_Handle->Init.Mode = DMA_NORMAL;
 	HAL_DMA_Init(hadc->DMA_Handle);
 	HAL_ADC_Start_DMA(hadc, (u32*)p, NDTR);
-	if(blocking){
+#ifdef USE_BUFF
+	if(blocking){// TODO: 没有缓存时候blocking
 		w_head->wait_lock();
 	}
+#endif
 }
 
 //TODO: number of cycle
+#ifdef USE_BUFF
 void C_ADC::DMA_cycle(u32 cycle)
+#else
+void C_ADC::DMA_cycle(u32 Nsamp, u32 cycle, u16* p)
+#endif
 {
-	if(!w_head){
-		return;
-	}
 	mode.Enum = ADC_dma_cont_Multi;
 #ifdef ADC_CR2_DDS
 	SET_BIT(hadc->Instance->CR2, ADC_CR2_DDS);
 #endif
 	//TODO: set htim_pack
+#ifdef USE_BUFF
+	if(!w_head){
+		return;
+	}
 	u16 *p = (u16*)w_head->put_dma_cycle(cycle);
 	if(!p){  //get pointer failed
 		return;
 	}
-	ctim->PWM_Start(chx);
 	NDTR = w_head->get_capacity();
+#else
+	NDTR = Nsamp;
+#endif
+#ifdef INC_STM32_TIM_HPP_
+	ctim->PWM_Start(chx);
+#endif
 	hadc->DMA_Handle->Init.Mode = DMA_CIRCULAR;
 	HAL_DMA_Init(hadc->DMA_Handle);
-	HAL_ADC_Start_DMA(hadc, (u32*)p, NDTR);
+	HAL_ADC_Start_DMA(hadc, (u32*)p, Nsamp);
 }
 
 //please call in `HAL_ADC_ConvHalfCpltCallback`
 void C_ADC::ConvHalfCplt()
 {
+#ifdef USE_BUFF
 	if(mode.Stru.sem_half){
 		w_head->put_dma_notify(NDTR/2);
 	}
+#endif
 }
 
 //please call in `HAL_ADC_ConvCpltCallback`
 void C_ADC::ConvCplt()
 {
+#ifdef USE_BUFF
 	if(mode.Stru.sem_full){
 		w_head->put_dma_notify(mode.Stru.sem_half ? NDTR/2 : NDTR);
-	}if(mode.Stru.contin != 3){
+	}
+#endif
+#ifdef INC_STM32_TIM_HPP_
+	if(mode.Stru.contin != 3){
 		mode.Enum = ADC_stopping;
 		ctim->PWM_Stop(chx);
 	}
+#endif
 }
 
 //please call in `HAL_TIM_PeriodElapsedCallback` of sample count timer
 void C_ADC::ConvPack()
 {
+#ifdef USE_BUFF
 	if(mode.Stru.sem_pack){
 		//TODO: set buff.curr
 		w_head->put_dma_notify(NDTR/2);
 	}
+#endif
 }
 
 /*

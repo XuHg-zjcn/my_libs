@@ -5,14 +5,16 @@
  *      Author: xrj
  */
 
+#include "mylibs_config.hpp"
 #if !defined(INC_C_ADC_HPP_) && defined(HAL_ADC_MODULE_ENABLED)
 #define INC_C_ADC_HPP_
 
 #include "c_adc.hpp"
 #include "c_tim.hpp"
+#ifdef USE_BUFFER
 #include "buffer.hpp"
+#endif
 #include "myints.h"
-#include "mylibs_config.hpp"
 
 const uint32_t tSMPs[8] = {1, 7, 13, 28, 41, 55, 71, 239};
 #define T_SAMP2CLKS(smp) (tSMPs[(smp)>>ADC_SMPR1_SMP10_Pos])
@@ -69,6 +71,7 @@ typedef enum{              // |PHFCCIR,
 }MyADCModeEnum;
 
 typedef enum{
+	ADC_CH0  = ADC_CHANNEL_0,
 	ADC_CH1  = ADC_CHANNEL_1,
 	ADC_CH2  = ADC_CHANNEL_2,
 	ADC_CH3  = ADC_CHANNEL_3,
@@ -133,9 +136,13 @@ typedef union{
 class C_ADC{
 protected:
 	ADC_HandleTypeDef *hadc;
+#ifdef INC_STM32_TIM_HPP_
 	C_TIM *ctim;
 	TIM_CHx chx;
+#endif
+#ifdef USE_BUFFER
 	BuffHeadWrite *w_head;
+#endif
 	MyADCMode mode;
 	uint32_t timeout;
 	uint32_t NDTR;
@@ -143,8 +150,12 @@ protected:
 public:
 	C_ADC(ADC_HandleTypeDef *hadc);
 	void Init();
+#ifdef INC_STM32_TIM_HPP_
 	void conn_tim(C_TIM *ctim, TIM_CHx channel);
+#endif
+#ifdef USE_BUFF
 	void conn_buff(BuffHeadWrite* w_head);  //TODO: auto create buffer
+#endif
 	void set_SR_sps(u32 sps);
 	void set_SR_ns(u32 ns);
 	void set_Inject_ExtenTrig(u32 src, u32 edge);
@@ -154,8 +165,13 @@ public:
 	void load_regular_one_channel(ADC_CHx CHx, ADC_tSMP tSAMP);
 	void Injected_once(bool blocking);
 	void Regular_once(u16 *buf, bool blocking);
+#ifdef USE_BUFF
 	void DMA_once(u32 Nsamp, bool blocking);
 	void DMA_cycle(u32 cycle);
+#else
+	void DMA_once(u32 Nsamp, u16* p);
+	void DMA_cycle(u32 Nsamp, u32 cycle, u16* p);
+#endif
 	void ConvCplt();      //please call in DMA Conv callback
 	void ConvHalfCplt();  //please call in DMA ConvHalf callback
 	void ConvPack();
