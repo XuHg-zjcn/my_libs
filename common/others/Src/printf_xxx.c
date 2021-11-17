@@ -1,6 +1,13 @@
 #include "printf_xxx.h"
 
-__xdata char buf[10]; //能保存uint32_t的最大值
+//保存数字字符串的堆栈
+//足够保存u32的最大值，有符号整数不用保存负号
+#ifdef __SDCC
+__xdata char buf[10];
+#else
+char buf[10];
+#endif
+
 char* p;
 
 void printf_fmu(const char fill, uint8_t m, uint32_t x)
