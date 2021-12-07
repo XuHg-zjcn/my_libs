@@ -2,10 +2,11 @@
 
 #### 介绍
 一个MCU C++跨平台驱动库，有一些片上资源和外部设备的驱动
+项目即将改用陈述性名称, 跨平台嵌入式集成库CEILib(Cross-platform Embedded Integration Library)
 
 ### 支持列表
 目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266
-计划支持: ESP32, CH57/8x(蓝牙), CH54/5x(USB), CH32V103, STC8G1K08A(8脚), STM8S003F3P6, Arduino, 树莓派
+计划支持: W80x, CH57/8x(蓝牙), CH54/5x(USB), CH32V103, STC8G1K08A(8脚), STM8S003F3P6, Arduino, ESP32, 树莓派
 
 
 #### 软件架构
@@ -13,15 +14,12 @@
 大部分使用C++编写，STM32版调用了HAL库，使用了FreeRTOS的CMSIS OS2接口
 ESP8266使用了ESP-IDF框架
 
-#### 功能
-##### 用户输出设备/显示
-- printf_xxx库
-- 3x5, 5x7 ASCII字体
+#### 硬件驱动库
+##### 用户输出设备
 - SSD1306 128x64液晶
 - 数码管
 ##### 用户输入设备
 - 按钮
-
 ##### 接口/通信
 - I2C
 - GPIO
@@ -29,20 +27,22 @@ ESP8266使用了ESP-IDF框架
 - 片上ADC
 - MCU内置温度传感器
 - DHT11
+- HTU2x
+- AHT2x
+- BMP280
+- C8S二氧化碳传感器
 - 超声波模块
 ##### 执行器
 - 28BYJ-48步进电机
 - 直流电机
+- 舵机
 ##### 控制器/数据处理
 - 抽象数据Buffer
 ##### 其他
 - RTC时钟
-
-
-#### 功能-计划
+##### 计划
 - 电源(电池)管理
 - 步进电机PWM细分
-- 舵机
 - PID控制
 - 加热器温度控制
 - 4Pin风扇
@@ -52,9 +52,28 @@ ESP8266使用了ESP-IDF框架
 - 4x4键盘
 - BMP280
 - MPU6050六轴/MPU9250九轴
+- QMI8610六轴/QMC7983磁力计
 - 38kHz红外
 - SX1276/1278 LoRa
 - 声波通信, FSO光通信, OLED传输数据
+- XGZP68xx{A,D}气压传感器
+- ST7735彩屏
+- OV7670摄像头
+
+#### 软件库
+##### 已实现
+- printf_xxx库
+- 3x5, 5x7 ASCII字体
+##### 计划
+- 操作系统: FreeRTOS, RT-Thread, eCos
+- 文件系统: FatFs
+- GUI界面: LGVL
+- TCP/IP协议: LwIP
+- 免仿真器调试: gdbserver
+- 脚本语言解释器: MicroPython, PikaScript
+- 音频/语音编解码: libMAD, CODEC2, Speex
+- 图片编解码: LibJPEG
+- 神经网络: 未定
 
 
 #### 使用说明
@@ -87,43 +106,57 @@ ESP8266使用了ESP-IDF框架
 | :---- | :----     | :-----------    |
 | C_xxx | chip      | 片上设备        |
 | E_xxx | extern    | 片外设备        |
-| S_xxx | software  | 软件模拟        |
+| S_xxx | software  | 软件模拟的设备   |
 | I_xxx | interface | 跨平台接口，不可直接使用 |
+| 无前缀 |           | 该名称已经足够描述      |
 
 #### 目录规范(暂未执行)
-|--example-| 样例代码
-|
-|--interface-| 跨平台接口
-|            |--GPIO
-|            |--ADC
-|            |...
-|
-|--mcus-| MCU片上设备驱动
-|       |--stm32f1
-|       |--ESP8266
-|       |...
-|
-|--exts-| 外设驱动
-|       |--StepMotor
-|       |--DHT11
-|       |...
-|
-|--dsp-| 数据处理库
-|      |--fft
-|      |--pid
-|      |...
-|
-|--others-| 其他
-          |--fonts 字体
-          |--images 样例图片
-          |...
-
+```
+MCU_mylibs
+├──example
+│   ├──样例代码
+│   └──...
+├──interface(跨平台接口)
+│   ├──GPIO
+│   ├──ADC
+│   └──...
+├──mcus(MCU片上设备驱动)
+│   ├──stm32f1
+│   ├──ESP8266
+│   └──...
+├──exts(外设驱动)
+│   ├──StepMotor
+│   ├──DHT11
+│   └──...
+├──dsp(数据处理库)
+│   ├──fft
+│   ├──pid
+│   └──...
+├──others(其他)
+│   ├──fonts 字体
+│   ├──images 样例图片
+│   └──...
+└──docs(文档)  #TODO: README.md过长, 需要拆分放入这里
+    ├──about 关于项目
+    ├──tutorial 教程
+    ├──three-parts 第三方库
+    └──...
+```
 
 #### 非MCU代码
 PC端工具，大多由Python编写，在ubuntu下测试过:  
     RTC时间同步，点阵/数码管字体生成，二值图动画生成
 Android端工具（计划）  
 自动配置工具（计划）  
+
+#### 目的
+创建一个跨平台的, 综合性的, 容易使用的嵌入式库, 目标是取代Arduino,
+尽可能的使用自由软件, 允许适当使用免费的非自由开源软件, 不使用收费的专有软件.
+
+#### 版权说明
+本软件库遵循LGPLv3或更新的协议, 见`LICENSE`文件,
+包含的第三方库按照第三方库的许可证授权,
+本软件库不含商业的第三方库, 如有侵权, 请及时通知删除.
 
 
 #### 参与贡献
