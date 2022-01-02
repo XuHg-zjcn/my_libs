@@ -6,6 +6,7 @@
  */
 
 #include "htu2x.hpp"
+#include "delay.hpp"
 
 HTU2x::HTU2x(HTU_I2C_Dev *i2c):i2c(i2c){};
 

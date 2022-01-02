@@ -6,6 +6,7 @@
  */
 
 #include "aht2x.hpp"
+#include "delay.hpp"
 
 AHT2x::AHT2x(AHT_I2C_Dev *i2c):i2c(i2c){};
 

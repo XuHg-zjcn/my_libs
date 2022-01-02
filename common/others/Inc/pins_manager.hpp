@@ -3,6 +3,7 @@
 
 #include "x_base.hpp"
 #include "mylibs_config.hpp"
+#include "c_pin.hpp"
 
 
 #pragma pack(1)

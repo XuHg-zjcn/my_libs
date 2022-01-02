@@ -9,6 +9,7 @@
 #define COMMON_INC_DHT11_HPP_
 
 #include "mylibs_config.hpp"
+#include "c_pin.hpp"
 
 //#define USE_VAR_SPLIT  //measure time of high level by loop
 //TODO: measure time of high level by hardware timer, is no affect of interrupt.
