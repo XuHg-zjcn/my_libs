@@ -5,8 +5,8 @@
 项目即将改用陈述性名称, 跨平台嵌入式集成库CEILib(Cross-platform Embedded Integration Library)
 
 ### 支持列表
-目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266
-计划支持: W80x, CH57/8x(蓝牙), CH54/5x(USB), CH32V103, STC8G1K08A(8脚), STM8S003F3P6, Arduino, ESP32, 树莓派
+目前支持: STM32F103C8T6, STM32F407ZET6, ESP8266, CH32V103C8T6
+计划支持: W80x, CH57/8x(蓝牙), CH54/5x(USB), STC8G1K08A(8脚), STM8S003F3P6, Arduino, ESP32, 树莓派
 
 
 #### 软件架构
