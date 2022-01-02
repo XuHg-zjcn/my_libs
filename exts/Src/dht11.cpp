@@ -6,6 +6,8 @@
  */
 
 #include "dht11.hpp"
+#ifdef __DHT11_HPP__
+
 #include "ops.hpp"
 #include "delay.hpp"
 
@@ -164,4 +166,6 @@ float DHT11::temp()
 	}
 	return ret;
 }
+#endif
+
 #endif

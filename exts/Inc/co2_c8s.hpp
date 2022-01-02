@@ -5,10 +5,10 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_CO2_C8S_HPP_
-#define EXTS_INC_CO2_C8S_HPP_
-
 #include "c_uart.hpp"
+#if !defined(__CO2_C8S_HPP__) && \
+	defined(__C_UART_HPP__)
+#define __CO2_C8S_HPP__
 
 class CO2_C8S{
 private:
@@ -20,5 +20,4 @@ public:
 	u16 force_read();
 };
 
-
-#endif /* EXTS_INC_CO2_C8S_HPP_ */
+#endif /* __CO2_C8S_HPP__ */

@@ -6,6 +6,8 @@
  */
 
 #include "bmp280.hpp"
+#ifdef __BMP280_HPP__
+
 #include "delay.hpp"
 
 #define BMP280_S32_t int32_t
@@ -177,4 +179,6 @@ u32 BMP280::calc_press()
 	i32 adc_P = Bigend_20b(data);
 	return calib.press(adc_P);
 }
+#endif
+
 #endif

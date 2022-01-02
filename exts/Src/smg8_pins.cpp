@@ -6,6 +6,7 @@
  */
 
 #include "smg8_pins.hpp"
+#ifdef __SMG8_PINS_HPP__
 
 SMG8_Pins::SMG8_Pins()
 {
@@ -106,4 +107,6 @@ void SMG8_Pins::HardWareTimer(uint32_t us_on, uint32_t us_off)
 		ctim->set_callback(TIM_IT_cc1, &Coff, this);
 	}
 }
+#endif
+
 #endif

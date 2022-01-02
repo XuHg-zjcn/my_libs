@@ -5,11 +5,13 @@
  *      Author: xrj
  */
 
-#ifndef COMMON_INC_DHT11_HPP_
-#define COMMON_INC_DHT11_HPP_
+
+#include "c_pin.hpp"
+#if !defined(__DHT11_HPP__) && \
+	defined(__C_PIN_HPP__)
+#define __DHT11_HPP__
 
 #include "mylibs_config.hpp"
-#include "c_pin.hpp"
 
 //#define USE_VAR_SPLIT  //measure time of high level by loop
 //TODO: measure time of high level by hardware timer, is no affect of interrupt.
@@ -67,5 +69,4 @@ public:
 #endif
 };
 
-
-#endif /* COMMON_INC_DHT11_HPP_ */
+#endif /* __DHT11_HPP__ */

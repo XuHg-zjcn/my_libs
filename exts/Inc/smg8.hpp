@@ -5,8 +5,8 @@
  *      Author: xrj
  */
 
-#ifndef COMMON_INC_SMG8_HPP_
-#define COMMON_INC_SMG8_HPP_
+#ifndef __SMG8_HPP__
+#define __SMG8_HPP__
 
 #include "mylibs_config.hpp"
 #include "pins_manager.hpp"
@@ -30,5 +30,4 @@ public:
 	void showStr(char* str);
 };
 
-
-#endif /* COMMON_INC_SMG_HPP_ */
+#endif /* __SMG8_HPP__ */

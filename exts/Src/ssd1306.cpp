@@ -6,6 +6,8 @@
  */
 
 #include "ssd1306.hpp"
+#ifdef __SSD1306_HPP__
+
 #include <cstdarg>
 #include <cstring>
 #include "myints.h"
@@ -270,3 +272,5 @@ void SSD1306::write_data(uint8_t* p, uint32_t size)
 {
 	dev->Mem_write(ConByte_Data, p, size);
 }
+
+#endif

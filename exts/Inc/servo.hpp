@@ -6,8 +6,9 @@
  */
 
 #include "c_pwm.hpp"
-#if !defined(EXTS_INC_SERVO_HPP_) && defined(STM32_INC_C_PWM_HPP_)
-#define EXTS_INC_SERVO_HPP_
+#if !defined(__SERVO_HPP__) && \
+	defined(__C_PWM_HPP__)
+#define __SERVO_HPP__
 
 
 class Servo{
@@ -21,5 +22,4 @@ public:
 	void slow_run(float deg, float deg_sec);
 };
 
-
-#endif /* EXTS_INC_SERVO_HPP_ */
+#endif /* __SERVO_HPP__ */

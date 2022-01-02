@@ -6,8 +6,9 @@
  */
 
 #include "c_tim.hpp"
-#if !defined(INC_ULTRASOUND_H_) && defined(INC_STM32_TIM_HPP_)
-#define INC_ULTRASOUND_H_
+#if !defined(__ULTRASOUND_HPP__) && \
+	defined(__C_TIM_HPP__)
+#define __ULTRASOUND_HPP__
 
 #include <stdbool.h>
 #include "mylibs_config.hpp"
@@ -71,4 +72,4 @@ public:
 	void TIM_PeriodElapsedCallback();
 };
 
-#endif /* INC_ULTRASOUND_H_ */
+#endif /* __ULTRASOUND_HPP__ */

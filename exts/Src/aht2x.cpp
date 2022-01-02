@@ -6,6 +6,8 @@
  */
 
 #include "aht2x.hpp"
+#ifdef __AHT2X_HPP__
+
 #include "delay.hpp"
 
 AHT2x::AHT2x(AHT_I2C_Dev *i2c):i2c(i2c){};
@@ -82,3 +84,5 @@ u32 AHT2x::mHum()
 	hum >>= 15;
 	return hum;
 }
+
+#endif

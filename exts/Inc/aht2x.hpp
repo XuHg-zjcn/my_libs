@@ -5,11 +5,10 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_AHT2X_HPP_
-#define EXTS_INC_AHT2X_HPP_
-
-#include "mylibs_config.hpp"
 #include "c_i2c.hpp"
+#if !defined(__AHT2X_HPP__) && \
+	defined(__C_I2C_HPP__)
+#define __AHT2X_HPP__
 
 #define AHT_I2C_Dev C_I2C_Dev
 
@@ -34,5 +33,4 @@ public:
 	u32 mHum();
 };
 
-
-#endif /* EXTS_INC_AHT2X_HPP_ */
+#endif /* __AHT2X_HPP__ */

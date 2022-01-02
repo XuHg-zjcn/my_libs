@@ -6,7 +6,8 @@
  */
 
 #include "ultrasound.hpp"
-#ifdef INC_ULTRASOUND_H_
+#ifdef __ULTRASOUND_H__
+
 #include <math.h>
 #include "delay.hpp"
 #include "c_tim.hpp"
@@ -135,4 +136,5 @@ void UltSnd::TIM_PeriodElapsedCallback()
 		timer.ctim->htim->Instance->CR1 &= (~TIM_CR1_OPM);
 	}
 }
+
 #endif

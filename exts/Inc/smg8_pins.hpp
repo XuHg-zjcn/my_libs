@@ -5,11 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_SMG8_PINS_HPP_
-#define EXTS_INC_SMG8_PINS_HPP_
-
 #include "smg8.hpp"
 #include "c_tim.hpp"
+#if !defined(__SMG8_PINS_HPP__) && \
+	defined(__SMG8_HPP__) && \
+	defined(__C_TIM_HPP__)
+#define __SMG8_PINS_HPP__
 
 class SMG8_Pins{
 private:
@@ -39,6 +40,4 @@ public:
 #endif
 };
 
-
-
-#endif /* EXTS_INC_SMG8_PINS_HPP_ */
+#endif /* __SMG8_PINS_HPP__ */

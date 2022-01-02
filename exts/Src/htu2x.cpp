@@ -6,6 +6,8 @@
  */
 
 #include "htu2x.hpp"
+#ifdef __HTU2X_HPP__
+
 #include "delay.hpp"
 
 HTU2x::HTU2x(HTU_I2C_Dev *i2c):i2c(i2c){};
@@ -64,3 +66,5 @@ HTU2x_UserReg HTU2x::Read_UserReg()
 	i2c->Mem_read(HTU_Read_UserReg, &data, 1);
 	return *(HTU2x_UserReg*)&data;
 }
+
+#endif

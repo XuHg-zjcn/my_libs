@@ -5,18 +5,18 @@
  *      Author: xrj
  */
 
-#ifndef INC_SSD1306_HPP_
-#define INC_SSD1306_HPP_
-
-#include "mylibs_config.hpp"
-
 #include "c_i2c.hpp"
-#ifdef STM32_INC_C_I2C_HPP_
+#ifdef __C_I2C_HPP__
 #define SSD1306_I2C_Dev C_I2C_Dev
 #else
 #include "s_i2c.hpp"
+#ifdef __S_I2C_HPP__
 #define SSD1306_I2C_Dev S_I2C_Dev
 #endif
+#endif
+
+#ifdef SSD1306_I2C_Dev
+#define __SSD1306_HPP__
 
 /* I2C slave address of SSD1306
  *   MSB  .   .   .   .   .   .  LSB
@@ -172,4 +172,4 @@ public:
 	void write_data(uint8_t* p, uint32_t size);
 };
 
-#endif /* INC_SSD1306_HPP_ */
+#endif /* __SSD1306_HPP__ */

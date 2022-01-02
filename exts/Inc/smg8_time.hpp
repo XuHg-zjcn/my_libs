@@ -7,11 +7,10 @@
 
 #include "smg8.hpp"
 #include "c_rtc.hpp"
-
-#if !defined(EXTS_INC_SMG8_TIME_HPP_) &&\
-	defined(STM32_INC_C_RTC_HPP_) &&\
-	defined(STM32_INC_C_RTC_HPP_)
-#define EXTS_INC_SMG8_TIME_HPP_
+#if !defined(__SMG8_TIME_HPP__) && \
+	defined(__SMG8_HPP__) && \
+	defined(__C_RTC_HPP__)
+#define __SMG8_TIME_HPP__
 
 
 class SMG_Time : public SMG8{
@@ -28,6 +27,4 @@ public:
 	void RTCSecondCallback();
 };
 
-
-
-#endif /* EXTS_INC_SMG8_TIME_HPP_ */
+#endif /* __SMG8_TIME_HPP__ */

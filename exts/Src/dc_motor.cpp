@@ -5,10 +5,11 @@
  *      Author: xrj
  */
 
-#include "../Inc/dc_motor.hpp"
-#ifdef COMMON_INC_DC_MOTOR_HPP_
-#include "../Inc/ops.hpp"
-#include "../Inc/x_logs.hpp"
+#include "dc_motor.hpp"
+#ifdef __DC_MOTOR_HPP__
+
+#include "ops.hpp"
+#include "x_logs.hpp"
 
 extern u32* led;
 
@@ -148,4 +149,5 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	}
 }
 #endif
+
 #endif

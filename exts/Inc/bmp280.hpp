@@ -5,12 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_BMP280_HPP_
-#define EXTS_INC_BMP280_HPP_
-
+#include "c_i2c.hpp"
+#if !defined(__BMP280_HPP__) && \
+	defined(__C_I2C_HPP__)
+#define __BMP280_HPP__
 
 #include "myints.h"
-#include "c_i2c.hpp"
 
 #define BMP_I2C_Dev C_I2C_Dev
 #define USE_INTERGER
@@ -104,5 +104,4 @@ public:
 #endif
 };
 
-
-#endif /* EXTS_INC_BMP280_HPP_ */
+#endif /* __BMP280_HPP__ */

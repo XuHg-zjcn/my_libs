@@ -5,11 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_HTU2X_HPP_
-#define EXTS_INC_HTU2X_HPP_
+#include "c_i2c.hpp"
+#if !defined(__HTU2X_HPP__) && \
+	defined(__C_I2C_HPP__)
+#define __HTU2X_HPP__
 
 #include "mylibs_config.hpp"
-#include "c_i2c.hpp"
 
 #define HTU_I2C_Dev C_I2C_Dev
 #define HTU_Addr 0x40
@@ -62,4 +63,4 @@ public:
 	HTU2x_UserReg Read_UserReg();
 };
 
-#endif /* EXTS_INC_HTU2X_HPP_ */
+#endif /* __HTU2X_HPP__ */

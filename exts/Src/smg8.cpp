@@ -6,6 +6,8 @@
  */
 
 #include "smg8.hpp"
+#ifdef __SMG8_HPP__
+
 #include "font_smg8.h"
 #include "myints.h"
 #include <stdlib.h>
@@ -84,3 +86,5 @@ void SMG8::showNum(float num, u32 point)
 	int n2=(int)num;
 	showNum(n2, point, (int)((num-n2)*mul));
 }
+
+#endif

@@ -6,6 +6,8 @@
  */
 
 #include "tm1650.hpp"
+#ifdef __TM1650_HPP__
+
 #include "font_smg8.h"
 
 
@@ -50,3 +52,5 @@ void TM1650::off()
 {
 	send_commad(TM1650_Commands(1, false, false));
 }
+
+#endif

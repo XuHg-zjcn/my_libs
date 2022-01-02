@@ -5,11 +5,12 @@
  *      Author: xrj
  */
 
-#ifndef EXTS_INC_TM1650_HPP_
-#define EXTS_INC_TM1650_HPP_
-
 #include "smg8.hpp"
 #include "s_i2c.hpp"
+#if !defined(__TM1650_HPP__) && \
+	defined(__SMG8_HPP__) && \
+	defined(__S_I2C_HPP__)
+#define __TM1650_HPP__
 
 #define TM_I2C S_I2C //I2C类型选择 建议使用软件I2C
 
@@ -45,5 +46,4 @@ public:
 	void off();
 };
 
-
-#endif /* EXTS_INC_TM1650_HPP_ */
+#endif /* __TM1650_HPP__ */

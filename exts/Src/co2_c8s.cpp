@@ -6,6 +6,7 @@
  */
 
 #include "co2_c8s.hpp"
+#ifdef __CO2_C8S_HPP__
 
 CO2_C8S::CO2_C8S(C_UART *uart):uart(uart){};
 
@@ -22,3 +23,5 @@ u16 CO2_C8S::wait_report()
 	uart->recv(data, 14);
 	return ((u16)data[4])<<8 | data[5];
 }
+
+#endif

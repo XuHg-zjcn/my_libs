@@ -6,10 +6,10 @@
  */
 
 #include "c_tim.hpp"
-#if !defined(INC_STEP_MOTOR_HPP_) && defined(INC_STM32_TIM_HPP_)
-#define INC_STEP_MOTOR_HPP_
+#if !defined(__STEP_MOTOR_HPP__) && \
+	defined(__STM32_TIM_HPP__)
+#define __STEP_MOTOR_HPP__
 
-#include "main.h"
 #include "mylibs_config.hpp"
 #include "pins_manager.hpp"
 
@@ -126,5 +126,4 @@ __weak void DefaultFinishCallback(void *hsmx)
 	UNUSED(hsmx);
 }
 
-
-#endif /* INC_STEP_MOTOR_HPP_ */
+#endif /* __STEP_MOTOR_HPP__ */

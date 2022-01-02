@@ -1,8 +1,9 @@
-#ifndef __HX711__
-#define __HX711__
+#include "c_pin.hpp"
+#if !defined(__HX711_HPP__) && \
+	defined(__C_PIN_HPP__)
+#define __HX711_HPP__
 
 #include "myints.h"
-#include "c_pin.hpp"
 
 typedef enum{
 	HX711_CHA_128 = 1,
@@ -27,4 +28,4 @@ public:
 	float read_kg();
 };
 
-#endif
+#endif /* __HX711_HPP__ */

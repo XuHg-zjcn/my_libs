@@ -6,8 +6,9 @@
  */
 
 #include "c_pwm.hpp"
-#if !defined(COMMON_INC_DC_MOTOR_HPP_) && defined(STM32_INC_C_PWM_HPP_)
-#define COMMON_INC_DC_MOTOR_HPP_
+#if !defined(__DC_MOTOR_HPP__) && \
+	defined(__C_PWM_HPP__)
+#define __DC_MOTOR_HPP__
 
 #include "mylibs_config.hpp"
 #include "ssd1306.hpp"
@@ -111,5 +112,4 @@ public:
 	TestRes get(float duty);
 };*/
 
-
-#endif /* COMMON_INC_DC_MOTOR_HPP_ */
+#endif /* __DC_MOTOR_HPP__ */

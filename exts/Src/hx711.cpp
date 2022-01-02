@@ -5,9 +5,10 @@
  *      Author: xrj
  */
 
-#include "delay.hpp"
 #include "hx711.hpp"
+#ifdef __HX711_HPP__
 
+#include "delay.hpp"
 
 #define HX711_US 5
 HX711::HX711(C_Pin sck, C_Pin dout):sck(sck),dout(dout){};
@@ -66,3 +67,5 @@ float HX711::read_kg()
 {
 	return (block_raw()-val_at0)*kg_LSB;
 }
+
+#endif
