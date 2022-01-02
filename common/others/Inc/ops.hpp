@@ -11,8 +11,18 @@
 #include "mylibs_config.hpp"
 #include "myints.h"
 
-typedef int32_t i32;
-typedef int64_t i64;
+#if !defined(STM32F1) && !defined(STM32F4)
+
+#define SET_BIT(REG, BIT)     ((REG) |= (BIT))
+#define CLEAR_BIT(REG, BIT)   ((REG) &= ~(BIT))
+#define READ_BIT(REG, BIT)    ((REG) & (BIT))
+#define CLEAR_REG(REG)        ((REG) = (0x0))
+#define WRITE_REG(REG, VAL)   ((REG) = (VAL))
+#define READ_REG(REG)         ((REG))
+#define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
+#define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL)))
+
+#endif
 
 //a,b,c const, x,y,z vars
 
