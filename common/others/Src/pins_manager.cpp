@@ -1,9 +1,8 @@
 #include "pins_manager.hpp"
+#ifdef __PINS_MANAGER_HPP__
+
 #include "pins_manager2.hpp"
 #include "x_logs.hpp"
-#include "x_base.hpp"
-
-
 
 GPIO_Conn::GPIO_Conn(ManagerPin* pins, uint32_t N_pin)
 {
@@ -108,3 +107,5 @@ uint32_t GPIO_Conn::ReadPins()
 	}
 	return ret;
 }
+
+#endif /* __PINS_MANAGER_HPP__ */

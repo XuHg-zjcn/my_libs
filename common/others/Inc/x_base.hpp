@@ -1,5 +1,5 @@
-#ifndef X_BASE_HPP
-#define X_BASE_HPP
+#ifndef __X_BASE_HPP__
+#define __X_BASE_HPP__
 
 
 typedef enum{
@@ -10,4 +10,4 @@ X_Timeout,
 X_InvaildParam
 }X_State;
 
-#endif
+#endif /* __X_BASE_HPP__ */

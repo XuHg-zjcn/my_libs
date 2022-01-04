@@ -5,8 +5,8 @@
  *      Author: xrj
  */
 
-#ifndef COMMON_INC_S_I2C_HPP_
-#define COMMON_INC_S_I2C_HPP_
+#ifndef __S_I2C_HPP__
+#define __S_I2C_HPP__
 
 #include "myints.h"
 #include "c_pin.hpp"
@@ -50,4 +50,4 @@ public:
 	void Mem_read(u8 mem, u8* data, u32 len);
 };
 
-#endif /* COMMON_INC_S_I2C_HPP_ */
+#endif /* __S_I2C_HPP__ */

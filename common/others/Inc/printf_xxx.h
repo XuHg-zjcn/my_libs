@@ -1,5 +1,5 @@
-#ifndef __PRINTF_XXX_H
-#define __PRINTF_XXX_H
+#ifndef __PRINTF_XXX_H__
+#define __PRINTF_XXX_H__
 
 #include <stdint.h>
 //#include <stdio.h>  //请改为所需的头文件
@@ -17,4 +17,4 @@ void printf_fmd(const char fill, uint8_t m, int32_t x);
 void printf_s(char* s);
 void printf_rep(const char c, uint8_t n);
 
-#endif
+#endif /* __PRINTF_XXX_H__ */

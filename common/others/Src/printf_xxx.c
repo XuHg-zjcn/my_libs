@@ -1,4 +1,5 @@
 #include "printf_xxx.h"
+#ifdef __PRINTF_XXX_H__
 
 //保存数字字符串的堆栈
 //足够保存u32的最大值，有符号整数不用保存负号
@@ -51,3 +52,4 @@ void printf_rep(const char c, uint8_t n)
     }
 }
 
+#endif /* __PRINTF_XXX_H__ */

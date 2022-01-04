@@ -1,7 +1,7 @@
-#ifndef __S_UART_HPP
-#define __S_UART_HPP
-
 #include "c_pin.hpp"
+#if !defined(__S_UART_HPP__) && \
+	defined(__C_PIN_HPP__)
+#define __S_UART_HPP__
 
 class S_UART{
 private:
@@ -19,4 +19,4 @@ public:
     void recv_it(u8* data, u32 len);
 };
 
-#endif
+#endif /* __S_UART_HPP__ */

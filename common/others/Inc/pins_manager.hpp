@@ -1,9 +1,9 @@
-#ifndef PINS_MANAGER_HPP
-#define PINS_MANAGER_HPP
-
-#include "x_base.hpp"
-#include "mylibs_config.hpp"
 #include "c_pin.hpp"
+#include "x_base.hpp"
+#if !defined(__PINS_MANAGER_HPP__) && \
+	defined(__C_PIN_HPP__) && \
+	defined(__C_BASE_HPP__)
+#define __PINS_MANAGER_HPP__
 
 
 #pragma pack(1)
@@ -81,4 +81,4 @@ public:
 	uint32_t ReadPins();
 };
 
-#endif
+#endif /* __PINS_MANAGER_HPP__ */

@@ -1,5 +1,5 @@
-#ifndef INC_MYINTS_H_
-#define INC_MYINTS_H_
+#ifndef __MYINTS_H__
+#define __MYINTS_H__
 
 #include <stdint.h>
 
@@ -44,4 +44,4 @@ int flog10(float x);
 #endif
 
 
-#endif /* INC_STEP_MOTOR_H_ */
+#endif /* __MYINTS_H__ */

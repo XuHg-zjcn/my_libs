@@ -1,6 +1,9 @@
 #include "s_uart.hpp"
 #include "delay.hpp"
 
+#if defined(__S_UART_HPP__) && \
+	defined(__DELAY_HPP__)
+
 void S_UART::send_byte(u8 byte)
 {
     tx.write_pin(Pin_Reset);
@@ -38,3 +41,5 @@ void S_UART::recv_block(u8* data, u32 len)
         *data++ = recv_byte();
     }
 }
+
+#endif

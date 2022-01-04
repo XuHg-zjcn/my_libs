@@ -5,8 +5,8 @@
  *      Author: xrj
  */
 
-#ifndef INC_OPS_H_
-#define INC_OPS_H_
+#ifndef __OPS_H__
+#define __OPS_H__
 
 #include "mylibs_config.hpp"
 #include "myints.h"
@@ -171,4 +171,4 @@ void mean_zip(T* p, u32 n, u32 m, u32 shift)
 
 u32 xfact(u32 x, u32 a, u32 b);
 
-#endif /* INC_OPS_H_ */
+#endif /* __OPS_H__ */
