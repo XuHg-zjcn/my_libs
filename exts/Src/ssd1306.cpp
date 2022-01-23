@@ -197,6 +197,16 @@ void SSD1306::Scroll_Disable()
 	col_i = 0xff;
 }
 
+/*
+ * @note: 芯片原本不支持单步滚动，只能打开一下立马关闭。
+ * 实验结果：有不确定性，可能会一次滚动多步，也可能不滚动。
+ */
+void SSD1306::Scroll_Step()
+{
+	commd_bytes(Activate_Scroll);
+	commd_bytes(Deactivate_Scroll);
+}
+
 void SSD1306::append_column(uint64_t col)
 {
 	if(col_i != 0xff){  //滚动模式

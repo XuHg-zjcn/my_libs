@@ -47,6 +47,7 @@
  */
 
 //from datasheet 9.1 COMMAND TABLE
+// ...    : no param          commd_bytes(...);
 // ..._nb : n bits at last    commd_bytes(..._nb | bits);
 // ..._nB : n Bytes params    commd_bytes(..._nB, Byte1, Byte2, ..., ByteN);
 // ..._nbmB: n bits, m Bytes  commd_bytes(..._nbmB | bits, Byte1, ..., ByteM);
@@ -111,7 +112,6 @@ inline SSD1306_Commd operator|(SSD1306_Commd commd, int bits){
 #define U64_TOP            (1ULL)     //use << operate
 #define U64_BOTTOM         (1ULL<<63) //use >> operate
 
-
 typedef enum{
 	Scroll_Right = (int)H_Scroll_1b6B | 0b0,
 	Scroll_Left  = (int)H_Scroll_1b6B | 0b1,
@@ -162,6 +162,7 @@ public:
 	void plot_128(uint8_t *data, uint8_t bias, uint8_t maxh);
 	void VH_scroll(int dx, int dy, uint8_t sta_page, uint8_t end_page, FrameOfStep frames);
 	void Scroll_Disable();
+	void Scroll_Step();
 	void append_column(uint64_t col);
 	void gif_show(uint8_t *imgs, uint32_t n_imgs, uint32_t ms);
 	void frame_callback();
