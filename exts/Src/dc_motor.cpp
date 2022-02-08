@@ -15,7 +15,7 @@ extern u32* led;
 
 
 #ifdef USE_ADC
-DC_Motor::DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current):
+DC_Motor::DC_Motor(CTIM_CH &tim_pwm, C_ADC *cadc, CADC_CHx CH_Current):
 	tim_pwm(tim_pwm), tim_spd(tim_pwm)
 {
 	this->count = 0;
@@ -93,7 +93,7 @@ u32 DC_Motor::t_value(BuffHeadRead head)
 void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 {
 	u16 *p;
-	tim_pwm.CCxChannelCmd(TIM_CCx_Disable);
+	tim_pwm.CCxChannelCmd(CTIM_CCx_Disable);
 	*led = 1;
 	XDelayMs(100);
 	ADC_aSamp samp[2];
@@ -113,7 +113,7 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 	cadc->DMA_once(NSAMP, true);
 	p = (u16*)head.get_frames(NSAMP);
 	u32 s0 = sum(p, NSAMP);
-	tim_pwm.CCxChannelCmd(TIM_CCx_Enable);
+	tim_pwm.CCxChannelCmd(CTIM_CCx_Enable);
 	int i=0;
 	while(i<9){
 		while(t_value(head)>50);
@@ -143,7 +143,7 @@ void DC_Motor::run_monitor(ControlConfig &cfg, SSD1306 &oled)
 		snprintf(str, 20, " s2:%5d", s2/409);
 		oled.text_5x7(str);
 		if(s2 > max){
-			tim_pwm.CCxChannelCmd(TIM_CCx_Disable);
+			tim_pwm.CCxChannelCmd(CTIM_CCx_Disable);
 			return;
 		}
 	}

@@ -59,6 +59,7 @@ void UltSnd::Measure_TIM(_Bool blocking)
 	//OPM, CNT will 0 after UPDATE, so use PWM2
 	timer.ctim->set_OCMode(timer.Trig_Channel, TIM_OCMode_PWM2);
 
+	//TODO: remove STM32 HAL functions
 	__HAL_TIM_SET_COUNTER(htim, 0);
 	__HAL_TIM_SET_AUTORELOAD(htim, timer.tmax);
 	__HAL_TIM_SET_COMPARE(htim, timer.Trig_Channel, timer.tmax-timer.tTrig);

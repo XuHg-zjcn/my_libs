@@ -48,16 +48,16 @@ typedef struct{
 class DC_Motor{
 private:
 	C_PWM_CH *pwm;      //PWM输出
-	//TIM_CH tim_spd;   //测速输入
+	//CTIM_CH tim_spd;   //测速输入
 	uint32_t count;     //总脉冲计数
 #ifdef USE_ADC
 	C_ADC *cadc;       //ADC
-	ADC_CHx CH_Current;  //电流测量
-	ADC_CHx CH_Voltage;  //电压测量
+	CADC_CHx CH_Current;  //电流测量
+	CADC_CHx CH_Voltage;  //电压测量
 #endif
 public:
 #ifdef USE_ADC
-	DC_Motor(TIM_CH &tim_pwm, C_ADC *cadc, ADC_CHx CH_Current);
+	DC_Motor(CTIM_CH &tim_pwm, C_ADC *cadc, CADC_CHx CH_Current);
 #else
 	DC_Motor(C_PWM_CH *pwm);
 #endif

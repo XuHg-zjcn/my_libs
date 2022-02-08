@@ -6,13 +6,16 @@
  */
 
 #include "c_tim.hpp"
+#include "c_adc.hpp"
 #if !defined(__ULTRASOUND_HPP__) && \
-	defined(__C_TIM_HPP__)
+	defined(__C_TIM_HPP__) && \
+	defined(__C_ADC_HPP__)
 #define __ULTRASOUND_HPP__
 
 #include <stdbool.h>
 #include "mylibs_config.hpp"
 
+//TODO: remove BitBand
 typedef struct{
 	uint32_t *Trig_ODR_bit;
 	uint32_t *Echo_IDR_bit;
@@ -26,16 +29,16 @@ typedef enum{
 }US_Mode;
 
 typedef struct{
-	ADC_HandleTypeDef* hadc;
+	C_ADC* hadc;
 	uint32_t* pData;
 	uint32_t Length;
 }US_ADCDMA;
 
 typedef struct{
 	C_TIM *ctim;  // Trig and Echo must in same TIM.
-	TIM_CHx Trig_Channel;
-	TIM_CHx Echo_Channel_Rising;
-	TIM_CHx Echo_Channel_Falling;
+	CTIM_CHx Trig_Channel;
+	CTIM_CHx Echo_Channel_Rising;
+	CTIM_CHx Echo_Channel_Falling;
 	uint32_t freq;
 	uint32_t tTrig;
 	uint32_t tmax;
@@ -68,7 +71,7 @@ public:
 	float CorrectSpeed();
 	float meter();
 	float Measure_calc();
-	void TIM_CaptureCallback(TIM_CHx Channel);
+	void TIM_CaptureCallback(CTIM_CHx Channel);
 	void TIM_PeriodElapsedCallback();
 };
 

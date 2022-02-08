@@ -99,12 +99,12 @@ void SMG8_Pins::HardWareTimer(uint32_t us_on, uint32_t us_off)
 {
 	ctim->set_ns((us_on+us_off)*1000);
 	ctim->Base_Start_IT();
-	ctim->clear_callback(TIM_IT_all);
-	ctim->set_callback(TIM_IT_update, &CTimerFunc, this);
+	ctim->clear_callback(CTIM_IT_all);
+	ctim->set_callback(CTIM_IT_update, &CTimerFunc, this);
 	if(us_off != 0){
-		ctim->set_duty(TIM_Channel_1, (float)us_on/(us_on+us_off));
-		ctim->PWM_Start_IT(TIM_Channel_1);
-		ctim->set_callback(TIM_IT_cc1, &Coff, this);
+		ctim->set_duty(CTIM_Channel_1, (float)us_on/(us_on+us_off));
+		ctim->PWM_Start_IT(CTIM_Channel_1);
+		ctim->set_callback(CTIM_IT_cc1, &Coff, this);
 	}
 }
 #endif
