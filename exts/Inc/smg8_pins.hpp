@@ -7,9 +7,11 @@
 
 #include "smg8.hpp"
 #include "c_tim.hpp"
+#include "pins_manager.hpp"
 #if !defined(__SMG8_PINS_HPP__) && \
 	defined(__SMG8_HPP__) && \
-	defined(__C_TIM_HPP__)
+	defined(__C_TIM_HPP__) && \
+	defined(__PINS_MANAGER_HPP__)
 #define __SMG8_PINS_HPP__
 
 class SMG8_Pins{

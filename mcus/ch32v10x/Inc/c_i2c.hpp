@@ -8,7 +8,7 @@
 #include "ch32v10x_i2c.h"
 #if !defined(__C_I2C_HPP__) && \
 	defined(__CH32V10x_I2C_H)
-#define __C_I2C_HPP__
+//#define __C_I2C_HPP__
 
 #include "c_stream.hpp"
 
