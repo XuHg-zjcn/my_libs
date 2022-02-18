@@ -75,6 +75,7 @@ public:
            const void *StringDescr);
   void USB_ISR();
   int Send_Pack(u8 endp, u16 len);
+  u8 *Get_Buffer(u8 endp);
 };
 
 #endif

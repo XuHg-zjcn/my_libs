@@ -20,9 +20,6 @@
 /* Global Variable */
 #define DevEP0SIZE	0x40
 
-/* Endpoint Buffer */
-//__attribute__ ((aligned(4))) UINT8 Databuf[64+128*7];	//ep0(64)
-
 C_USBD::C_USBD(volatile void *baddr):
   regs((volatile C_USB_Regs *)baddr){};
 
@@ -279,10 +276,10 @@ void C_USBD::USB_ISR()
           R8_UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
           break;
         }
-      }/*else{
-	regs->UEPx_TLEN_CTRL[endp].CTRL ^= RB_UEP_T_TOG;
-	MODIFY_REG(regs->UEPx_TLEN_CTRL[endp].CTRL, MASK_UEP_T_RES, UEP_T_RES_NAK);
-      }*/
+      }else{
+	TOGG_BIT(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), RB_UEP_T_TOG);
+	MODIFY_REG(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), MASK_UEP_T_RES, UEP_T_RES_NAK);
+      }
       break;
 
     case UIS_TOKEN_OUT:
@@ -316,11 +313,53 @@ void C_USBD::USB_ISR()
 
 int C_USBD::Send_Pack(u8 endp, u16 len)
 {
+  if(endp&0x80 == 0){
+    return 1;
+  }
+  endp &= 0x7f;
   if(endp >= 8){
     return 1;
   }else{
     regs->UEPx_TLEN_CTRL[endp].T_LEN = len;
-    regs->UEPx_TLEN_CTRL[endp].CTRL ^= RB_UEP_T_TOG;
+    MODIFY_REG(regs->UEPx_TLEN_CTRL[endp].CTRL,
+	       MASK_UEP_T_RES,
+	       UEP_T_RES_ACK);
     return 0;
   }
+}
+
+u8 *C_USBD::Get_Buffer(u8 endp)
+{
+  u8 Tmp;
+  u8 *pTmp;
+  if((endp&0x7f) >= 8){
+    return nullptr;
+  }
+  pTmp = (u8*)(((u32)EndpBuffers)&0xffff0000) +\
+    regs->UEPx_DMA[endp&0x7f].L16b;
+  if((endp&0x7f) == 0){
+    return pTmp;
+  }
+  Tmp = regs->*C_USB_MOD_REG[(endp&0x7f)-1];
+  Tmp >>= C_USB_MOD_SFT[(endp&0x7f)-1];
+  Tmp &= 0x0f;
+  if(Tmp&0b0011 != 0){
+    //TODO: 添加双缓冲区支持
+    return nullptr;
+  }
+  if(Tmp==0b0000){
+    return nullptr;
+  }
+  if(Tmp==0b1000 && !(endp&0x80) ||
+     Tmp==0b0100 && (endp&0x80)){
+    return pTmp;
+  }
+  if(Tmp==0b1100){
+    if(endp&0x80){
+      return pTmp+64; //Tx(IN)
+    }else{
+      return pTmp;    //Rx(OUT)
+    }
+  }
+  return nullptr;
 }
