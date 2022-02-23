@@ -73,7 +73,7 @@ public:
   int Init(const void *DeviceDescr,
            const void *ConfigDescr,
            const void *StringDescr);
-  void USB_ISR();
+  i32 USB_ISR();
   int Send_Pack(u8 endp, u16 len);
   u8 *Get_Buffer(u8 endp);
 };

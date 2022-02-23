@@ -216,7 +216,7 @@ u8 C_USBD::StdReq(USB_SetupReq *ssreq)
   return errflag;
 }
 
-void C_USBD::USB_ISR()
+i32 C_USBD::USB_ISR()
 {
   UINT8  len, chtype;
   UINT8  intflag, errflag = 0;
@@ -293,6 +293,11 @@ void C_USBD::USB_ISR()
       break;
     }
     R8_USB_INT_FG = RB_UIF_TRANSFER;
+    if(!(R8_USB_INT_ST & RB_UIS_TOKEN0)){
+      return endp | ((R8_USB_INT_ST & RB_UIS_TOKEN1) << 2);
+    }else{
+      return -1;
+    }
   }else if( intflag & RB_UIF_BUS_RST ){
     R8_USB_DEV_AD = 0;
     R8_UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
@@ -309,6 +314,7 @@ void C_USBD::USB_ISR()
   }else{
     R8_USB_INT_FG = intflag;
   }
+  return -1;
 }
 
 int C_USBD::Send_Pack(u8 endp, u16 len)
