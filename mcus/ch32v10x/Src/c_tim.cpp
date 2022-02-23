@@ -46,7 +46,7 @@ void C_TIM::set_div(TypeDiv div)
   }else if(div > (1ULL<<32)){
     ckd = CTIM_CKD_2;
     xy = div/2;
-  }else if(div == (1ULL<<32)){
+  }else{
     ckd = CTIM_CKD_No;
     xy = div;
   }
@@ -61,6 +61,7 @@ void C_TIM::set_div(TypeDiv div)
     goto calc;
   }
   x = CEIL_DIV(xy, 65536);  //x的搜索启始值，y不能超过65536
+  bestx = x;
   for(;x<=65536;x++){
     y = ROUND_DIV(xy, x);
     if(abs(xy - x*y) < err){
@@ -118,24 +119,11 @@ void C_TIM::set_duty(CTIM_CHx channel, u16 duty)
   set_comp(channel, (u16)(((u32)(ATRLR)*duty)>>16));
 }
 
-X_State C_TIM::Set_CCMR(CTIM_CHx channel, CTIM_CCMR *ccmr)
+X_State C_TIM::Set_CCMR(CTIM_CHx channel, CTIM_CCMR ccmr)
 {
-  switch(channel){
-  case CTIM_Channel_1:
-    this->CHCTLR1.L = *ccmr;
-    break;
-  case CTIM_Channel_2:
-    this->CHCTLR1.H = *ccmr;
-    break;
-  case CTIM_Channel_3:
-    this->CHCTLR2.L = *ccmr;
-    break;
-  case CTIM_Channel_4:
-    this->CHCTLR2.H = *ccmr;
-    break;
-  default:
-    return X_InvaildParam;
-  }
+  u8 tmp = *(u8 *)&ccmr;
+  const u8 bais[4] = {0, 1, 4, 5};
+  *(((u8 *)&(this->CHCTLR1.L))+bais[channel>>1]) = tmp;
   return X_OK;
 }
 
@@ -151,7 +139,7 @@ void C_TIM::PWM_Start(CTIM_CHx Channel)
 {
   CTIM_CCMR ccmr;
   ccmr.Out = {CTIM_Out, DISABLE, DISABLE, CTIM_OCM_PWM_Mode2, DISABLE};
-  Set_CCMR(Channel, &ccmr);
+  Set_CCMR(Channel, ccmr);
   this->CTLR1.CEN = true;
   CCxChannelCmd(Channel, ENABLE);
 }

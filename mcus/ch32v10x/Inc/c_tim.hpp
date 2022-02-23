@@ -292,7 +292,7 @@ public:
   void CCxChannelCmd(CTIM_CHx Channel, FunctionalState ChannelState);
   void CCxChannelPolar(CTIM_CHx Channel, PinState ActiveLevel);
 
-  X_State Set_CCMR(CTIM_CHx Channel, CTIM_CCMR *ccmr);
+  X_State Set_CCMR(CTIM_CHx Channel, CTIM_CCMR ccmr);
 
   void PWM_Init();
   void PWM_Start(CTIM_CHx Channel);
