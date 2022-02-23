@@ -124,9 +124,7 @@ typedef struct{
   __IO u32 IOFRx[4];
   __IO u32 WDHTR;
   __IO u32 WDLTR;
-  __IO u32 RSQR1;
-  __IO u32 RSQR2;
-  __IO u32 RSQR3;
+  __IO u32 RSQRx[3];
   __IO u32 ISQR;
   __IO u32 IDATAx[4];
   __IO u32 RDATAR;

@@ -34,10 +34,12 @@ typedef struct{
   DMA_SIZE MSIZE:2;
   DMA_PL   PL:2;
   bool     M2M:1;
+  bool     resv1:1;
+  u16      resv2;
 }CDMA_CFGR;
 
 typedef struct{
-  CDMA_CFGR CFGR;
+  __IO CDMA_CFGR CFGR;
   __IO u32 CNTR;
   __IO void *PADDR;
   __IO void *MADDR;

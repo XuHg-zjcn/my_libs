@@ -108,7 +108,9 @@ void C_TIM::CCxChannelPolar(CTIM_CHx Channel, PinState ActiveLevel)
 
 void C_TIM::set_comp(CTIM_CHx channel, u16 comp)
 {
-  *((&(this->CH1CVR))+channel) = comp;
+  u32 tmp;
+  tmp = channel >> 1;
+  this->CHxCVR[tmp].CMP = comp;
 }
 
 void C_TIM::set_duty(CTIM_CHx channel, u16 duty)

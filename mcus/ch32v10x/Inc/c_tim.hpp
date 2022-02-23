@@ -167,8 +167,9 @@ typedef struct{
   bool OPM:1;
   bool DIR:1;
   CTIM_CMS CMS:2;
-  bool ARPE;
+  bool ARPE:1;
   CTIM_CKD CKD:2;
+  unsigned int resv:6;
 }CTIM_CTLR1;
 
 typedef struct{
@@ -225,28 +226,28 @@ typedef struct{
 }CTIM_CHCTLR;
 #pragma pack()
 
-#pragma pack(4)
+#pragma pack(2)
 typedef struct{
-  CTIM_CTLR1 CTLR1;
-  CTIM_CTLR2 CTLR2;
-  CTIM_SMCFGR SMCFGR;
-  CTIM_ITDMA DMAINTENR;
-  CTIM_INTFR INTFR;
-  CTIM_Event SWEVGR;
-  CTIM_CHCTLR CHCTLR1;
-  CTIM_CHCTLR CHCTLR2;
-  u16 CCER;
-  u16 CNT;
-  u16 PSC;
-  u16 ATRLR;
-  u16 RPTCR;
-  u16 CH1CVR;
-  u16 CH2CVR;
-  u16 CH3CVR;
-  u16 CH4CVR;
-  u16 BDTR;
-  u16 DMACFGR;
-  u16 DMAADR;
+  __IO CTIM_CTLR1 CTLR1;     u16 resv1;
+  __IO CTIM_CTLR2 CTLR2;     u16 resv2;
+  __IO CTIM_SMCFGR SMCFGR;   u16 resv3;
+  __IO CTIM_ITDMA DMAINTENR; u16 resv4;
+  __IO CTIM_INTFR INTFR;     u16 resv5;
+  __IO CTIM_Event SWEVGR;    u16 resv6;
+  __IO CTIM_CHCTLR CHCTLR1;  u16 resv7;
+  __IO CTIM_CHCTLR CHCTLR2;  u16 resv8;
+  __IO u16 CCER;             u16 resv9;
+  __IO u16 CNT;              u16 resv10;
+  __IO u16 PSC;              u16 resv11;
+  __IO u16 ATRLR;            u16 rscv12;
+  __IO u16 RPTCR;            u16 resv13;
+  struct{
+    __IO u16 CMP;
+    u16 resv;
+  }CHxCVR[4];
+  __IO u16 BDTR;             u16 resv14;
+  __IO u16 DMACFGR;          u16 resv15;
+  __IO u16 DMAADR;           u16 resv16;
 }CTIM_Regs;
 #pragma pack()
 

@@ -32,7 +32,7 @@ u16 C_ADC::read_channel(CADC_CHx channel, CADC_tSMP smp)
 void C_ADC::Init_DMA()
 {
   CTLR2.DMA = true;
-  DMA_CH_ADC->CFGR = {
+  CDMA_CFGR tmp = {
     .EN = false,
     .TCIE = false,
     .HTIE = false,
@@ -46,6 +46,8 @@ void C_ADC::Init_DMA()
     .PL = DMA_PL_Mid,
     .M2M = false
   };
+  SET_BIT(DMA1->INTFCR, DMA_CGIF1 | DMA_CTCIF1 | DMA_CHTIF1 | DMA_CTEIF1);
+  CAST(u32, DMA_CH_ADC->CFGR) = CAST(u32, tmp);
   DMA_CH_ADC->PADDR = &RDATAR;
 }
 
