@@ -66,6 +66,11 @@ typedef enum{
 
 #pragma pack(1)
 typedef struct{
+  CADC_CHx CHx:5;   //ADC_CHANNEL_xx
+  CADC_tSMP tSMP:3;  //ADC_SAMPLETIME_1CYCLES5
+}ADC_aSamp;
+
+typedef struct{
   __IO bool AWD:1;
   __IO bool EOC:1;
   __IO bool IEOC:1;
@@ -141,6 +146,8 @@ public:
   void set_tSMP(CADC_CHx channel, CADC_tSMP smp);
   u16  read_channel(CADC_CHx channel, CADC_tSMP smp);
   void DMA_once(u16* buffer, u16 Nsamp);
+  void Load_Reg_Seq(const ADC_aSamp *smps, u32 len);
+  void Load_Inj_Seq(const ADC_aSamp *smps, u32 len);
 };
 
 #endif /* __C_ADC_HPP__ */

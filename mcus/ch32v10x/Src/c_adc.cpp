@@ -1,7 +1,6 @@
 #include "c_adc.hpp"
 
-CDMA_Channel *const DMA_CH_ADC = \
-  (CDMA_Channel *)DMA1_Channel1_BASE;
+CDMA_Channel *const DMA_CH_ADC = (CDMA_Channel *)DMA1_Channel1_BASE;
 
 void C_ADC::Init()
 {
@@ -53,7 +52,43 @@ void C_ADC::Init_DMA()
 
 void C_ADC::DMA_once(u16 *buff, u16 Nsamp)
 {
-  DMA_CH_ADC->MADDR = (void *)buff;
-  DMA_CH_ADC->CNTR = Nsamp;
-  DMA_CH_ADC->CFGR.EN = true;
+  CAST(vu32, DMA_CH_ADC->CFGR) &= ~0b1;
+  CAST(vu32, DMA_CH_ADC->MADDR) = (u32)buff;
+  CAST(vu32, DMA_CH_ADC->CNTR) = Nsamp;
+  CAST(vu32, DMA_CH_ADC->CFGR) |= 0b1;
+  while(!(DMA1->INTFR & DMA_TCIF1));
+  DMA1->INTFCR = DMA_TCIF1;
+}
+
+void C_ADC::Load_Reg_Seq(const ADC_aSamp *smps, const u32 len)
+{
+  if(len > 16){
+    return;
+  }
+  u32 remain = len;
+  u32 tmp;
+  int i, j;
+  for(i=2;i>=0;i--){
+    tmp = (i==0)?(len<<20):0;
+    for(j=0;(remain>0 && j<6);j++){
+      tmp |= (smps->CHx)<<(j*5);
+      set_tSMP(smps->CHx, smps->tSMP);
+      smps++;
+      remain--;
+    }
+    RSQRx[i] = tmp;
+  }
+}
+
+void C_ADC::Load_Inj_Seq(const ADC_aSamp *smps, u32 len)
+{
+  if(len > 4){
+    return;
+  }
+  u32 tmp = len<<20;
+  for(int i=0;len>0;i++){
+    tmp |= (smps->CHx)<<(i*5);
+    set_tSMP(smps->CHx, smps->tSMP);
+  }
+  ISQR = tmp;
 }
