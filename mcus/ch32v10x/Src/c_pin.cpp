@@ -46,7 +46,13 @@ PinState C_Pin::read_pin()
 
 void C_Pin::toggle_pin()
 {
-	write_pin(!read_pin());
+	GPIO_TypeDef* gpiox = GPIOx();
+	uint32_t pin2n = Pin2N();
+	if(gpiox->OUTDR & pin2n){
+		gpiox->BCR = pin2n;
+	}else{
+		gpiox->BSHR = pin2n;
+	}
 }
 
 #ifndef USE_VIRTUAL
