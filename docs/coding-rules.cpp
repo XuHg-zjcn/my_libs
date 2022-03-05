@@ -1,3 +1,6 @@
+//本文件是文档，而不是用于编译的代码。
+//使用.cpp后缀只是为了编辑器能识别出来而进行语法高亮。
+
 //用宏定义`USE_VIRTUAL`选择是否使用抽象类虚函数
 #ifdef USE_VIRTUAL
 class C_Pin : public I_Pin{
