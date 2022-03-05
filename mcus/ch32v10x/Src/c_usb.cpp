@@ -1,6 +1,7 @@
 /*
  * CH32V103C8T6 USB从机模式驱动库
  * Copyright (C) Xu Ruijun  2022
+ * 部分代码从WCH官方例程`CH32V103EVT.ZIP`压缩包中复制
  */
 
 #include "c_usb.hpp"
