@@ -1,2 +1,18 @@
+# python
 __pycache__/
+
+# user data
 *.db
+
+# emacs
+\#*#
+.#*
+*~
+
+# vim
+*.swp
+
+# ext
+GPATH
+GTAGS
+GRTAGS
