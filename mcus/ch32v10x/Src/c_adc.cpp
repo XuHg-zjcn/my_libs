@@ -45,6 +45,7 @@ void C_ADC::Init_DMA()
     .PL = DMA_PL_Mid,
     .M2M = false
   };
+  NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   SET_BIT(DMA1->INTFCR, DMA_CGIF1 | DMA_CTCIF1 | DMA_CHTIF1 | DMA_CTEIF1);
   CAST(u32, DMA_CH_ADC->CFGR) = CAST(u32, tmp);
   DMA_CH_ADC->PADDR = &RDATAR;
