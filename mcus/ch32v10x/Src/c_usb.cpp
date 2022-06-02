@@ -26,37 +26,46 @@ C_USBD::C_USBD(volatile void *baddr):
 
 int C_USBD::Init(const void *DeviceDescr,
                  const void *ConfigDescr,
-                 const void *StringDescr)
+                 const void *StringDescr,
+                 const u8 *DoubleBuffEndps)
 {
   extern uint32_t SystemCoreClock;
-  const u8 *pTmp;
 
   this->DeviceDescr = (const u8 *)DeviceDescr;
   this->ConfigDescr = (const u8 *)ConfigDescr;
   this->StringDescr = (const u8 *)StringDescr;
 
-  pTmp = this->ConfigDescr;
+  const u8 *pTmp = this->ConfigDescr;
   //TODO: 添加端点映射支持
   //手册上宣称支持映射端点，但找不到方法
-  u16 endp_flag = 0x0000;
-  // FEDCBA9876543210
-  // MSB          LSB
-  // RTRTRTRTRTRTRTRT
-  // OIOIOIOIOIOIOIOI
-  // 7766554433221100
+  u16 endp_flag = 0x00000000;
+  // |FEDC|BA98|7654|3210|FEDC|BA98|7654|3210|
+  // |MSB |    |    |    |    |    |    | LSB|
+  // |RT M|RT M|RT M|RT M|RT M|RT M|RT M|RT M|
+  // |OI  |OI  |OI  |OI  |OI  |OI  |OI  |OI  |
+  // |7777|6666|5555|4444|3333|2222|1111|0000|
   while(pTmp[0] >= 2){
     if(pTmp[1] == USB_DescrType_Endp){
       u8 endp = pTmp[2];
       if((endp&0x7F) >= 8){
-	return 1;  //only support 7 ports
+        return 1;  //only support 7 ports
       }
-      endp_flag |= 1U<<((endp&0x07)*2 + ((endp^0x80)>>7));
+      endp_flag |= 1U<<((endp&0x07)*4 + 2 + ((endp&0x80)?0:1));
     }
     pTmp += pTmp[0];
   }
+  while(*DoubleBuffEndps < 8 && *DoubleBuffEndps > 0){
+	if((endp_flag >> ((*DoubleBuffEndps)*4)) & 0b1100 == 0b1100){
+	  endp_flag |= 0b11 << ((*DoubleBuffEndps)*4);
+	}else{
+	  endp_flag |= 0b01 << ((*DoubleBuffEndps)*4);
+	}
+	//SET_BIT(CAST(u8, regs->UEPx_TLEN_CTRL[*DoubleBuffEndps].CTRL), RB_UEP_AUTO_TOG);
+	DoubleBuffEndps++;
+  }
 
-  endp_flag >>= 2; //drop low 2bit
-  endp_flag |= 0x8000;
+  endp_flag >>= 4; //drop low 4bit
+  endp_flag |= 0x80000000;
   EndpBuffers = (u8 *)XMalloc(__builtin_popcount(endp_flag)*64);
   //Malloc返回指针应该是对齐的
   pEP0_RAM_Addr = EndpBuffers;
@@ -82,13 +91,12 @@ int C_USBD::Init(const void *DeviceDescr,
   CAST(u8, regs->UEPx_TLEN_CTRL[0].CTRL) = UEP_R_RES_ACK | UEP_T_RES_NAK;
   u32 offset = 64;
   for(int i=1;i<8;i++){
-    //TODO: 添加双缓冲区支持
     MODIFY_REG(CAST(u8, regs->*C_USB_MOD_REG[i-1]),
-	       0x0f<<C_USB_MOD_SFT[i-1],
-	       (endp_flag&0x03)<<(C_USB_MOD_SFT[i-1]+2));
+               0x0f<<C_USB_MOD_SFT[i-1],
+               (endp_flag&0x0f)<<(C_USB_MOD_SFT[i-1]));
     CAST(u16, regs->UEPx_DMA[i].L16b) = (u16)(u32)(EndpBuffers+offset);
-    offset += ((endp_flag&0x01) + ((endp_flag>>1)&0x01))*64;
-    switch(endp_flag&0x03){
+    offset += __builtin_popcount(endp_flag&0x0f)*64;
+    switch((endp_flag & 0x0f) >> 2){
     case 0b00: //None
       CAST(u8, regs->UEPx_TLEN_CTRL[i].CTRL) = UEP_R_RES_STALL | UEP_T_RES_STALL;
       break;
@@ -104,7 +112,7 @@ int C_USBD::Init(const void *DeviceDescr,
     default:
       break;
     }
-    endp_flag >>= 2;
+    endp_flag >>= 4;
   }
 
   DevInit();
@@ -142,7 +150,7 @@ u32 C_USBD::StdDesc(u16 wValue, u8 *buffer, u32 ReqLen)
     pDescr = StringDescr;
     while(wValue){
       if(pDescr[0] == 0){
-	break;
+        break;
       }
       pDescr += pDescr[0];
       wValue--;
@@ -184,20 +192,20 @@ u8 C_USBD::StdReq(USB_SetupReq *ssreq)
     if((ssreq->bmRequestType & USB_REQ_RECIP_MASK) == USB_REQ_RECIP_ENDP){
       switch( (ssreq->wIndex)&0xff ){
       case 0x82:
-	R8_UEP2_CTRL = (R8_UEP2_CTRL & ~( RB_UEP_T_TOG|MASK_UEP_T_RES )) | UEP_T_RES_NAK;
-	break;
+        R8_UEP2_CTRL = (R8_UEP2_CTRL & ~( RB_UEP_T_TOG|MASK_UEP_T_RES )) | UEP_T_RES_NAK;
+        break;
       case 0x02:
-	R8_UEP2_CTRL = (R8_UEP2_CTRL & ~( RB_UEP_R_TOG|MASK_UEP_R_RES )) | UEP_R_RES_ACK;
-	break;
+        R8_UEP2_CTRL = (R8_UEP2_CTRL & ~( RB_UEP_R_TOG|MASK_UEP_R_RES )) | UEP_R_RES_ACK;
+        break;
       case 0x81:
-	R8_UEP1_CTRL = (R8_UEP1_CTRL & ~( RB_UEP_T_TOG|MASK_UEP_T_RES )) | UEP_T_RES_NAK;
-	break;
+        R8_UEP1_CTRL = (R8_UEP1_CTRL & ~( RB_UEP_T_TOG|MASK_UEP_T_RES )) | UEP_T_RES_NAK;
+        break;
       case 0x01:
-	R8_UEP1_CTRL = (R8_UEP1_CTRL & ~( RB_UEP_R_TOG|MASK_UEP_R_RES )) | UEP_R_RES_ACK;
-	break;
+        R8_UEP1_CTRL = (R8_UEP1_CTRL & ~( RB_UEP_R_TOG|MASK_UEP_R_RES )) | UEP_R_RES_ACK;
+        break;
       default:
-	errflag = 0xFF;
-	break;
+        errflag = 0xFF;
+        break;
       }
     }else errflag = 0xFF;
     break;
@@ -231,7 +239,7 @@ i32 C_USBD::USB_ISR()
       CAST(u8, regs->UEPx_TLEN_CTRL[0].CTRL) = RB_UEP_R_TOG | RB_UEP_T_TOG | UEP_R_RES_ACK | UEP_T_RES_NAK;
       len = regs->RX_LEN;
       if ( len == sizeof( USB_SETUP_REQ ) ){
-	USB_SetupReq *SetupReqPak = ((USB_SetupReq *)pEP0_RAM_Addr);
+        USB_SetupReq *SetupReqPak = ((USB_SetupReq *)pEP0_RAM_Addr);
         SetupReqLen = SetupReqPak->wLength;
         SetupReqCode = SetupReqPak->bRequest;
         chtype = SetupReqPak->bmRequestType;
@@ -264,8 +272,8 @@ i32 C_USBD::USB_ISR()
         case USB_GET_DESCRIPTOR:
           len = SetupReqLen >= DevEP0SIZE ? DevEP0SIZE : SetupReqLen;
           SetupReqLen -= len;
-	  memcpy(pEP0_DataBuf, pDescr, len);
-	  pDescr += len;
+          memcpy(pEP0_DataBuf, pDescr, len);
+          pDescr += len;
           Send_Pack(0, len);
           break;
         case USB_SET_ADDRESS:
@@ -278,8 +286,8 @@ i32 C_USBD::USB_ISR()
           break;
         }
       }else{
-	TOGG_BIT(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), RB_UEP_T_TOG);
-	MODIFY_REG(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), MASK_UEP_T_RES, UEP_T_RES_NAK);
+        TOGG_BIT(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), RB_UEP_T_TOG);
+        MODIFY_REG(CAST(u8, regs->UEPx_TLEN_CTRL[endp].CTRL), MASK_UEP_T_RES, UEP_T_RES_NAK);
       }
       break;
 
@@ -329,8 +337,8 @@ int C_USBD::Send_Pack(u8 endp, u16 len)
   }else{
     regs->UEPx_TLEN_CTRL[endp].T_LEN = len;
     MODIFY_REG(regs->UEPx_TLEN_CTRL[endp].CTRL,
-	       MASK_UEP_T_RES,
-	       UEP_T_RES_ACK);
+               MASK_UEP_T_RES,
+               UEP_T_RES_ACK);
     return 0;
   }
 }
@@ -350,20 +358,13 @@ u8 *C_USBD::Get_Buffer(u8 endp)
   Tmp = regs->*C_USB_MOD_REG[(endp&0x7f)-1];
   Tmp >>= C_USB_MOD_SFT[(endp&0x7f)-1];
   Tmp &= 0x0f;
-  if(Tmp&0b0011 != 0){
-    //TODO: 添加双缓冲区支持
-    return nullptr;
-  }
-  if(Tmp==0b0000){
-    return nullptr;
-  }
-  if(Tmp==0b1000 && !(endp&0x80) ||
-     Tmp==0b0100 && (endp&0x80)){
+  if(((Tmp&0b1100)==0b1000 && !(endp&0x80)) ||
+     ((Tmp&0b1100)==0b0100 && (endp&0x80))){
     return pTmp;
   }
   if(Tmp==0b1100){
     if(endp&0x80){
-      return pTmp+64; //Tx(IN)
+      return pTmp + ((Tmp&0b0001)?128:64); //Tx(IN)
     }else{
       return pTmp;    //Rx(OUT)
     }

@@ -55,7 +55,6 @@ const u8 C_USB_MOD_SFT[7] = {
 
 class C_USBD{
 private:
-  volatile C_USB_Regs *const regs;
   const u8 *DeviceDescr;
   const u8 *ConfigDescr;
   const u8 *StringDescr;
@@ -69,10 +68,12 @@ private:
   u8 StdReq(USB_SetupReq *ssreq);
   void DevInit();
 public:
+  volatile C_USB_Regs *const regs;
   C_USBD(volatile void *baddr);
   int Init(const void *DeviceDescr,
            const void *ConfigDescr,
-           const void *StringDescr);
+           const void *StringDescr,
+           const u8 *DoubleBuffEndps);
   i32 USB_ISR();
   int Send_Pack(u8 endp, u16 len);
   u8 *Get_Buffer(u8 endp);
