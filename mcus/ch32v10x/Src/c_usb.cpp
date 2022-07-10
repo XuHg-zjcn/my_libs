@@ -12,6 +12,20 @@
 #include <cstring>
 #include "myints.h"
 
+u8 C_USB_Regs::* const C_USB_MOD_REG[7] = {
+  &C_USB_Regs::UEP4_1_MOD,  //1
+  &C_USB_Regs::UEP2_3_MOD,  //2
+  &C_USB_Regs::UEP2_3_MOD,  //3
+  &C_USB_Regs::UEP4_1_MOD,  //4
+  &C_USB_Regs::UEP5_6_MOD,  //5
+  &C_USB_Regs::UEP5_6_MOD,  //6
+  &C_USB_Regs::UEP7_MOD     //7
+};
+
+const u8 C_USB_MOD_SFT[7] = {
+  4, 0, 4, 0, 0, 4, 0
+};
+
 /*
  * 不知道为什么写寄存器必须先取地址再取内容，否则无效。
  * 可行：`*(&reg) = x;`，不行：`reg = x;`
@@ -26,8 +40,7 @@ C_USBD::C_USBD(volatile void *baddr):
 
 int C_USBD::Init(const void *DeviceDescr,
                  const void *ConfigDescr,
-                 const void *StringDescr,
-                 const u8 *DoubleBuffEndps)
+                 const void *StringDescr)
 {
   extern uint32_t SystemCoreClock;
 
@@ -36,39 +49,8 @@ int C_USBD::Init(const void *DeviceDescr,
   this->StringDescr = (const u8 *)StringDescr;
 
   const u8 *pTmp = this->ConfigDescr;
-  //TODO: 添加端点映射支持
-  //手册上宣称支持映射端点，但找不到方法
-  u16 endp_flag = 0x00000000;
-  // |FEDC|BA98|7654|3210|FEDC|BA98|7654|3210|
-  // |MSB |    |    |    |    |    |    | LSB|
-  // |RT M|RT M|RT M|RT M|RT M|RT M|RT M|RT M|
-  // |OI  |OI  |OI  |OI  |OI  |OI  |OI  |OI  |
-  // |7777|6666|5555|4444|3333|2222|1111|0000|
-  while(pTmp[0] >= 2){
-    if(pTmp[1] == USB_DescrType_Endp){
-      u8 endp = pTmp[2];
-      if((endp&0x7F) >= 8){
-        return 1;  //only support 7 ports
-      }
-      endp_flag |= 1U<<((endp&0x07)*4 + 2 + ((endp&0x80)?0:1));
-    }
-    pTmp += pTmp[0];
-  }
-  while(*DoubleBuffEndps < 8 && *DoubleBuffEndps > 0){
-	if((endp_flag >> ((*DoubleBuffEndps)*4)) & 0b1100 == 0b1100){
-	  endp_flag |= 0b11 << ((*DoubleBuffEndps)*4);
-	}else{
-	  endp_flag |= 0b01 << ((*DoubleBuffEndps)*4);
-	}
-	//SET_BIT(CAST(u8, regs->UEPx_TLEN_CTRL[*DoubleBuffEndps].CTRL), RB_UEP_AUTO_TOG);
-	DoubleBuffEndps++;
-  }
-
-  endp_flag >>= 4; //drop low 4bit
-  endp_flag |= 0x80000000;
-  EndpBuffers = (u8 *)XMalloc(__builtin_popcount(endp_flag)*64);
   //Malloc返回指针应该是对齐的
-  pEP0_RAM_Addr = EndpBuffers;
+  pEP0_RAM_Addr = (u8 *)XMalloc(64);
 
   //操作寄存器前必须初始化时钟
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
@@ -87,37 +69,56 @@ int C_USBD::Init(const void *DeviceDescr,
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_USBHD, ENABLE);
   CAST(u8, regs->USB_CTRL) = 0x00;  //复位
 
-  CAST(u16, regs->UEPx_DMA[0].L16b) = (u16)(u32)EndpBuffers;
+  CAST(u16, regs->UEPx_DMA[0].L16b) = (u16)(u32)pEP0_RAM_Addr;
   CAST(u8, regs->UEPx_TLEN_CTRL[0].CTRL) = UEP_R_RES_ACK | UEP_T_RES_NAK;
-  u32 offset = 64;
-  for(int i=1;i<8;i++){
-    MODIFY_REG(CAST(u8, regs->*C_USB_MOD_REG[i-1]),
-               0x0f<<C_USB_MOD_SFT[i-1],
-               (endp_flag&0x0f)<<(C_USB_MOD_SFT[i-1]));
-    CAST(u16, regs->UEPx_DMA[i].L16b) = (u16)(u32)(EndpBuffers+offset);
-    offset += __builtin_popcount(endp_flag&0x0f)*64;
-    switch((endp_flag & 0x0f) >> 2){
-    case 0b00: //None
-      CAST(u8, regs->UEPx_TLEN_CTRL[i].CTRL) = UEP_R_RES_STALL | UEP_T_RES_STALL;
-      break;
-    case 0b01: //Tx(IN) only
-      CAST(u8, regs->UEPx_TLEN_CTRL[i].CTRL) = UEP_R_RES_STALL | UEP_T_RES_NAK;
-      break;
-    case 0b10: //Rx(OUT) only
-      CAST(u8, regs->UEPx_TLEN_CTRL[i].CTRL) = UEP_R_RES_ACK | UEP_T_RES_STALL;
-      break;
-    case 0b11: //Rx,Tx (OUT,IN) both
-      CAST(u8, regs->UEPx_TLEN_CTRL[i].CTRL) = UEP_R_RES_ACK | UEP_T_RES_NAK;
-      break;
-    default:
-      break;
+
+  //TODO: 添加端点映射支持
+  //手册上宣称支持映射端点，但没有具体描述
+  while(pTmp[0] >= 2){
+    if(pTmp[1] == USB_DescrType_Endp){
+      u8 endp = pTmp[2];
+      if((endp&0x7F) >= 8){
+        return 1;  //only support 7 ports
+      }
+      if(endp&0x80){
+        CAST(u8, regs->UEPx_TLEN_CTRL[endp&0x7f].CTRL) |= UEP_T_RES_NAK;
+		CAST(u8, regs->*C_USB_MOD_REG[(endp&0x7f)-1]) |= RB_UEP2_TX_EN << C_USB_MOD_SFT[(endp&0x7f)-1];
+      }else{
+        CAST(u8, regs->UEPx_TLEN_CTRL[endp&0x7f].CTRL) |= UEP_R_RES_ACK;
+		CAST(u8, regs->*C_USB_MOD_REG[(endp&0x7f)-1]) |= RB_UEP2_RX_EN << C_USB_MOD_SFT[(endp&0x7f)-1];
+      }
     }
-    endp_flag >>= 4;
+    pTmp += pTmp[0];
   }
 
   DevInit();
   NVIC_EnableIRQ(USBHD_IRQn);
   return 0;
+}
+
+int C_USBD::Malloc_Buff(const u8 *Endps)
+{
+  const u8 *endp_i = Endps;
+  int count = 0;
+  while(*endp_i){
+	int i = *endp_i;
+    u8 tmp = regs->*C_USB_MOD_REG[i-1] >> C_USB_MOD_SFT[i-1];
+	count += (tmp&0b1000 + tmp&0b0100)*(tmp&0b0001?2:1);
+	endp_i++;
+  }
+  if(count == 0){
+	return 0;
+  }
+  u8 *p = (u8*)XMalloc(count*64);
+  endp_i = Endps;
+  while(*endp_i){
+	int i = *endp_i;
+    u8 tmp = regs->*C_USB_MOD_REG[i-1] >> C_USB_MOD_SFT[i-1];
+	regs->UEPx_DMA[i].L16b = (u16)(u32)p;
+	p += (tmp&0b1000 + tmp&0b0100)*(tmp&0b0001?2:1)*64;
+	endp_i++;
+  }
+  return count;
 }
 
 void C_USBD::DevInit()
@@ -176,7 +177,7 @@ u8 C_USBD::StdReq(USB_SetupReq *ssreq)
   u8 errflag = 0;
   switch(SetupReqCode){
   case USB_GET_DESCRIPTOR:
-    StdDesc(ssreq->wValue, EndpBuffers, SetupReqLen);
+    StdDesc(ssreq->wValue, pEP0_RAM_Addr, SetupReqLen);
     break;
   case USB_SET_ADDRESS:
     SetupReqLen = (ssreq->wValue)&0xff;
@@ -343,6 +344,24 @@ int C_USBD::Send_Pack(u8 endp, u16 len)
   }
 }
 
+int C_USBD::Send_Pack(u8 endp, void *p, u16 len)
+{
+  if(endp&0x80 == 0){
+    return 1;
+  }
+  endp &= 0x7f;
+  if(endp >= 8){
+    return 1;
+  }
+  regs->*C_USB_MOD_REG[endp-1] &= ~(0x0f << C_USB_MOD_SFT[endp-1]);
+  regs->UEPx_DMA[endp].L16b = ((u16)(u32)p)&0xfffc;
+  regs->UEPx_TLEN_CTRL[endp].T_LEN = len;
+  regs->*C_USB_MOD_REG[endp-1] |= RB_UEP2_TX_EN << C_USB_MOD_SFT[endp-1];
+  MODIFY_REG(regs->UEPx_TLEN_CTRL[endp].CTRL,
+             MASK_UEP_T_RES,
+             UEP_T_RES_ACK);
+}
+
 u8 *C_USBD::Get_Buffer(u8 endp)
 {
   u8 Tmp;
@@ -350,8 +369,7 @@ u8 *C_USBD::Get_Buffer(u8 endp)
   if((endp&0x7f) >= 8){
     return nullptr;
   }
-  pTmp = (u8*)(((u32)EndpBuffers)&0xffff0000) +\
-    regs->UEPx_DMA[endp&0x7f].L16b;
+  pTmp = (u8*)(0x20000000 + regs->UEPx_DMA[endp&0x7f].L16b);
   if((endp&0x7f) == 0){
     return pTmp;
   }

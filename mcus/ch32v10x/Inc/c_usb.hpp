@@ -8,7 +8,6 @@
 #define __C_USB_HPP__
 
 
-#pragma pack(1)
 typedef struct{
   u8 USB_CTRL;   //+00 USB 控制寄存器
   u8 UDEV_CTRL;  //+01 USB 设备物理端口控制寄存器
@@ -37,28 +36,12 @@ typedef struct{
   }UEPx_TLEN_CTRL[8]; //+(30-4e)
 }C_USB_Regs;
 
-u8 C_USB_Regs::* const C_USB_MOD_REG[7] = {
-  &C_USB_Regs::UEP4_1_MOD,  //1
-  &C_USB_Regs::UEP2_3_MOD,  //2
-  &C_USB_Regs::UEP2_3_MOD,  //3
-  &C_USB_Regs::UEP4_1_MOD,  //4
-  &C_USB_Regs::UEP5_6_MOD,  //5
-  &C_USB_Regs::UEP5_6_MOD,  //6
-  &C_USB_Regs::UEP7_MOD     //7
-};
-
-const u8 C_USB_MOD_SFT[7] = {
-  4, 0, 4, 0, 0, 4, 0
-};
-
-#pragma pack()
 
 class C_USBD{
 private:
   const u8 *DeviceDescr;
   const u8 *ConfigDescr;
   const u8 *StringDescr;
-  u8 *EndpBuffers;
   u8 DevConfig;
   u8 SetupReqCode;
   u16 SetupReqLen;
@@ -72,10 +55,11 @@ public:
   C_USBD(volatile void *baddr);
   int Init(const void *DeviceDescr,
            const void *ConfigDescr,
-           const void *StringDescr,
-           const u8 *DoubleBuffEndps);
+           const void *StringDescr);
+  int Malloc_Buff(const u8 *Endps);
   i32 USB_ISR();
   int Send_Pack(u8 endp, u16 len);
+  int Send_Pack(u8 endp, void *p, u16 len);
   u8 *Get_Buffer(u8 endp);
 };
 
