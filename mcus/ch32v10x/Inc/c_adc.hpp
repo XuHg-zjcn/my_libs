@@ -146,6 +146,7 @@ public:
   void set_tSMP(CADC_CHx channel, CADC_tSMP smp);
   u16  read_channel(CADC_CHx channel, CADC_tSMP smp);
   void DMA_once(u16* buffer, u16 Nsamp);
+  void DMA_wait();
   void Load_Reg_Seq(const ADC_aSamp *smps, u32 len);
   void Load_Inj_Seq(const ADC_aSamp *smps, u32 len);
 };

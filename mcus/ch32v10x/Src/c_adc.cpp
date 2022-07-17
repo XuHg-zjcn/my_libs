@@ -57,8 +57,12 @@ void C_ADC::DMA_once(u16 *buff, u16 Nsamp)
   CAST(vu32, DMA_CH_ADC->MADDR) = (u32)buff;
   CAST(vu32, DMA_CH_ADC->CNTR) = Nsamp;
   CAST(vu32, DMA_CH_ADC->CFGR) |= 0b1;
+  DMA1->INTFCR = DMA_GIF1;
+}
+
+void C_ADC::DMA_wait()
+{
   while(!(DMA1->INTFR & DMA_TCIF1));
-  DMA1->INTFCR = DMA_TCIF1;
 }
 
 void C_ADC::Load_Reg_Seq(const ADC_aSamp *smps, const u32 len)
