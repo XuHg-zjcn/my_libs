@@ -1,3 +1,5 @@
+#ifndef C_STREAM
+#define C_STREAM
 #include "x_base.hpp"
 #include "myints.h"
 
@@ -38,3 +40,4 @@ public:
     StrStream& operator<<(const int i);
     StrStream& operator<<(const char* c);
 };
+#endif
