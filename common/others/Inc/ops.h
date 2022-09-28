@@ -1,8 +1,6 @@
 #ifndef __OPS_H__
 #define __OPS_H__
 
-#include "mylibs_config.hpp"
-#include "myints.h"
 
 #if !defined(STM32F1) && !defined(STM32F4)
 
