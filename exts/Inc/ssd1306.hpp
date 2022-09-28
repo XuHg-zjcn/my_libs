@@ -5,17 +5,11 @@
  *      Author: xrj
  */
 
+#include "mylibs_config.hpp"
 #include "c_i2c.hpp"
-#ifdef __C_I2C_HPP__
-#define SSD1306_I2C_Dev C_I2C_Dev
-#else
 #include "s_i2c.hpp"
-#ifdef __S_I2C_HPP__
-#define SSD1306_I2C_Dev S_I2C_Dev
-#endif
-#endif
 
-#ifdef SSD1306_I2C_Dev
+#if defined(SSD1306_I2C_Dev) && !defined(__SSD1306_HPP__)
 #define __SSD1306_HPP__
 
 /* I2C slave address of SSD1306
@@ -145,7 +139,6 @@ typedef struct{
 
 class SSD1306{
 private:
-	SSD1306_I2C_Dev* dev;
 	uint32_t timeout;
 	uint8_t col_i;
 	int n_bytes(SSD1306_Commd Byte0);
@@ -153,6 +146,7 @@ private:
 	osSemaphoreId_t lock;
 #endif
 public:
+	SSD1306_I2C_Dev* dev;
 	SSD1306(SSD1306_I2C_Dev *dev);
 	void commd_bytes(SSD1306_Commd Byte0, ...);
 	void ScrollSetup(ScrollSetupCommd* commd);
