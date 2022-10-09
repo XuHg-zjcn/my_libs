@@ -22,6 +22,13 @@
 #define value_upper(x, b)   (x>b)?b:x
 #define value_clip(x, a, b) ((x<a)?a:(x>b?b:x))
 
+#define DIV_ZERO(a, b)  ((a)/(b))
+#define DIV_FLOOR(a, b) (((a)>0^(b)>0)?((a)-(b)+((b)>0?1:-1))/(b):(a)/(b))
+#define DIV_CEIL(a, b)  (((a)>0^(b)>0)?(a)/(b):((a)+(b)+((b)>0?-1:1))/(b))
+#define DIV_ROUND(a, b) (((a)+(((a)>0^(b)>0)?-((b)/2):(b)/2))/(b))
+
+#define min(a, b)       ((a)<(b)?(a):(b))
+#define max(a, b)       ((a)>(b)?(a):(b))
 #define mean(s, n)      (s/n)
 #define std(s, s2, n)   ((s2 - s1*s1/n)/n)
 
