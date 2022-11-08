@@ -90,10 +90,22 @@ void C_ADC::Load_Inj_Seq(const ADC_aSamp *smps, u32 len)
   if(len > 4){
     return;
   }
-  u32 tmp = len<<20;
-  for(int i=0;len>0;i++){
+  u32 tmp = 0;
+  for(int i=0;i<len;i++){
     tmp |= (smps->CHx)<<(i*5);
     set_tSMP(smps->CHx, smps->tSMP);
+    smps++;
   }
+  tmp <<= (4-len)*5;
+  tmp |= (len-1)<<20;
   ISQR = tmp;
+}
+
+void C_ADC::start_inj()
+{
+  CTLR1.SCAN = true;
+  STATR.IEOC = false;
+  CTLR2.IEXTSEL = IT_SWSTART;
+  CTLR2.ISWSTART = true;
+  while(STATR.IEOC == false);
 }

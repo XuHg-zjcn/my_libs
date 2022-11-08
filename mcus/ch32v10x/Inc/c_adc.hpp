@@ -149,6 +149,7 @@ public:
   void DMA_wait();
   void Load_Reg_Seq(const ADC_aSamp *smps, u32 len);
   void Load_Inj_Seq(const ADC_aSamp *smps, u32 len);
+  void start_inj();
 };
 
 #endif /* __C_ADC_HPP__ */
